@@ -1,0 +1,3543 @@
+[35m1:[0m connect
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine 
+[35m1:[0m starting engine [90m[0.38s][0m
+Connected to engine a8e366d3a215 (version devel ())
+[35m1:[0m starting session 
+[35m1:[0m starting session [90m[0.16s][0m
+Dagger Cloud URL: https://dagger.cloud/runs/047f88fe-f1aa-4116-b634-5dbc1369019e
+[35m1:[0m connect [32mDONE[0m
+
+[35m3:[0m dagger query --doc test.gql test --progress=plain
+[35m3:[0m loading module 
+[33;1mWARNING:[0m Using development engine; skipping version compatibility check.
+[35m3:[0m ...
+
+[35m8:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb) [32mDONE[0m
+[35m8:[0m > in [34mhost.directory /Users/shykes/dev/dagger/dagger/zenith/ttlsh[0m
+[35m8:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb) [32mDONE[0m
+
+[35m8:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb)
+[35m8:[0m > in [34mhost.directory /Users/shykes/dev/dagger/dagger/zenith/ttlsh[0m
+[35m8:[0m transferring /Users/shykes/dev/dagger/dagger/zenith/ttlsh: 
+[35m8:[0m transferring /Users/shykes/dev/dagger/dagger/zenith/ttlsh: 99.13KiB [90m[0.04s][0m
+[35m8:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb) [32mDONE[0m
+
+[35m7:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb)
+[35m7:[0m > in [34mhost.directory /Users/shykes/dev/dagger/dagger/zenith/ttlsh[0m
+[35m7:[0m upload /Users/shykes/dev/dagger/dagger/zenith/ttlsh from Solomons-MacBook-Pro.local (client id: 27euzlj6plx784h08h5m88pmb) [32mDONE[0m
+
+[35m9:[0m blob://sha256:97c0d4d2cdc3ba71bc21e4d15a86633e80c1615216dc328322d9db3f20161fab [32mDONE[0m
+[35m9:[0m > in [34mhost.directory /Users/shykes/dev/dagger/dagger/zenith/ttlsh[0m
+[35m9:[0m blob://sha256:97c0d4d2cdc3ba71bc21e4d15a86633e80c1615216dc328322d9db3f20161fab [32mDONE[0m
+
+[35m9:[0m blob://sha256:97c0d4d2cdc3ba71bc21e4d15a86633e80c1615216dc328322d9db3f20161fab [32mDONE[0m
+[35m9:[0m > in [34mhost.directory /Users/shykes/dev/dagger/dagger/zenith/ttlsh[0m
+[35m9:[0m blob://sha256:97c0d4d2cdc3ba71bc21e4d15a86633e80c1615216dc328322d9db3f20161fab [32mDONE[0m
+
+[35m3:[0m dagger query --doc test.gql test --progress=plain
+[35m3:[0m ...
+
+[35m11:[0m resolve image config for docker.io/library/golang:1.21-alpine [32mDONE[0m
+[35m11:[0m > in [34mfrom golang:1.21-alpine[0m
+[35m11:[0m resolve image config for docker.io/library/golang:1.21-alpine [32mDONE[0m
+
+[35m13:[0m mkdir / [32mDONE[0m
+[35m13:[0m mkdir / [32mDONE[0m
+
+[35m12:[0m mkfile /input.json [36mCACHED[0m
+[35m12:[0m mkfile /input.json [36mCACHED[0m
+
+[35m17:[0m pull docker.io/library/golang:1.21-alpine
+[35m17:[0m > in [34mfrom golang:1.21-alpine[0m
+[35m17:[0m resolve docker.io/library/golang:1.21-alpine@sha256:96634e55b363cb93d39f78fb18aa64abc7f96d372c176660d7b8b6118939d97b 
+[35m17:[0m resolve docker.io/library/golang:1.21-alpine@sha256:96634e55b363cb93d39f78fb18aa64abc7f96d372c176660d7b8b6118939d97b [90m[0.01s][0m
+[35m17:[0m pull docker.io/library/golang:1.21-alpine [32mDONE[0m
+
+[35m17:[0m pull docker.io/library/golang:1.21-alpine [36mCACHED[0m
+[35m17:[0m > in [34mfrom golang:1.21-alpine[0m
+[35m17:[0m pull docker.io/library/golang:1.21-alpine [36mCACHED[0m
+
+[35m15:[0m exec go build -o /runtime -ldflags -s -d -w .
+[35m15:[0m exec go build -o /runtime -ldflags -s -d -w . [32mDONE[0m
+
+[35m14:[0m exec /runtime
+[33;1mWARNING:[0m Using development engine; skipping version compatibility check.
+[35m14:[0m ...
+
+[35m1:[0m connect [32mDONE[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine [90m[0.03s][0m
+[35m1:[0m starting session [90m[0.16s][0m
+[35m1:[0m connect [32mDONE[0m
+
+[35m14:[0m exec /runtime [32mDONE[0m
+[35m14:[0m exec /runtime [32mDONE[0m
+
+[35m3:[0m dagger query --doc test.gql test --progress=plain
+[35m3:[0m loading module [90m[2.11s][0m
+[35m3:[0m dagger query --doc test.gql test --progress=plain [31mERROR: failed to load module: failed to install module: input:1: host.directory.asModule.serve failed to install module schema: schema validation failed: input:1726: Undefined type Ttlsh.
+"A global cache volume identifier."
+scalar CacheID
+
+"Sharing mode of the cache volume."
+enum CacheSharingMode {
+  "Shares the cache volume amongst many build pipelines"
+  SHARED
+
+  "Keeps a cache volume for a single build pipeline"
+  PRIVATE
+
+  """
+  Shares the cache volume amongst many build pipelines,
+  but will serialize the writes
+  """
+  LOCKED
+}
+
+extend type Query {
+  """
+  Constructs a cache volume for a given cache key.
+  """
+  cacheVolume(
+    """
+    A string identifier to target this cache volume (e.g., "modules-cache").
+    """
+    key: String!
+  ): CacheVolume!
+}
+
+"A directory whose contents persist across runs."
+type CacheVolume {
+  id: CacheID!
+}
+
+extend type Query {
+  """
+  Loads a container from ID.
+
+  Null ID returns an empty container (scratch).
+  Optional platform argument initializes new containers to execute and publish as that platform.
+  Platform defaults to that of the builder's host.
+  """
+  container(id: ContainerID, platform: Platform): Container!
+}
+
+"A unique container identifier. Null designates an empty container (scratch)."
+scalar ContainerID
+
+"""
+An OCI-compatible container, also known as a docker container.
+"""
+type Container {
+  "A unique identifier for this container."
+  id: ContainerID!
+
+  """
+  Forces evaluation of the pipeline in the engine.
+
+  It doesn't run the default command if no exec has been set.
+  """
+  sync: ContainerID!
+
+  "The platform this container executes and publishes as."
+  platform: Platform!
+
+  "Creates a named sub-pipeline"
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Container!
+
+  """
+  Initializes this container from a pulled base image.
+  """
+  from(
+    """
+    Image's address from its registry.
+
+    Formatted as [host]/[user]/[repo]:[tag] (e.g., "docker.io/dagger/dagger:main").
+    """
+    address: String!
+  ): Container!
+
+  """
+  Initializes this container from a Dockerfile build.
+  """
+  build(
+    "Directory context used by the Dockerfile."
+    context: DirectoryID!
+
+    """
+    Path to the Dockerfile to use.
+
+    Default: './Dockerfile'.
+    """
+    dockerfile: String
+
+    "Additional build arguments."
+    buildArgs: [BuildArg!]
+
+    "Target build stage to build."
+    target: String
+
+    """
+    Secrets to pass to the build.
+
+    They will be mounted at /run/secrets/[secret-name] in the build container
+
+    They can be accessed in the Dockerfile using the "secret" mount type
+    and mount path /run/secrets/[secret-name]
+    e.g. RUN --mount=type=secret,id=my-secret curl url?token=$(cat /run/secrets/my-secret)"
+    """
+    secrets: [SecretID!]
+  ): Container!
+
+  "Retrieves this container's root filesystem. Mounts are not included."
+  rootfs: Directory!
+
+  "Initializes this container from this DirectoryID."
+  withRootfs(directory: DirectoryID!): Container!
+
+  """
+  Retrieves a directory at the given path.
+
+  Mounts are included.
+  """
+  directory(
+    """
+    The path of the directory to retrieve (e.g., "./src").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves a file at the given path.
+
+  Mounts are included.
+  """
+  file(
+    """
+    The path of the file to retrieve (e.g., "./README.md").
+    """
+    path: String!
+  ): File!
+
+  "Retrieves the user to be set for all commands."
+  user: String
+
+  """
+  Retrieves this container with a different command user.
+  """
+  withUser(
+    """
+    The user to set (e.g., "root").
+    """
+    name: String!
+  ): Container!
+
+  "Retrieves the working directory for all commands."
+  workdir: String
+
+  """
+  Retrieves this container with a different working directory.
+  """
+  withWorkdir(
+    """
+    The path to set as the working directory (e.g., "/app").
+    """
+    path: String!
+  ): Container!
+
+  "Retrieves the list of environment variables passed to commands."
+  envVariables: [EnvVariable!]!
+
+  """
+  Retrieves the value of the specified environment variable.
+  """
+  envVariable(
+    """
+    The name of the environment variable to retrieve (e.g., "PATH").
+    """
+    name: String!
+  ): String
+
+  """
+  Retrieves this container plus the given environment variable.
+  """
+  withEnvVariable(
+    """
+    The name of the environment variable (e.g., "HOST").
+    """
+    name: String!
+
+    """
+    The value of the environment variable. (e.g., "localhost").
+    """
+    value: String!
+
+    """
+    Replace ${VAR} or $VAR in the value according to the current environment
+    variables defined in the container (e.g., "/opt/bin:$PATH").
+    """
+    expand: Boolean
+  ): Container!
+
+  "Retrieves the list of labels passed to container."
+  labels: [Label!]!
+
+  """
+  Retrieves the value of the specified label.
+  """
+  label(name: String!): String
+
+  """
+  Retrieves this container plus the given label.
+  """
+  withLabel(
+    """
+    The name of the label (e.g., "org.opencontainers.artifact.created").
+    """
+    name: String!
+
+    """
+    The value of the label (e.g., "2023-01-01T00:00:00Z").
+    """
+    value: String!
+  ): Container!
+
+  """
+  Retrieves this container minus the given environment label.
+  """
+  withoutLabel(
+    """
+    The name of the label to remove (e.g., "org.opencontainers.artifact.created").
+    """
+    name: String!
+  ): Container!
+
+  """
+  Retrieves this container plus an env variable containing the given secret.
+  """
+  withSecretVariable(
+    """
+    The name of the secret variable (e.g., "API_SECRET").
+    """
+    name: String!
+
+    "The identifier of the secret value."
+    secret: SecretID!
+  ): Container!
+
+  """
+  Retrieves this container minus the given environment variable.
+  """
+  withoutEnvVariable(
+    """
+    The name of the environment variable (e.g., "HOST").
+    """
+    name: String!
+  ): Container!
+
+  "Retrieves entrypoint to be prepended to the arguments of all commands."
+  entrypoint: [String!]
+
+  """
+  Retrieves this container but with a different command entrypoint.
+  """
+  withEntrypoint(
+    """
+    Entrypoint to use for future executions (e.g., ["go", "run"]).
+    """
+    args: [String!]!
+  ): Container!
+
+  "Retrieves default arguments for future commands."
+  defaultArgs: [String!]
+
+  """
+  Configures default arguments for future commands.
+  """
+  withDefaultArgs(
+    """
+    Arguments to prepend to future executions (e.g., ["-v", "--no-cache"]).
+    """
+    args: [String!]
+  ): Container!
+
+  "Retrieves the list of paths where a directory is mounted."
+  mounts: [String!]!
+
+  """
+  Retrieves this container plus a directory mounted at the given path.
+  """
+  withMountedDirectory(
+    """
+    Location of the mounted directory (e.g., "/mnt/directory").
+    """
+    path: String!
+
+    "Identifier of the mounted directory."
+    source: DirectoryID!
+
+    """
+    A user:group to set for the mounted directory and its contents.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a file mounted at the given path.
+  """
+  withMountedFile(
+    """
+    Location of the mounted file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    "Identifier of the mounted file."
+    source: FileID!
+
+    """
+    A user or user:group to set for the mounted file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a temporary directory mounted at the given path.
+  """
+  withMountedTemp(
+    """
+    Location of the temporary directory (e.g., "/tmp/temp_dir").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Retrieves this container plus a cache volume mounted at the given path.
+  """
+  withMountedCache(
+    """
+    Location of the cache directory (e.g., "/cache/node_modules").
+    """
+    path: String!
+
+    "Identifier of the cache volume to mount."
+    cache: CacheID!
+
+    "Identifier of the directory to use as the cache volume's root."
+    source: DirectoryID
+
+    "Sharing mode of the cache volume."
+    sharing: CacheSharingMode
+
+    """
+    A user:group to set for the mounted cache directory.
+
+    Note that this changes the ownership of the specified mount along with the
+    initial filesystem provided by source (if any). It does not have any effect
+    if/when the cache has already been created.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a secret mounted into a file at the given path.
+  """
+  withMountedSecret(
+    """
+    Location of the secret file (e.g., "/tmp/secret.txt").
+    """
+    path: String!
+
+    "Identifier of the secret to mount."
+    source: SecretID!
+
+    """
+    A user:group to set for the mounted secret.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+
+    """
+    Permission given to the mounted secret (e.g., 0600).
+    This option requires an owner to be set to be active.
+
+    Default: 0400.
+    """
+    mode: Int
+  ): Container!
+
+  """
+  Retrieves this container after unmounting everything at the given path.
+  """
+  withoutMount(
+    """
+    Location of the cache directory (e.g., "/cache/node_modules").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Retrieves this container plus the contents of the given file copied to the given path.
+  """
+  withFile(
+    """
+    Location of the copied file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    "Identifier of the file to copy."
+    source: FileID!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+
+    """
+    A user:group to set for the file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a new file written at the given path.
+  """
+  withNewFile(
+    """
+    Location of the written file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    """
+    Content of the file to write (e.g., "Hello world!").
+    """
+    contents: String
+
+    """
+    Permission given to the written file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+
+    """
+    A user:group to set for the file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a directory written at the given path.
+  """
+  withDirectory(
+    """
+    Location of the written directory (e.g., "/tmp/directory").
+    """
+    path: String!
+
+    "Identifier of the directory to write"
+    directory: DirectoryID!
+
+    """
+    Patterns to exclude in the written directory (e.g., ["node_modules/**", ".gitignore", ".git/"]).
+    """
+    exclude: [String!]
+
+    """
+    Patterns to include in the written directory (e.g., ["*.go", "go.mod", "go.sum"]).
+    """
+    include: [String!]
+
+    """
+    A user:group to set for the directory and its contents.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a socket forwarded to the given Unix socket path.
+  """
+  withUnixSocket(
+    """
+    Location of the forwarded Unix socket (e.g., "/tmp/socket").
+    """
+    path: String!
+
+    """
+    Identifier of the socket to forward.
+    """
+    source: SocketID!
+
+    """
+    A user:group to set for the mounted socket.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container with a previously added Unix socket removed.
+  """
+  withoutUnixSocket(
+    """
+    Location of the socket to remove (e.g., "/tmp/socket").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Indicate that subsequent operations should be featured more prominently in
+  the UI.
+  """
+  withFocus: Container!
+
+  """
+  Indicate that subsequent operations should not be featured more prominently
+  in the UI.
+
+  This is the initial state of all containers.
+  """
+  withoutFocus: Container!
+
+  """
+  Retrieves this container after executing the specified command inside it.
+  """
+  withExec(
+    """
+    Command to run instead of the container's default command (e.g., ["run", "main.go"]).
+
+    If empty, the container's default command is used.
+    """
+    args: [String!]!
+
+    """
+    If the container has an entrypoint, ignore it for args rather than using it to wrap them.
+    """
+    skipEntrypoint: Boolean
+
+    """
+    Content to write to the command's standard input before closing (e.g., "Hello world").
+    """
+    stdin: String
+
+    """
+    Redirect the command's standard output to a file in the container (e.g., "/tmp/stdout").
+    """
+    redirectStdout: String
+
+    """
+    Redirect the command's standard error to a file in the container (e.g., "/tmp/stderr").
+    """
+    redirectStderr: String
+
+    """
+    Provides dagger access to the executed command.
+
+    Do not use this option unless you trust the command being executed.
+    The command being executed WILL BE GRANTED FULL ACCESS TO YOUR HOST FILESYSTEM.
+    """
+    experimentalPrivilegedNesting: Boolean
+
+    """
+    Execute the command with all root capabilities. This is similar to running a command
+    with "sudo" or executing `docker run` with the `--privileged` flag. Containerization
+    does not provide any security guarantees when using this option. It should only be used
+    when absolutely necessary and only with trusted commands.
+    """
+    insecureRootCapabilities: Boolean
+  ): Container!
+
+  """
+  The output stream of the last executed command.
+
+  Will execute default command if none is set, or error if there's no default.
+  """
+  stdout: String!
+
+  """
+  The error stream of the last executed command.
+
+  Will execute default command if none is set, or error if there's no default.
+  """
+  stderr: String!
+
+  # FIXME: this is the last case of an actual "verb" that cannot cleanly go away.
+  #    This may actually be a good candidate for a mutation. To be discussed.
+  """
+  Publishes this container as a new image to the specified address.
+
+  Publish returns a fully qualified ref.
+  It can also publish platform variants.
+  """
+  publish(
+    """
+    Registry's address to publish the image to.
+
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. "docker.io/dagger/dagger:main").
+    """
+    address: String!
+
+    """
+    Identifiers for other platform specific containers.
+    Used for multi-platform image.
+    """
+    platformVariants: [ContainerID!]
+
+    """
+    Force each layer of the published image to use the specified compression algorithm.
+    If this is unset, then if a layer already has a compressed blob in the engine's
+    cache, that will be used (this can result in a mix of compression algorithms for
+    different layers). If this is unset and a layer has no compressed blob in the
+    engine's cache, then it will be compressed using Gzip.
+    """
+    forcedCompression: ImageLayerCompression
+
+    """
+    Use the specified media types for the published image's layers. Defaults to OCI, which
+    is largely compatible with most recent registries, but Docker may be needed for older
+    registries without OCI support.
+    """
+    mediaTypes: ImageMediaTypes = OCIMediaTypes
+  ): String!
+
+  """
+  Writes the container as an OCI tarball to the destination file path on the host for the specified platform variants.
+
+  Return true on success.
+  It can also publishes platform variants.
+  """
+  export(
+    """
+    Host's destination path (e.g., "./tarball").
+    Path can be relative to the engine's workdir or absolute.
+    """
+    path: String!
+
+    """
+    Identifiers for other platform specific containers.
+    Used for multi-platform image.
+    """
+    platformVariants: [ContainerID!]
+
+    """
+    Force each layer of the exported image to use the specified compression algorithm.
+    If this is unset, then if a layer already has a compressed blob in the engine's
+    cache, that will be used (this can result in a mix of compression algorithms for
+    different layers). If this is unset and a layer has no compressed blob in the
+    engine's cache, then it will be compressed using Gzip.
+    """
+    forcedCompression: ImageLayerCompression
+
+    """
+    Use the specified media types for the exported image's layers. Defaults to OCI, which
+    is largely compatible with most recent container runtimes, but Docker may be needed
+    for older runtimes without OCI support.
+    """
+    mediaTypes: ImageMediaTypes = OCIMediaTypes
+  ): Boolean!
+
+  """
+  Reads the container from an OCI tarball.
+
+  NOTE: this involves unpacking the tarball to an OCI store on the host at
+  $XDG_CACHE_DIR/dagger/oci. This directory can be removed whenever you like.
+  """
+  import(
+    """
+    File to read the container from.
+    """
+    source: FileID!
+
+    """
+    Identifies the tag to import from the archive, if the archive bundles
+    multiple tags.
+    """
+    tag: String
+  ): Container!
+
+  "Retrieves this container with a registry authentication for a given address."
+  withRegistryAuth(
+    """
+    Registry's address to bind the authentication to.
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. docker.io/dagger/dagger:main).
+    """
+    address: String!
+
+    """
+    The username of the registry's account (e.g., "Dagger").
+    """
+    username: String!
+
+    """
+    The API key, password or token to authenticate to this registry.
+    """
+    secret: SecretID!
+  ): Container!
+
+  "Retrieves this container without the registry authentication of a given address."
+  withoutRegistryAuth(
+    """
+    Registry's address to remove the authentication from.
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. docker.io/dagger/dagger:main).
+    """
+    address: String!
+  ): Container!
+
+  "The unique image reference which can only be retrieved immediately after the 'Container.From' call."
+  imageRef: String
+
+  """
+  Expose a network port.
+
+  Exposed ports serve two purposes:
+    - For health checks and introspection, when running services
+    - For setting the EXPOSE OCI field when publishing the container
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withExposedPort(
+    "Port number to expose"
+    port: Int!
+    "Transport layer network protocol"
+    protocol: NetworkProtocol = TCP
+    "Optional port description"
+    description: String
+  ): Container!
+
+  """
+  Unexpose a previously exposed port.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withoutExposedPort(
+    "Port number to unexpose"
+    port: Int!
+    "Port protocol to unexpose"
+    protocol: NetworkProtocol = TCP
+  ): Container!
+
+  """
+  Retrieves the list of exposed ports.
+
+  This includes ports already exposed by the image, even if not
+  explicitly added with dagger.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  exposedPorts: [Port!]!
+
+  """
+  Establish a runtime dependency on a service.
+
+  The service will be started automatically when needed and detached when it is
+  no longer needed, executing the default command if none is set.
+
+  The service will be reachable from the container via the provided hostname alias.
+
+  The service dependency will also convey to any files or directories produced by the container.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withServiceBinding(
+    "A name that can be used to reach the service from the container"
+    alias: String!
+    "Identifier of the service container"
+    service: ContainerID!
+  ): Container!
+
+  """
+  Retrieves a hostname which can be used by clients to reach this container.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  hostname: String!
+
+  """
+  Retrieves an endpoint that clients can use to reach this container.
+
+  If no port is specified, the first exposed port is used. If none exist an error is returned.
+
+  If a scheme is specified, a URL is returned. Otherwise, a host:port pair is returned.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  endpoint(
+    "The exposed port number for the endpoint"
+    port: Int
+    "Return a URL with the given scheme, eg. http for http://"
+    scheme: String
+  ): String!
+}
+
+"A simple key value object that represents an environment variable."
+type EnvVariable {
+  "The environment variable name."
+  name: String!
+
+  "The environment variable value."
+  value: String!
+}
+
+"A port exposed by a container."
+type Port {
+  "The port number."
+  port: Int!
+
+  "The transport layer network protocol."
+  protocol: NetworkProtocol!
+
+  "The port description."
+  description: String
+}
+
+"A simple key value object that represents a label."
+type Label {
+  "The label name."
+  name: String!
+
+  "The label value."
+  value: String!
+}
+
+"""
+Key value object that represents a build argument.
+"""
+input BuildArg {
+  """
+  The build argument name.
+  """
+  name: String!
+
+  """
+  The build argument value.
+  """
+  value: String!
+}
+
+"Transport layer network protocol associated to a port."
+enum NetworkProtocol {
+  "TCP (Transmission Control Protocol)"
+  TCP
+  "UDP (User Datagram Protocol)"
+  UDP
+}
+
+"Compression algorithm to use for image layers."
+enum ImageLayerCompression {
+  Gzip
+  Zstd
+  EStarGZ
+  Uncompressed
+}
+
+"Mediatypes to use in published or exported image metadata."
+enum ImageMediaTypes {
+  OCIMediaTypes
+  DockerMediaTypes
+}
+
+extend type Query {
+  "Load a directory by ID. No argument produces an empty directory."
+  directory(id: DirectoryID): Directory!
+}
+
+"A content-addressed directory identifier."
+scalar DirectoryID
+
+"A directory."
+type Directory {
+  "The content-addressed identifier of the directory."
+  id: DirectoryID!
+
+  "Force evaluation in the engine."
+  sync: DirectoryID!
+
+  "Creates a named sub-pipeline"
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Directory!
+
+  """
+  Returns a list of files and directories at the given path.
+  """
+  entries(
+    """
+    Location of the directory to look at (e.g., "/src").
+    """
+    path: String
+  ): [String!]!
+
+  """
+  Retrieves a file at the given path.
+  """
+  file(
+    """
+    Location of the file to retrieve (e.g., "README.md").
+    """
+    path: String!
+  ): File!
+
+  """
+  Retrieves this directory plus the contents of the given file copied to the given path.
+  """
+  withFile(
+    """
+    Location of the copied file (e.g., "/file.txt").
+    """
+    path: String!
+
+    """
+    Identifier of the file to copy.
+    """
+    source: FileID!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory plus a new file written at the given path.
+  """
+  withNewFile(
+    """
+    Location of the written file (e.g., "/file.txt").
+    """
+    path: String!
+
+    """
+    Content of the written file (e.g., "Hello world!").
+    """
+    contents: String!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory with the file at the given path removed.
+  """
+  withoutFile(
+    """
+    Location of the file to remove (e.g., "/file.txt").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves a directory at the given path.
+  """
+  directory(
+    """
+    Location of the directory to retrieve (e.g., "/src").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves this directory plus a directory written at the given path.
+  """
+  withDirectory(
+    """
+    Location of the written directory (e.g., "/src/").
+    """
+    path: String!
+
+    "Identifier of the directory to copy."
+    directory: DirectoryID!
+
+    """
+    Exclude artifacts that match the given pattern (e.g., ["node_modules/", ".git*"]).
+    """
+    exclude: [String!]
+
+    """
+    Include only artifacts that match the given pattern (e.g., ["app/", "package.*"]).
+    """
+    include: [String!]
+  ): Directory!
+
+  """
+  Retrieves this directory plus a new directory created at the given path.
+  """
+  withNewDirectory(
+    """
+    Location of the directory created (e.g., "/logs").
+    """
+    path: String!
+
+    """
+    Permission granted to the created directory (e.g., 0777).
+
+    Default: 0755.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory with the directory at the given path removed.
+  """
+  withoutDirectory(
+    """
+    Location of the directory to remove (e.g., ".github/").
+    """
+    path: String!
+  ): Directory!
+
+  "Gets the difference between this directory and an another directory."
+  diff(
+    "Identifier of the directory to compare."
+    other: DirectoryID!
+  ): Directory!
+
+  """
+  Writes the contents of the directory to a path on the host.
+  """
+  export(
+    """
+    Location of the copied directory (e.g., "logs/").
+    """
+    path: String!
+  ): Boolean!
+
+  """
+  Builds a new Docker container from this directory.
+  """
+  dockerBuild(
+    """
+    Path to the Dockerfile to use (e.g., "frontend.Dockerfile").
+
+    Defaults: './Dockerfile'.
+    """
+    dockerfile: String
+
+    "The platform to build."
+    platform: Platform
+
+    "Build arguments to use in the build."
+    buildArgs: [BuildArg!]
+
+    "Target build stage to build."
+    target: String
+
+    """
+    Secrets to pass to the build.
+
+    They will be mounted at /run/secrets/[secret-name].
+    """
+    secrets: [SecretID!]
+  ): Container!
+
+  """
+  Retrieves this directory with all file/dir timestamps set to the given time.
+  """
+  withTimestamps(
+    """
+    Timestamp to set dir/files in.
+
+    Formatted in seconds following Unix epoch (e.g., 1672531199).
+    """
+    timestamp: Int!
+  ): Directory!
+}
+
+extend type Query {
+    "Loads a file by ID."
+    file(id: FileID!): File
+}
+
+"A file identifier."
+scalar FileID
+
+"A file."
+type File {
+  "Retrieves the content-addressed identifier of the file."
+  id: FileID!
+
+  "Force evaluation in the engine."
+  sync: FileID!
+
+  "Retrieves the contents of the file."
+  contents: String!
+
+  "Gets the size of the file, in bytes."
+  size: Int!
+
+  """
+  Writes the file to a file path on the host.
+  """
+  export(
+    """
+    Location of the written directory (e.g., "output.txt").
+    """
+    path: String!
+
+    """
+    If allowParentDirPath is true, the path argument can be a directory path, in which case
+    the file will be created in that directory.
+    """
+    allowParentDirPath: Boolean
+  ): Boolean!
+
+  """
+  Retrieves this file with its created/modified timestamps set to the given time.
+  """
+  withTimestamps(
+    """
+    Timestamp to set dir/files in.
+
+    Formatted in seconds following Unix epoch (e.g., 1672531199).
+    """
+    timestamp: Int!
+  ): File!
+}
+
+extend type Query {
+  """
+  Queries a git repository.
+  """
+  git(
+    """
+    Url of the git repository.
+    Can be formatted as https://{host}/{owner}/{repo}, git@{host}/{owner}/{repo}
+    Suffix ".git" is optional.
+    """
+    url: String!,
+
+    "Set to true to keep .git directory."
+    keepGitDir: Boolean,
+
+    "A service which must be started before the repo is fetched."
+    experimentalServiceHost: ContainerID
+  ): GitRepository!
+}
+
+"A git repository."
+type GitRepository {
+
+  """
+  Returns details on one branch.
+  """
+  branch(
+    """
+    Branch's name (e.g., "main").
+    """
+    name: String!
+  ): GitRef!
+
+  """
+  Returns details on one tag.
+  """
+  tag(
+    """
+    Tag's name (e.g., "v0.3.9").
+    """
+    name: String!
+  ): GitRef!
+
+  """
+  Returns details on one commit.
+  """
+  commit(
+    """
+    Identifier of the commit (e.g., "b6315d8f2810962c601af73f86831f6866ea798b").
+    """
+    id: String!
+  ): GitRef!
+}
+
+"A git ref (tag, branch or commit)."
+type GitRef {
+  "The filesystem tree at this ref."
+  tree(sshKnownHosts: String, sshAuthSocket: SocketID): Directory!
+}
+
+extend type Query {
+  "Queries the host environment."
+  host: Host!
+}
+
+"Information about the host execution environment."
+type Host {
+  """
+  Accesses a directory on the host.
+  """
+  directory(
+    """
+    Location of the directory to access (e.g., ".").
+    """
+    path: String!,
+
+    """
+    Exclude artifacts that match the given pattern (e.g., ["node_modules/", ".git*"]).
+    """
+    exclude: [String!],
+
+    """
+    Include only artifacts that match the given pattern (e.g., ["app/", "package.*"]).
+    """
+    include: [String!]
+  ): Directory!
+
+  """
+  Accesses a file on the host.
+  """
+  file(
+    """
+    Location of the file to retrieve (e.g., "README.md").
+    """
+    path: String!
+  ): File!
+
+  """
+  Accesses a Unix socket on the host.
+  """
+  unixSocket(
+    """
+    Location of the Unix socket (e.g., "/var/run/docker.sock").
+    """
+    path: String!
+  ): Socket!
+
+  """
+  Sets a secret given a user-defined name and the file path on the host, and returns the secret.
+  The file is limited to a size of 512000 bytes.
+  """
+  setSecretFile(
+    """
+    The user defined name for this secret.
+    """
+    name: String!
+
+    """
+    Location of the file to set as a secret.
+    """
+    path: String!
+  ): Secret!
+}
+
+extend type Query {
+  """
+  Returns a file containing an http remote url content.
+  """
+  http(
+    """
+    HTTP url to get the content from (e.g., "https://docs.dagger.io").
+    """
+    url: String!,
+
+    "A service which must be started before the URL is fetched."
+    experimentalServiceHost: ContainerID
+  ): File!
+}
+
+scalar ModuleID
+
+extend type Query {
+  """
+  Load a module by ID, or create a new one if id is unset.
+  """
+  module(id: ModuleID): Module!
+
+  """
+  The module currently being served in the session, if any.
+  """
+  currentModule: Module
+}
+
+type Module {
+  id: ModuleID!
+
+  "The name of the module"
+  name: String!
+
+  "The doc string of the module, if any"
+  description: String
+
+  "Functions served by this module"
+  functions: [Function!]
+
+  "This module plus the given Function associated with it"
+  withFunction(id: FunctionID!): Module!
+
+  """
+  Serve a module's API in the current session.
+      Note: this can only be called once per session.
+      In the future, it could return a stream or service to remove the side effect.
+  """
+  serve(environment: [ModuleEnvironmentVariable!]): Void
+}
+
+extend type Directory {
+  """
+  Load the directory as a Dagger module
+
+  sourceSubpath is an optional parameter that, if set, points to a subpath of this
+  directory that contains the module's source code. This is needed when the module
+  code is in a subdirectory but requires parent directories to be loaded in order
+  to execute. For example, the module source code may need a go.mod, project.toml,
+  package.json, etc. file from a parent directory.
+
+  If sourceSubpath is not set, the module source code is loaded from the root of
+  the directory.
+  """
+  asModule(sourceSubpath: String): Module!
+}
+
+input ModuleEnvironmentVariable {
+  name: String!
+  value: String
+}
+
+scalar FunctionID
+
+extend type Query {
+  "Load a function by ID"
+  function(id: FunctionID!): Function!
+}
+
+type Function {
+  id: FunctionID!
+
+  "The name of the function"
+  name: String!
+
+  "A doc string for the function, if any"
+  description: String
+
+  "Arguments accepted by this function, if any"
+  args: [FunctionArg!]
+
+  "The type returned by this function"
+  returnType: TypeDef!
+
+  """
+  Execute this function using dynamic input+output types.
+
+  Typically, it's preferable to invoke a function using a type
+  safe graphql query rather than using this call field. However,
+  call is useful for some advanced use cases where dynamically
+  loading arbitrary modules and invoking functions in them is
+  required.
+  """
+  call(input: [FunctionCallInput!]): JSON!
+}
+
+type FunctionArg {
+  "The name of the argument"
+  name: String
+
+  "A doc string for the argument, if any"
+  description: String
+
+  "The type of the argument"
+  typeDef: TypeDef!
+
+  "A default value to use for this argument when not explicitly set by the caller, if any"
+  defaultValue: JSON
+}
+
+input FunctionCallInput {
+  "The name of the argument to the function"
+  name: String!
+
+  """
+  The value of the argument to the function, representing as a JSON-serialized string.
+  """
+  value: JSON!
+}
+
+"""
+A definition of a parameter or return type in a Module.
+"""
+type TypeDef {
+  "The kind of type this is (e.g. primitive, list, object)"
+  kind: TypeDefKind
+
+  "Whether this type can be set to null. Defaults to false."
+  optional: Boolean!
+
+  """
+  If kind is LIST, the list-specific type definition.
+  If kind is not LIST, this will be null.
+  """
+  asList: ListTypeDef
+
+  """
+  If kind is OBJECT, the object-specific type definition.
+  If kind is not OBJECT, this will be null.
+  """
+  asObject: ObjectTypeDef
+}
+
+"""
+A definition of a custom object defined in a Module.
+"""
+type ObjectTypeDef {
+  "The name of the object"
+  name: String!
+
+  "The doc string for the object, if any"
+  description: String
+
+  "Static fields defined on this object, if any"
+  fields: [FieldTypeDef!]
+
+  "Functions defined on this object, if any"
+  functions: [Function!]
+}
+
+"""
+A definition of a field on a custom object defined in a Module.
+A field on an object has a static value, as opposed to a function on an
+object whose value is computed by invoking code (and can accept arguments).
+"""
+type FieldTypeDef {
+  "The name of the field in the object"
+  name: String!
+
+  "A doc string for the field, if any"
+  description: String
+
+  "The type of the field"
+  typeDef: TypeDef!
+}
+
+type ListTypeDef {
+  "The type of the elements in the list"
+  elementTypeDef: TypeDef!
+}
+
+enum TypeDefKind {
+  StringKind
+  IntegerKind
+  BooleanKind
+  ListKind
+  ObjectKind
+}
+
+extend type Query {
+  """
+  Create a new function from the provided definition.
+  """
+  newFunction(def: FunctionDef!): Function!
+
+  """
+  The FunctionCall context that the SDK caller is currently executing in.
+  If the caller is not currently executing in a function, this will return
+  an error.
+  """
+  currentFunctionCall: FunctionCall!
+}
+
+type FunctionCall {
+  "The name of the function being called."
+  name: String!
+
+  """
+  The name of the parent object of the function being called.
+  If the function is "top-level" to the module, this is the name of the module.
+  """
+  parentName: String!
+
+  """
+  The value of the parent object of the function being called.
+  If the function is "top-level" to the module, this is always an empty object.
+  """
+  parent: JSON!
+
+  """
+  The argument values the function is being invoked with.
+  """
+  inputArgs: [FunctionCallArgValue!]
+
+  """
+  Set the return value of the function call to the provided value.
+  The value should be a string of the JSON serialization of the return value.
+  """
+  returnValue(value: JSON!): Void
+}
+
+type FunctionCallArgValue {
+  "The name of the argument."
+  name: String!
+
+  "The value of the argument represented as a string of the JSON serialization."
+  value: JSON!
+}
+
+input FunctionDef {
+  "The name of the function"
+  name: String!
+
+  "A doc string for the function, if any"
+  description: String
+
+  "Arguments accepted by this function, if any"
+  args: [FunctionArgDef!]
+
+  "The type returned by this function"
+  returnType: TypeDefInput!
+}
+
+input FunctionArgDef {
+  "The name of the argument"
+  name: String!
+
+  "A doc string for the argument, if any"
+  description: String
+
+  "The type of the argument"
+  typeDef: TypeDefInput!
+
+  "A default value to use for this argument if not explicitly set by the caller, if any"
+  defaultValue: JSON
+}
+
+"""
+A definition of a type used in a Module as an argument, return type or object field.
+"""
+input TypeDefInput {
+  "The kind of type this is (e.g. primitive, list, object)"
+  kind: TypeDefKind!
+
+  "Whether this type can be set to null"
+  optional: Boolean
+
+  """
+  If kind is LIST, the list-specific type definition.
+  If kind is not LIST, this will be null."
+  """
+  asList: ListTypeDefInput
+
+  """
+  If kind is OBJECT, the object-specific type definition.
+  If kind is not OBJECT, this will be null."
+  """
+  asObject: ObjectTypeDefInput
+}
+
+"""
+A definition of a custom object defined in a Module.
+"""
+input ObjectTypeDefInput {
+  "The name of the object"
+  name: String!
+
+  "The doc string for the object, if any"
+  description: String
+
+  "Static fields defined on this object, if any"
+  fields: [FieldTypeDefInput!]
+
+  "Functions defined on this object, if any"
+  functions: [FunctionDef!]
+}
+
+"""
+A definition of a field on a custom object defined in a Module.
+A field on an object has a static value, as opposed to a function on an
+object whose value is computed by invoking code (and can accept arguments).
+"""
+input FieldTypeDefInput {
+  "The name of the field in the object"
+  name: String!
+
+  "A doc string for the field, if any"
+  description: String
+
+  "The type of the field"
+  typeDef: TypeDefInput!
+}
+
+input ListTypeDefInput {
+  "The type of the elements in the list"
+  elementTypeDef: TypeDefInput!
+}
+
+"""
+The platform config OS and architecture in a Container.
+
+The format is [os]/[platform]/[version] (e.g., "darwin/arm64/v7", "windows/amd64", "linux/arm64").
+"""
+scalar Platform
+
+extend type Query {
+  "The default platform of the builder."
+  defaultPlatform: Platform!
+}
+
+scalar Void
+
+scalar JSON
+
+type Query {
+  "Creates a named sub-pipeline."
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Query!
+
+  "Checks if the current Dagger Engine is compatible with an SDK's required version."
+  checkVersionCompatibility(
+    "The SDK's required version."
+    version: String!
+  ): Boolean!
+}
+
+"""
+Key value object that represents a Pipeline label.
+"""
+input PipelineLabel {
+  """
+  Label name.
+  """
+  name: String!
+
+  """
+  Label value.
+  """
+  value: String!
+}
+
+extend type Query {
+  "Loads a secret from its ID."
+  secret(id: SecretID!): Secret!
+
+  """
+  Sets a secret given a user defined name to its plaintext and returns the secret.
+  The plaintext value is limited to a size of 128000 bytes.
+  """
+  setSecret(
+    """
+    The user defined name for this secret
+    """
+    name: String!
+
+    """
+    The plaintext of the secret
+    """
+    plaintext: String!
+  ): Secret!
+}
+
+"A unique identifier for a secret."
+scalar SecretID
+
+"A reference to a secret value, which can be handled more safely than the value itself."
+type Secret {
+  "The identifier for this secret."
+  id: SecretID!
+
+  "The value of this secret."
+  plaintext: String!
+}
+
+extend type Query {
+  "Loads a socket by its ID."
+  socket(id: SocketID): Socket!
+}
+
+"A content-addressed socket identifier."
+scalar SocketID
+
+type Socket {
+  "The content-addressed identifier of the socket."
+  id: SocketID!
+}
+
+extend type Query {
+	ttlsh: Ttlsh!
+}
+
+
+
+Please visit https://dagger.io/help#go for troubleshooting guidance.[0m
+Error: failed to load module: failed to install module: input:1: host.directory.asModule.serve failed to install module schema: schema validation failed: input:1726: Undefined type Ttlsh.
+"A global cache volume identifier."
+scalar CacheID
+
+"Sharing mode of the cache volume."
+enum CacheSharingMode {
+  "Shares the cache volume amongst many build pipelines"
+  SHARED
+
+  "Keeps a cache volume for a single build pipeline"
+  PRIVATE
+
+  """
+  Shares the cache volume amongst many build pipelines,
+  but will serialize the writes
+  """
+  LOCKED
+}
+
+extend type Query {
+  """
+  Constructs a cache volume for a given cache key.
+  """
+  cacheVolume(
+    """
+    A string identifier to target this cache volume (e.g., "modules-cache").
+    """
+    key: String!
+  ): CacheVolume!
+}
+
+"A directory whose contents persist across runs."
+type CacheVolume {
+  id: CacheID!
+}
+
+extend type Query {
+  """
+  Loads a container from ID.
+
+  Null ID returns an empty container (scratch).
+  Optional platform argument initializes new containers to execute and publish as that platform.
+  Platform defaults to that of the builder's host.
+  """
+  container(id: ContainerID, platform: Platform): Container!
+}
+
+"A unique container identifier. Null designates an empty container (scratch)."
+scalar ContainerID
+
+"""
+An OCI-compatible container, also known as a docker container.
+"""
+type Container {
+  "A unique identifier for this container."
+  id: ContainerID!
+
+  """
+  Forces evaluation of the pipeline in the engine.
+
+  It doesn't run the default command if no exec has been set.
+  """
+  sync: ContainerID!
+
+  "The platform this container executes and publishes as."
+  platform: Platform!
+
+  "Creates a named sub-pipeline"
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Container!
+
+  """
+  Initializes this container from a pulled base image.
+  """
+  from(
+    """
+    Image's address from its registry.
+
+    Formatted as [host]/[user]/[repo]:[tag] (e.g., "docker.io/dagger/dagger:main").
+    """
+    address: String!
+  ): Container!
+
+  """
+  Initializes this container from a Dockerfile build.
+  """
+  build(
+    "Directory context used by the Dockerfile."
+    context: DirectoryID!
+
+    """
+    Path to the Dockerfile to use.
+
+    Default: './Dockerfile'.
+    """
+    dockerfile: String
+
+    "Additional build arguments."
+    buildArgs: [BuildArg!]
+
+    "Target build stage to build."
+    target: String
+
+    """
+    Secrets to pass to the build.
+
+    They will be mounted at /run/secrets/[secret-name] in the build container
+
+    They can be accessed in the Dockerfile using the "secret" mount type
+    and mount path /run/secrets/[secret-name]
+    e.g. RUN --mount=type=secret,id=my-secret curl url?token=$(cat /run/secrets/my-secret)"
+    """
+    secrets: [SecretID!]
+  ): Container!
+
+  "Retrieves this container's root filesystem. Mounts are not included."
+  rootfs: Directory!
+
+  "Initializes this container from this DirectoryID."
+  withRootfs(directory: DirectoryID!): Container!
+
+  """
+  Retrieves a directory at the given path.
+
+  Mounts are included.
+  """
+  directory(
+    """
+    The path of the directory to retrieve (e.g., "./src").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves a file at the given path.
+
+  Mounts are included.
+  """
+  file(
+    """
+    The path of the file to retrieve (e.g., "./README.md").
+    """
+    path: String!
+  ): File!
+
+  "Retrieves the user to be set for all commands."
+  user: String
+
+  """
+  Retrieves this container with a different command user.
+  """
+  withUser(
+    """
+    The user to set (e.g., "root").
+    """
+    name: String!
+  ): Container!
+
+  "Retrieves the working directory for all commands."
+  workdir: String
+
+  """
+  Retrieves this container with a different working directory.
+  """
+  withWorkdir(
+    """
+    The path to set as the working directory (e.g., "/app").
+    """
+    path: String!
+  ): Container!
+
+  "Retrieves the list of environment variables passed to commands."
+  envVariables: [EnvVariable!]!
+
+  """
+  Retrieves the value of the specified environment variable.
+  """
+  envVariable(
+    """
+    The name of the environment variable to retrieve (e.g., "PATH").
+    """
+    name: String!
+  ): String
+
+  """
+  Retrieves this container plus the given environment variable.
+  """
+  withEnvVariable(
+    """
+    The name of the environment variable (e.g., "HOST").
+    """
+    name: String!
+
+    """
+    The value of the environment variable. (e.g., "localhost").
+    """
+    value: String!
+
+    """
+    Replace ${VAR} or $VAR in the value according to the current environment
+    variables defined in the container (e.g., "/opt/bin:$PATH").
+    """
+    expand: Boolean
+  ): Container!
+
+  "Retrieves the list of labels passed to container."
+  labels: [Label!]!
+
+  """
+  Retrieves the value of the specified label.
+  """
+  label(name: String!): String
+
+  """
+  Retrieves this container plus the given label.
+  """
+  withLabel(
+    """
+    The name of the label (e.g., "org.opencontainers.artifact.created").
+    """
+    name: String!
+
+    """
+    The value of the label (e.g., "2023-01-01T00:00:00Z").
+    """
+    value: String!
+  ): Container!
+
+  """
+  Retrieves this container minus the given environment label.
+  """
+  withoutLabel(
+    """
+    The name of the label to remove (e.g., "org.opencontainers.artifact.created").
+    """
+    name: String!
+  ): Container!
+
+  """
+  Retrieves this container plus an env variable containing the given secret.
+  """
+  withSecretVariable(
+    """
+    The name of the secret variable (e.g., "API_SECRET").
+    """
+    name: String!
+
+    "The identifier of the secret value."
+    secret: SecretID!
+  ): Container!
+
+  """
+  Retrieves this container minus the given environment variable.
+  """
+  withoutEnvVariable(
+    """
+    The name of the environment variable (e.g., "HOST").
+    """
+    name: String!
+  ): Container!
+
+  "Retrieves entrypoint to be prepended to the arguments of all commands."
+  entrypoint: [String!]
+
+  """
+  Retrieves this container but with a different command entrypoint.
+  """
+  withEntrypoint(
+    """
+    Entrypoint to use for future executions (e.g., ["go", "run"]).
+    """
+    args: [String!]!
+  ): Container!
+
+  "Retrieves default arguments for future commands."
+  defaultArgs: [String!]
+
+  """
+  Configures default arguments for future commands.
+  """
+  withDefaultArgs(
+    """
+    Arguments to prepend to future executions (e.g., ["-v", "--no-cache"]).
+    """
+    args: [String!]
+  ): Container!
+
+  "Retrieves the list of paths where a directory is mounted."
+  mounts: [String!]!
+
+  """
+  Retrieves this container plus a directory mounted at the given path.
+  """
+  withMountedDirectory(
+    """
+    Location of the mounted directory (e.g., "/mnt/directory").
+    """
+    path: String!
+
+    "Identifier of the mounted directory."
+    source: DirectoryID!
+
+    """
+    A user:group to set for the mounted directory and its contents.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a file mounted at the given path.
+  """
+  withMountedFile(
+    """
+    Location of the mounted file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    "Identifier of the mounted file."
+    source: FileID!
+
+    """
+    A user or user:group to set for the mounted file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a temporary directory mounted at the given path.
+  """
+  withMountedTemp(
+    """
+    Location of the temporary directory (e.g., "/tmp/temp_dir").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Retrieves this container plus a cache volume mounted at the given path.
+  """
+  withMountedCache(
+    """
+    Location of the cache directory (e.g., "/cache/node_modules").
+    """
+    path: String!
+
+    "Identifier of the cache volume to mount."
+    cache: CacheID!
+
+    "Identifier of the directory to use as the cache volume's root."
+    source: DirectoryID
+
+    "Sharing mode of the cache volume."
+    sharing: CacheSharingMode
+
+    """
+    A user:group to set for the mounted cache directory.
+
+    Note that this changes the ownership of the specified mount along with the
+    initial filesystem provided by source (if any). It does not have any effect
+    if/when the cache has already been created.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a secret mounted into a file at the given path.
+  """
+  withMountedSecret(
+    """
+    Location of the secret file (e.g., "/tmp/secret.txt").
+    """
+    path: String!
+
+    "Identifier of the secret to mount."
+    source: SecretID!
+
+    """
+    A user:group to set for the mounted secret.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+
+    """
+    Permission given to the mounted secret (e.g., 0600).
+    This option requires an owner to be set to be active.
+
+    Default: 0400.
+    """
+    mode: Int
+  ): Container!
+
+  """
+  Retrieves this container after unmounting everything at the given path.
+  """
+  withoutMount(
+    """
+    Location of the cache directory (e.g., "/cache/node_modules").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Retrieves this container plus the contents of the given file copied to the given path.
+  """
+  withFile(
+    """
+    Location of the copied file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    "Identifier of the file to copy."
+    source: FileID!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+
+    """
+    A user:group to set for the file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a new file written at the given path.
+  """
+  withNewFile(
+    """
+    Location of the written file (e.g., "/tmp/file.txt").
+    """
+    path: String!
+
+    """
+    Content of the file to write (e.g., "Hello world!").
+    """
+    contents: String
+
+    """
+    Permission given to the written file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+
+    """
+    A user:group to set for the file.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a directory written at the given path.
+  """
+  withDirectory(
+    """
+    Location of the written directory (e.g., "/tmp/directory").
+    """
+    path: String!
+
+    "Identifier of the directory to write"
+    directory: DirectoryID!
+
+    """
+    Patterns to exclude in the written directory (e.g., ["node_modules/**", ".gitignore", ".git/"]).
+    """
+    exclude: [String!]
+
+    """
+    Patterns to include in the written directory (e.g., ["*.go", "go.mod", "go.sum"]).
+    """
+    include: [String!]
+
+    """
+    A user:group to set for the directory and its contents.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container plus a socket forwarded to the given Unix socket path.
+  """
+  withUnixSocket(
+    """
+    Location of the forwarded Unix socket (e.g., "/tmp/socket").
+    """
+    path: String!
+
+    """
+    Identifier of the socket to forward.
+    """
+    source: SocketID!
+
+    """
+    A user:group to set for the mounted socket.
+
+    The user and group can either be an ID (1000:1000) or a name (foo:bar).
+
+    If the group is omitted, it defaults to the same as the user.
+    """
+    owner: String
+  ): Container!
+
+  """
+  Retrieves this container with a previously added Unix socket removed.
+  """
+  withoutUnixSocket(
+    """
+    Location of the socket to remove (e.g., "/tmp/socket").
+    """
+    path: String!
+  ): Container!
+
+  """
+  Indicate that subsequent operations should be featured more prominently in
+  the UI.
+  """
+  withFocus: Container!
+
+  """
+  Indicate that subsequent operations should not be featured more prominently
+  in the UI.
+
+  This is the initial state of all containers.
+  """
+  withoutFocus: Container!
+
+  """
+  Retrieves this container after executing the specified command inside it.
+  """
+  withExec(
+    """
+    Command to run instead of the container's default command (e.g., ["run", "main.go"]).
+
+    If empty, the container's default command is used.
+    """
+    args: [String!]!
+
+    """
+    If the container has an entrypoint, ignore it for args rather than using it to wrap them.
+    """
+    skipEntrypoint: Boolean
+
+    """
+    Content to write to the command's standard input before closing (e.g., "Hello world").
+    """
+    stdin: String
+
+    """
+    Redirect the command's standard output to a file in the container (e.g., "/tmp/stdout").
+    """
+    redirectStdout: String
+
+    """
+    Redirect the command's standard error to a file in the container (e.g., "/tmp/stderr").
+    """
+    redirectStderr: String
+
+    """
+    Provides dagger access to the executed command.
+
+    Do not use this option unless you trust the command being executed.
+    The command being executed WILL BE GRANTED FULL ACCESS TO YOUR HOST FILESYSTEM.
+    """
+    experimentalPrivilegedNesting: Boolean
+
+    """
+    Execute the command with all root capabilities. This is similar to running a command
+    with "sudo" or executing `docker run` with the `--privileged` flag. Containerization
+    does not provide any security guarantees when using this option. It should only be used
+    when absolutely necessary and only with trusted commands.
+    """
+    insecureRootCapabilities: Boolean
+  ): Container!
+
+  """
+  The output stream of the last executed command.
+
+  Will execute default command if none is set, or error if there's no default.
+  """
+  stdout: String!
+
+  """
+  The error stream of the last executed command.
+
+  Will execute default command if none is set, or error if there's no default.
+  """
+  stderr: String!
+
+  # FIXME: this is the last case of an actual "verb" that cannot cleanly go away.
+  #    This may actually be a good candidate for a mutation. To be discussed.
+  """
+  Publishes this container as a new image to the specified address.
+
+  Publish returns a fully qualified ref.
+  It can also publish platform variants.
+  """
+  publish(
+    """
+    Registry's address to publish the image to.
+
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. "docker.io/dagger/dagger:main").
+    """
+    address: String!
+
+    """
+    Identifiers for other platform specific containers.
+    Used for multi-platform image.
+    """
+    platformVariants: [ContainerID!]
+
+    """
+    Force each layer of the published image to use the specified compression algorithm.
+    If this is unset, then if a layer already has a compressed blob in the engine's
+    cache, that will be used (this can result in a mix of compression algorithms for
+    different layers). If this is unset and a layer has no compressed blob in the
+    engine's cache, then it will be compressed using Gzip.
+    """
+    forcedCompression: ImageLayerCompression
+
+    """
+    Use the specified media types for the published image's layers. Defaults to OCI, which
+    is largely compatible with most recent registries, but Docker may be needed for older
+    registries without OCI support.
+    """
+    mediaTypes: ImageMediaTypes = OCIMediaTypes
+  ): String!
+
+  """
+  Writes the container as an OCI tarball to the destination file path on the host for the specified platform variants.
+
+  Return true on success.
+  It can also publishes platform variants.
+  """
+  export(
+    """
+    Host's destination path (e.g., "./tarball").
+    Path can be relative to the engine's workdir or absolute.
+    """
+    path: String!
+
+    """
+    Identifiers for other platform specific containers.
+    Used for multi-platform image.
+    """
+    platformVariants: [ContainerID!]
+
+    """
+    Force each layer of the exported image to use the specified compression algorithm.
+    If this is unset, then if a layer already has a compressed blob in the engine's
+    cache, that will be used (this can result in a mix of compression algorithms for
+    different layers). If this is unset and a layer has no compressed blob in the
+    engine's cache, then it will be compressed using Gzip.
+    """
+    forcedCompression: ImageLayerCompression
+
+    """
+    Use the specified media types for the exported image's layers. Defaults to OCI, which
+    is largely compatible with most recent container runtimes, but Docker may be needed
+    for older runtimes without OCI support.
+    """
+    mediaTypes: ImageMediaTypes = OCIMediaTypes
+  ): Boolean!
+
+  """
+  Reads the container from an OCI tarball.
+
+  NOTE: this involves unpacking the tarball to an OCI store on the host at
+  $XDG_CACHE_DIR/dagger/oci. This directory can be removed whenever you like.
+  """
+  import(
+    """
+    File to read the container from.
+    """
+    source: FileID!
+
+    """
+    Identifies the tag to import from the archive, if the archive bundles
+    multiple tags.
+    """
+    tag: String
+  ): Container!
+
+  "Retrieves this container with a registry authentication for a given address."
+  withRegistryAuth(
+    """
+    Registry's address to bind the authentication to.
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. docker.io/dagger/dagger:main).
+    """
+    address: String!
+
+    """
+    The username of the registry's account (e.g., "Dagger").
+    """
+    username: String!
+
+    """
+    The API key, password or token to authenticate to this registry.
+    """
+    secret: SecretID!
+  ): Container!
+
+  "Retrieves this container without the registry authentication of a given address."
+  withoutRegistryAuth(
+    """
+    Registry's address to remove the authentication from.
+    Formatted as [host]/[user]/[repo]:[tag] (e.g. docker.io/dagger/dagger:main).
+    """
+    address: String!
+  ): Container!
+
+  "The unique image reference which can only be retrieved immediately after the 'Container.From' call."
+  imageRef: String
+
+  """
+  Expose a network port.
+
+  Exposed ports serve two purposes:
+    - For health checks and introspection, when running services
+    - For setting the EXPOSE OCI field when publishing the container
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withExposedPort(
+    "Port number to expose"
+    port: Int!
+    "Transport layer network protocol"
+    protocol: NetworkProtocol = TCP
+    "Optional port description"
+    description: String
+  ): Container!
+
+  """
+  Unexpose a previously exposed port.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withoutExposedPort(
+    "Port number to unexpose"
+    port: Int!
+    "Port protocol to unexpose"
+    protocol: NetworkProtocol = TCP
+  ): Container!
+
+  """
+  Retrieves the list of exposed ports.
+
+  This includes ports already exposed by the image, even if not
+  explicitly added with dagger.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  exposedPorts: [Port!]!
+
+  """
+  Establish a runtime dependency on a service.
+
+  The service will be started automatically when needed and detached when it is
+  no longer needed, executing the default command if none is set.
+
+  The service will be reachable from the container via the provided hostname alias.
+
+  The service dependency will also convey to any files or directories produced by the container.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  withServiceBinding(
+    "A name that can be used to reach the service from the container"
+    alias: String!
+    "Identifier of the service container"
+    service: ContainerID!
+  ): Container!
+
+  """
+  Retrieves a hostname which can be used by clients to reach this container.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  hostname: String!
+
+  """
+  Retrieves an endpoint that clients can use to reach this container.
+
+  If no port is specified, the first exposed port is used. If none exist an error is returned.
+
+  If a scheme is specified, a URL is returned. Otherwise, a host:port pair is returned.
+
+  Currently experimental; set _EXPERIMENTAL_DAGGER_SERVICES_DNS=0 to disable.
+  """
+  endpoint(
+    "The exposed port number for the endpoint"
+    port: Int
+    "Return a URL with the given scheme, eg. http for http://"
+    scheme: String
+  ): String!
+}
+
+"A simple key value object that represents an environment variable."
+type EnvVariable {
+  "The environment variable name."
+  name: String!
+
+  "The environment variable value."
+  value: String!
+}
+
+"A port exposed by a container."
+type Port {
+  "The port number."
+  port: Int!
+
+  "The transport layer network protocol."
+  protocol: NetworkProtocol!
+
+  "The port description."
+  description: String
+}
+
+"A simple key value object that represents a label."
+type Label {
+  "The label name."
+  name: String!
+
+  "The label value."
+  value: String!
+}
+
+"""
+Key value object that represents a build argument.
+"""
+input BuildArg {
+  """
+  The build argument name.
+  """
+  name: String!
+
+  """
+  The build argument value.
+  """
+  value: String!
+}
+
+"Transport layer network protocol associated to a port."
+enum NetworkProtocol {
+  "TCP (Transmission Control Protocol)"
+  TCP
+  "UDP (User Datagram Protocol)"
+  UDP
+}
+
+"Compression algorithm to use for image layers."
+enum ImageLayerCompression {
+  Gzip
+  Zstd
+  EStarGZ
+  Uncompressed
+}
+
+"Mediatypes to use in published or exported image metadata."
+enum ImageMediaTypes {
+  OCIMediaTypes
+  DockerMediaTypes
+}
+
+extend type Query {
+  "Load a directory by ID. No argument produces an empty directory."
+  directory(id: DirectoryID): Directory!
+}
+
+"A content-addressed directory identifier."
+scalar DirectoryID
+
+"A directory."
+type Directory {
+  "The content-addressed identifier of the directory."
+  id: DirectoryID!
+
+  "Force evaluation in the engine."
+  sync: DirectoryID!
+
+  "Creates a named sub-pipeline"
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Directory!
+
+  """
+  Returns a list of files and directories at the given path.
+  """
+  entries(
+    """
+    Location of the directory to look at (e.g., "/src").
+    """
+    path: String
+  ): [String!]!
+
+  """
+  Retrieves a file at the given path.
+  """
+  file(
+    """
+    Location of the file to retrieve (e.g., "README.md").
+    """
+    path: String!
+  ): File!
+
+  """
+  Retrieves this directory plus the contents of the given file copied to the given path.
+  """
+  withFile(
+    """
+    Location of the copied file (e.g., "/file.txt").
+    """
+    path: String!
+
+    """
+    Identifier of the file to copy.
+    """
+    source: FileID!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory plus a new file written at the given path.
+  """
+  withNewFile(
+    """
+    Location of the written file (e.g., "/file.txt").
+    """
+    path: String!
+
+    """
+    Content of the written file (e.g., "Hello world!").
+    """
+    contents: String!
+
+    """
+    Permission given to the copied file (e.g., 0600).
+
+    Default: 0644.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory with the file at the given path removed.
+  """
+  withoutFile(
+    """
+    Location of the file to remove (e.g., "/file.txt").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves a directory at the given path.
+  """
+  directory(
+    """
+    Location of the directory to retrieve (e.g., "/src").
+    """
+    path: String!
+  ): Directory!
+
+  """
+  Retrieves this directory plus a directory written at the given path.
+  """
+  withDirectory(
+    """
+    Location of the written directory (e.g., "/src/").
+    """
+    path: String!
+
+    "Identifier of the directory to copy."
+    directory: DirectoryID!
+
+    """
+    Exclude artifacts that match the given pattern (e.g., ["node_modules/", ".git*"]).
+    """
+    exclude: [String!]
+
+    """
+    Include only artifacts that match the given pattern (e.g., ["app/", "package.*"]).
+    """
+    include: [String!]
+  ): Directory!
+
+  """
+  Retrieves this directory plus a new directory created at the given path.
+  """
+  withNewDirectory(
+    """
+    Location of the directory created (e.g., "/logs").
+    """
+    path: String!
+
+    """
+    Permission granted to the created directory (e.g., 0777).
+
+    Default: 0755.
+    """
+    permissions: Int
+  ): Directory!
+
+  """
+  Retrieves this directory with the directory at the given path removed.
+  """
+  withoutDirectory(
+    """
+    Location of the directory to remove (e.g., ".github/").
+    """
+    path: String!
+  ): Directory!
+
+  "Gets the difference between this directory and an another directory."
+  diff(
+    "Identifier of the directory to compare."
+    other: DirectoryID!
+  ): Directory!
+
+  """
+  Writes the contents of the directory to a path on the host.
+  """
+  export(
+    """
+    Location of the copied directory (e.g., "logs/").
+    """
+    path: String!
+  ): Boolean!
+
+  """
+  Builds a new Docker container from this directory.
+  """
+  dockerBuild(
+    """
+    Path to the Dockerfile to use (e.g., "frontend.Dockerfile").
+
+    Defaults: './Dockerfile'.
+    """
+    dockerfile: String
+
+    "The platform to build."
+    platform: Platform
+
+    "Build arguments to use in the build."
+    buildArgs: [BuildArg!]
+
+    "Target build stage to build."
+    target: String
+
+    """
+    Secrets to pass to the build.
+
+    They will be mounted at /run/secrets/[secret-name].
+    """
+    secrets: [SecretID!]
+  ): Container!
+
+  """
+  Retrieves this directory with all file/dir timestamps set to the given time.
+  """
+  withTimestamps(
+    """
+    Timestamp to set dir/files in.
+
+    Formatted in seconds following Unix epoch (e.g., 1672531199).
+    """
+    timestamp: Int!
+  ): Directory!
+}
+
+extend type Query {
+    "Loads a file by ID."
+    file(id: FileID!): File
+}
+
+"A file identifier."
+scalar FileID
+
+"A file."
+type File {
+  "Retrieves the content-addressed identifier of the file."
+  id: FileID!
+
+  "Force evaluation in the engine."
+  sync: FileID!
+
+  "Retrieves the contents of the file."
+  contents: String!
+
+  "Gets the size of the file, in bytes."
+  size: Int!
+
+  """
+  Writes the file to a file path on the host.
+  """
+  export(
+    """
+    Location of the written directory (e.g., "output.txt").
+    """
+    path: String!
+
+    """
+    If allowParentDirPath is true, the path argument can be a directory path, in which case
+    the file will be created in that directory.
+    """
+    allowParentDirPath: Boolean
+  ): Boolean!
+
+  """
+  Retrieves this file with its created/modified timestamps set to the given time.
+  """
+  withTimestamps(
+    """
+    Timestamp to set dir/files in.
+
+    Formatted in seconds following Unix epoch (e.g., 1672531199).
+    """
+    timestamp: Int!
+  ): File!
+}
+
+extend type Query {
+  """
+  Queries a git repository.
+  """
+  git(
+    """
+    Url of the git repository.
+    Can be formatted as https://{host}/{owner}/{repo}, git@{host}/{owner}/{repo}
+    Suffix ".git" is optional.
+    """
+    url: String!,
+
+    "Set to true to keep .git directory."
+    keepGitDir: Boolean,
+
+    "A service which must be started before the repo is fetched."
+    experimentalServiceHost: ContainerID
+  ): GitRepository!
+}
+
+"A git repository."
+type GitRepository {
+
+  """
+  Returns details on one branch.
+  """
+  branch(
+    """
+    Branch's name (e.g., "main").
+    """
+    name: String!
+  ): GitRef!
+
+  """
+  Returns details on one tag.
+  """
+  tag(
+    """
+    Tag's name (e.g., "v0.3.9").
+    """
+    name: String!
+  ): GitRef!
+
+  """
+  Returns details on one commit.
+  """
+  commit(
+    """
+    Identifier of the commit (e.g., "b6315d8f2810962c601af73f86831f6866ea798b").
+    """
+    id: String!
+  ): GitRef!
+}
+
+"A git ref (tag, branch or commit)."
+type GitRef {
+  "The filesystem tree at this ref."
+  tree(sshKnownHosts: String, sshAuthSocket: SocketID): Directory!
+}
+
+extend type Query {
+  "Queries the host environment."
+  host: Host!
+}
+
+"Information about the host execution environment."
+type Host {
+  """
+  Accesses a directory on the host.
+  """
+  directory(
+    """
+    Location of the directory to access (e.g., ".").
+    """
+    path: String!,
+
+    """
+    Exclude artifacts that match the given pattern (e.g., ["node_modules/", ".git*"]).
+    """
+    exclude: [String!],
+
+    """
+    Include only artifacts that match the given pattern (e.g., ["app/", "package.*"]).
+    """
+    include: [String!]
+  ): Directory!
+
+  """
+  Accesses a file on the host.
+  """
+  file(
+    """
+    Location of the file to retrieve (e.g., "README.md").
+    """
+    path: String!
+  ): File!
+
+  """
+  Accesses a Unix socket on the host.
+  """
+  unixSocket(
+    """
+    Location of the Unix socket (e.g., "/var/run/docker.sock").
+    """
+    path: String!
+  ): Socket!
+
+  """
+  Sets a secret given a user-defined name and the file path on the host, and returns the secret.
+  The file is limited to a size of 512000 bytes.
+  """
+  setSecretFile(
+    """
+    The user defined name for this secret.
+    """
+    name: String!
+
+    """
+    Location of the file to set as a secret.
+    """
+    path: String!
+  ): Secret!
+}
+
+extend type Query {
+  """
+  Returns a file containing an http remote url content.
+  """
+  http(
+    """
+    HTTP url to get the content from (e.g., "https://docs.dagger.io").
+    """
+    url: String!,
+
+    "A service which must be started before the URL is fetched."
+    experimentalServiceHost: ContainerID
+  ): File!
+}
+
+scalar ModuleID
+
+extend type Query {
+  """
+  Load a module by ID, or create a new one if id is unset.
+  """
+  module(id: ModuleID): Module!
+
+  """
+  The module currently being served in the session, if any.
+  """
+  currentModule: Module
+}
+
+type Module {
+  id: ModuleID!
+
+  "The name of the module"
+  name: String!
+
+  "The doc string of the module, if any"
+  description: String
+
+  "Functions served by this module"
+  functions: [Function!]
+
+  "This module plus the given Function associated with it"
+  withFunction(id: FunctionID!): Module!
+
+  """
+  Serve a module's API in the current session.
+      Note: this can only be called once per session.
+      In the future, it could return a stream or service to remove the side effect.
+  """
+  serve(environment: [ModuleEnvironmentVariable!]): Void
+}
+
+extend type Directory {
+  """
+  Load the directory as a Dagger module
+
+  sourceSubpath is an optional parameter that, if set, points to a subpath of this
+  directory that contains the module's source code. This is needed when the module
+  code is in a subdirectory but requires parent directories to be loaded in order
+  to execute. For example, the module source code may need a go.mod, project.toml,
+  package.json, etc. file from a parent directory.
+
+  If sourceSubpath is not set, the module source code is loaded from the root of
+  the directory.
+  """
+  asModule(sourceSubpath: String): Module!
+}
+
+input ModuleEnvironmentVariable {
+  name: String!
+  value: String
+}
+
+scalar FunctionID
+
+extend type Query {
+  "Load a function by ID"
+  function(id: FunctionID!): Function!
+}
+
+type Function {
+  id: FunctionID!
+
+  "The name of the function"
+  name: String!
+
+  "A doc string for the function, if any"
+  description: String
+
+  "Arguments accepted by this function, if any"
+  args: [FunctionArg!]
+
+  "The type returned by this function"
+  returnType: TypeDef!
+
+  """
+  Execute this function using dynamic input+output types.
+
+  Typically, it's preferable to invoke a function using a type
+  safe graphql query rather than using this call field. However,
+  call is useful for some advanced use cases where dynamically
+  loading arbitrary modules and invoking functions in them is
+  required.
+  """
+  call(input: [FunctionCallInput!]): JSON!
+}
+
+type FunctionArg {
+  "The name of the argument"
+  name: String
+
+  "A doc string for the argument, if any"
+  description: String
+
+  "The type of the argument"
+  typeDef: TypeDef!
+
+  "A default value to use for this argument when not explicitly set by the caller, if any"
+  defaultValue: JSON
+}
+
+input FunctionCallInput {
+  "The name of the argument to the function"
+  name: String!
+
+  """
+  The value of the argument to the function, representing as a JSON-serialized string.
+  """
+  value: JSON!
+}
+
+"""
+A definition of a parameter or return type in a Module.
+"""
+type TypeDef {
+  "The kind of type this is (e.g. primitive, list, object)"
+  kind: TypeDefKind
+
+  "Whether this type can be set to null. Defaults to false."
+  optional: Boolean!
+
+  """
+  If kind is LIST, the list-specific type definition.
+  If kind is not LIST, this will be null.
+  """
+  asList: ListTypeDef
+
+  """
+  If kind is OBJECT, the object-specific type definition.
+  If kind is not OBJECT, this will be null.
+  """
+  asObject: ObjectTypeDef
+}
+
+"""
+A definition of a custom object defined in a Module.
+"""
+type ObjectTypeDef {
+  "The name of the object"
+  name: String!
+
+  "The doc string for the object, if any"
+  description: String
+
+  "Static fields defined on this object, if any"
+  fields: [FieldTypeDef!]
+
+  "Functions defined on this object, if any"
+  functions: [Function!]
+}
+
+"""
+A definition of a field on a custom object defined in a Module.
+A field on an object has a static value, as opposed to a function on an
+object whose value is computed by invoking code (and can accept arguments).
+"""
+type FieldTypeDef {
+  "The name of the field in the object"
+  name: String!
+
+  "A doc string for the field, if any"
+  description: String
+
+  "The type of the field"
+  typeDef: TypeDef!
+}
+
+type ListTypeDef {
+  "The type of the elements in the list"
+  elementTypeDef: TypeDef!
+}
+
+enum TypeDefKind {
+  StringKind
+  IntegerKind
+  BooleanKind
+  ListKind
+  ObjectKind
+}
+
+extend type Query {
+  """
+  Create a new function from the provided definition.
+  """
+  newFunction(def: FunctionDef!): Function!
+
+  """
+  The FunctionCall context that the SDK caller is currently executing in.
+  If the caller is not currently executing in a function, this will return
+  an error.
+  """
+  currentFunctionCall: FunctionCall!
+}
+
+type FunctionCall {
+  "The name of the function being called."
+  name: String!
+
+  """
+  The name of the parent object of the function being called.
+  If the function is "top-level" to the module, this is the name of the module.
+  """
+  parentName: String!
+
+  """
+  The value of the parent object of the function being called.
+  If the function is "top-level" to the module, this is always an empty object.
+  """
+  parent: JSON!
+
+  """
+  The argument values the function is being invoked with.
+  """
+  inputArgs: [FunctionCallArgValue!]
+
+  """
+  Set the return value of the function call to the provided value.
+  The value should be a string of the JSON serialization of the return value.
+  """
+  returnValue(value: JSON!): Void
+}
+
+type FunctionCallArgValue {
+  "The name of the argument."
+  name: String!
+
+  "The value of the argument represented as a string of the JSON serialization."
+  value: JSON!
+}
+
+input FunctionDef {
+  "The name of the function"
+  name: String!
+
+  "A doc string for the function, if any"
+  description: String
+
+  "Arguments accepted by this function, if any"
+  args: [FunctionArgDef!]
+
+  "The type returned by this function"
+  returnType: TypeDefInput!
+}
+
+input FunctionArgDef {
+  "The name of the argument"
+  name: String!
+
+  "A doc string for the argument, if any"
+  description: String
+
+  "The type of the argument"
+  typeDef: TypeDefInput!
+
+  "A default value to use for this argument if not explicitly set by the caller, if any"
+  defaultValue: JSON
+}
+
+"""
+A definition of a type used in a Module as an argument, return type or object field.
+"""
+input TypeDefInput {
+  "The kind of type this is (e.g. primitive, list, object)"
+  kind: TypeDefKind!
+
+  "Whether this type can be set to null"
+  optional: Boolean
+
+  """
+  If kind is LIST, the list-specific type definition.
+  If kind is not LIST, this will be null."
+  """
+  asList: ListTypeDefInput
+
+  """
+  If kind is OBJECT, the object-specific type definition.
+  If kind is not OBJECT, this will be null."
+  """
+  asObject: ObjectTypeDefInput
+}
+
+"""
+A definition of a custom object defined in a Module.
+"""
+input ObjectTypeDefInput {
+  "The name of the object"
+  name: String!
+
+  "The doc string for the object, if any"
+  description: String
+
+  "Static fields defined on this object, if any"
+  fields: [FieldTypeDefInput!]
+
+  "Functions defined on this object, if any"
+  functions: [FunctionDef!]
+}
+
+"""
+A definition of a field on a custom object defined in a Module.
+A field on an object has a static value, as opposed to a function on an
+object whose value is computed by invoking code (and can accept arguments).
+"""
+input FieldTypeDefInput {
+  "The name of the field in the object"
+  name: String!
+
+  "A doc string for the field, if any"
+  description: String
+
+  "The type of the field"
+  typeDef: TypeDefInput!
+}
+
+input ListTypeDefInput {
+  "The type of the elements in the list"
+  elementTypeDef: TypeDefInput!
+}
+
+"""
+The platform config OS and architecture in a Container.
+
+The format is [os]/[platform]/[version] (e.g., "darwin/arm64/v7", "windows/amd64", "linux/arm64").
+"""
+scalar Platform
+
+extend type Query {
+  "The default platform of the builder."
+  defaultPlatform: Platform!
+}
+
+scalar Void
+
+scalar JSON
+
+type Query {
+  "Creates a named sub-pipeline."
+  pipeline(
+    "Pipeline name."
+    name: String!
+    "Pipeline description."
+    description: String
+    "Pipeline labels."
+    labels: [PipelineLabel!]
+  ): Query!
+
+  "Checks if the current Dagger Engine is compatible with an SDK's required version."
+  checkVersionCompatibility(
+    "The SDK's required version."
+    version: String!
+  ): Boolean!
+}
+
+"""
+Key value object that represents a Pipeline label.
+"""
+input PipelineLabel {
+  """
+  Label name.
+  """
+  name: String!
+
+  """
+  Label value.
+  """
+  value: String!
+}
+
+extend type Query {
+  "Loads a secret from its ID."
+  secret(id: SecretID!): Secret!
+
+  """
+  Sets a secret given a user defined name to its plaintext and returns the secret.
+  The plaintext value is limited to a size of 128000 bytes.
+  """
+  setSecret(
+    """
+    The user defined name for this secret
+    """
+    name: String!
+
+    """
+    The plaintext of the secret
+    """
+    plaintext: String!
+  ): Secret!
+}
+
+"A unique identifier for a secret."
+scalar SecretID
+
+"A reference to a secret value, which can be handled more safely than the value itself."
+type Secret {
+  "The identifier for this secret."
+  id: SecretID!
+
+  "The value of this secret."
+  plaintext: String!
+}
+
+extend type Query {
+  "Loads a socket by its ID."
+  socket(id: SocketID): Socket!
+}
+
+"A content-addressed socket identifier."
+scalar SocketID
+
+type Socket {
+  "The content-addressed identifier of the socket."
+  id: SocketID!
+}
+
+extend type Query {
+	ttlsh: Ttlsh!
+}
+
+
+
+Please visit https://dagger.io/help#go for troubleshooting guidance.
