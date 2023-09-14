@@ -13,7 +13,7 @@ import (
 
 	"github.com/Khan/genqlient/graphql"
 
-	"dagger-dev/querybuilder"
+	"dagger/querybuilder"
 )
 
 // A global cache volume identifier.
@@ -2652,10 +2652,12 @@ type Module struct {
 	q *querybuilder.Selection
 	c graphql.Client
 
-	description *string
-	id          *ModuleID
-	name        *string
-	serve       *Void
+	description            *string
+	id                     *ModuleID
+	name                   *string
+	sdk                    *string
+	serve                  *Void
+	sourceDirectorySubPath *string
 }
 type WithModuleFunc func(r *Module) *Module
 
@@ -2664,6 +2666,47 @@ type WithModuleFunc func(r *Module) *Module
 // This is useful for reusability and readability by not breaking the calling chain.
 func (r *Module) With(f WithModuleFunc) *Module {
 	return f(r)
+}
+
+// Modules used by this module
+func (r *Module) Dependencies(ctx context.Context) ([]Module, error) {
+	q := r.q.Select("dependencies")
+
+	q = q.Select("id")
+
+	type dependencies struct {
+		Id ModuleID
+	}
+
+	convert := func(fields []dependencies) []Module {
+		out := []Module{}
+
+		for i := range fields {
+			out = append(out, Module{id: &fields[i].Id})
+		}
+
+		return out
+	}
+	var response []dependencies
+
+	q = q.Bind(&response)
+
+	err := q.Execute(ctx, r.c)
+	if err != nil {
+		return nil, err
+	}
+
+	return convert(response), nil
+}
+
+// The dependencies as configured by the module
+func (r *Module) DependencyConfig(ctx context.Context) ([]string, error) {
+	q := r.q.Select("dependencyConfig")
+
+	var response []string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
 }
 
 // The doc string of the module, if any
@@ -2710,6 +2753,7 @@ func (r *Module) Functions(ctx context.Context) ([]Function, error) {
 	return convert(response), nil
 }
 
+// The ID of the module
 func (r *Module) ID(ctx context.Context) (ModuleID, error) {
 	if r.id != nil {
 		return *r.id, nil
@@ -2775,6 +2819,19 @@ func (r *Module) Name(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
+// The SDK used by this module
+func (r *Module) SDK(ctx context.Context) (string, error) {
+	if r.sdk != nil {
+		return *r.sdk, nil
+	}
+	q := r.q.Select("sdk")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
 // ModuleServeOpts contains options for Module.Serve
 type ModuleServeOpts struct {
 	Environment []*ModuleEnvironmentVariable
@@ -2797,6 +2854,29 @@ func (r *Module) Serve(ctx context.Context, opts ...ModuleServeOpts) (Void, erro
 	}
 
 	var response Void
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// The directory containing the module's source code
+func (r *Module) SourceDirectory() *Directory {
+	q := r.q.Select("sourceDirectory")
+
+	return &Directory{
+		q: q,
+		c: r.c,
+	}
+}
+
+// The module's subpath within the source directory
+func (r *Module) SourceDirectorySubPath(ctx context.Context) (string, error) {
+	if r.sourceDirectorySubPath != nil {
+		return *r.sourceDirectorySubPath, nil
+	}
+	q := r.q.Select("sourceDirectorySubPath")
+
+	var response string
 
 	q = q.Bind(&response)
 	return response, q.Execute(ctx, r.c)
@@ -3610,11 +3690,11 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (any, error) {
 	switch parentName {
-	case "DaggerDev":
+	case "Dagger":
 		switch fnName {
 		case "CLI":
 			var err error
-			var parent DaggerDev
+			var parent Dagger
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -3626,10 +3706,10 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*DaggerDev).CLI(&parent, ctx, version)
-		case "HackEnv":
+			return (*Dagger).CLI(&parent, ctx, version)
+		case "SourceRelease":
 			var err error
-			var parent DaggerDev
+			var parent Dagger
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -3641,31 +3721,10 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			var source Directory
-			err = json.Unmarshal([]byte(inputArgs["source"]), &source)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*DaggerDev).HackEnv(&parent, ctx, version, &source)
-		case "Source":
-			var err error
-			var parent DaggerDev
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var version string
-			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*DaggerDev).Source(&parent, ctx, version)
+			return (*Dagger).SourceRelease(&parent, ctx, version)
 		case "":
 			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Fetch the Dagger source code\\nFIXME: default version?\\n\",\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"source\",\"typeDef\":{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"args\",\"typeDef\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}}],\"description\":\"Fetch the Dagger source code\\nFIXME: default version?\\n\",\"name\":\"DaggerHack\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"description\":\"Fetch the Dagger source code\\nFIXME: default version?\\n\",\"name\":\"HackEnv\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Fetch the Dagger source code\\nFIXME: default version?\\n\",\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"DaggerDev\"},\"kind\":\"ObjectKind\"}")
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Fetch a Dagger source code release\\n\",\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Fetch a Dagger source code release\\n\",\"name\":\"SourceRelease\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
 			var typeDef TypeDefInput
 			err = json.Unmarshal(typeDefBytes, &typeDef)
 			if err != nil {
@@ -3686,32 +3745,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
 	case "Directory":
-		switch fnName {
-		case "DaggerHack":
-			var err error
-			var parent Directory
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var version string
-			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var args []string
-			err = json.Unmarshal([]byte(inputArgs["args"]), &args)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Directory).DaggerHack(&parent, ctx, version, args)
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Container":
 		switch fnName {
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)

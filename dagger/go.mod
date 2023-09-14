@@ -1,4 +1,4 @@
-module dagger-dev
+module dagger
 
 go 1.20
 
