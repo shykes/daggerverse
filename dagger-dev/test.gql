@@ -1,0 +1,46 @@
+query test {
+    dagger_dev {
+        source(version: "0.8.4") {
+            export(path: "dagger-source-out")
+        }
+        cli(version: "0.8.4") {
+            export(path: "bin/dagger-0.8.4")
+        }
+    }
+}
+
+query hack($args: [String!]=["engine:build"]) {
+    dagger_dev {
+        source(version: "0.8.4") {
+            daggerHack(version: "0.8.4", args: $args) {
+                id
+            }
+        }
+    }
+
+}
+
+query foo {
+    container {
+        id
+    }
+}
+
+query introspect {
+    __schema {
+        queryType { name }
+        mutationType { name }
+        subscriptionType { name }
+        types {
+          fields {
+            name
+            description
+          }
+        }
+        directives {
+          name
+          description
+          locations
+        }
+      }
+    }
