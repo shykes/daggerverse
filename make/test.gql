@@ -1,0 +1,12 @@
+query test {
+    git(url: "https://github.com/dagger/dagger") {
+        branch(name: "main") {
+            tree {
+                make(args: ["test"]) {
+                    id
+                }
+            }
+        }
+    }
+
+}
