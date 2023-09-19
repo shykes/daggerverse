@@ -1,19 +1,12 @@
-query testReleases {
+query latest {
     dagger {
-        v0_8_5 :engine(version: "0.8.5") {
-            cli(os: "Darwin", arch: "amd64") {
-                export(path: "releases/0.8.5/bin/dagger")
+        engine(version: "0.8.5") {
+            cli {
+                export(path: "bin/dagger-0.8.5")
             }
+
             source {
-                export(path: "release/0.8.5/src")
-            }
-        }
-        v0_8_4: engine(version: "0.8.4") {
-            cli(os: "Linux", arch: "x86_64") {
-                export(path: "releases/0.8.4/bin/dagger")
-            }
-            source {
-                export(path: "release/0.8.4/src")
+                export(path: "dagger-0.8.5/")
             }
         }
     }

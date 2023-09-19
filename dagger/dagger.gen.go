@@ -3739,7 +3739,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			return (*Dagger).Engine(&parent, ctx, version)
 		case "":
 			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arch\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"OS\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OS\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
 			var typeDef TypeDefInput
 			err = json.Unmarshal(typeDefBytes, &typeDef)
 			if err != nil {
@@ -3756,7 +3756,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		}
 	case "Engine":
 		switch fnName {
-		case "Arch":
+		case "Arches":
 			var err error
 			var parent Engine
 			err = json.Unmarshal(parentJSON, &parent)
@@ -3764,7 +3764,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Arch(&parent, ctx)
+			return (*Engine).Arches(&parent, ctx)
 		case "CLI":
 			var err error
 			var parent Engine
@@ -3773,20 +3773,8 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			var OS string
-			err = json.Unmarshal([]byte(inputArgs["OS"]), &OS)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var arch string
-			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).CLI(&parent, ctx, OS, arch)
-		case "OS":
+			return (*Engine).CLI(&parent, ctx)
+		case "OSes":
 			var err error
 			var parent Engine
 			err = json.Unmarshal(parentJSON, &parent)
@@ -3794,7 +3782,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).OS(&parent, ctx)
+			return (*Engine).OSes(&parent, ctx)
 		case "Source":
 			var err error
 			var parent Engine

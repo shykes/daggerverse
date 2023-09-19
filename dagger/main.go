@@ -30,27 +30,26 @@ func (e *Engine) source() *Directory {
 		Tree()
 }
 
-func (e *Engine) OS(ctx context.Context) ([]string, error) {
+func (e *Engine) OSes(ctx context.Context) ([]string, error) {
 	return []string{
-		"Darwin",
-		"Linux",
-		"Windows",
+		"darwin",
+		"linux",
+		"windows",
 	}, nil
 }
 
-func (e *Engine) Arch(ctx context.Context) ([]string, error) {
+func (e *Engine) Arches(ctx context.Context) ([]string, error) {
 	return []string{
 		"x86_64",
 		"arm64",
 	}, nil
 }
 
-func (e *Engine) CLI(ctx context.Context, OS, arch string) (*File, error) {
-	return e.cli(OS, arch), nil
+func (e *Engine) CLI(ctx context.Context) (*File, error) {
+	return e.cli(), nil
 }
 
-func (e *Engine) cli(OS, arch string) *File {
-	// FIXME: use OS and arch
+func (e *Engine) cli() *File {
 	return dag.
 		Container().
 		From("golang").
@@ -65,3 +64,4 @@ func (e *Engine) cli(OS, arch string) *File {
 		}).
 		File("/bin/dagger")
 }
+.
