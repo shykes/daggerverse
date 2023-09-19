@@ -11,16 +11,19 @@ type HelloWorld struct {
 	Name     string
 }
 
+// Change the greeting
 func (hello *HelloWorld) WithGreeting(ctx context.Context, greeting string) (*HelloWorld, error) {
 	hello.Greeting = greeting
 	return hello, nil
 }
 
+// Change the name
 func (hello *HelloWorld) WithName(ctx context.Context, name string) (*HelloWorld, error) {
 	hello.Name = name
 	return hello, nil
 }
 
+// Say hello to the world!
 func (hello *HelloWorld) Message(ctx context.Context) (string, error) {
 	var (
 		greeting = hello.Greeting
