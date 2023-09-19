@@ -45,23 +45,29 @@ func (e *Engine) Arches(ctx context.Context) ([]string, error) {
 	}, nil
 }
 
-func (e *Engine) CLI(ctx context.Context) (*File, error) {
-	return e.cli(), nil
+func (e *Engine) CLI(ctx context.Context, operatingSystem, arch string) (*File, error) {
+	return e.cli(operatingSystem, arch), nil
 }
 
-func (e *Engine) cli() *File {
+func (e *Engine) cli(operatingSystem, arch string) *File {
+	ldflags := "-s -w"
+	if operatingSystem == "linux" {
+		ldflags += " -d"
+	}
+
 	return dag.
 		Container().
 		From("golang").
 		WithMountedDirectory("/src", e.source()).
 		WithWorkdir("/src").
 		WithEnvVariable("CGO_ENABLED", "0").
+		WithEnvVariable("GOOS", operatingSystem).
+		WithEnvVariable("GOARCH", arch).
 		WithExec([]string{
 			"go", "build",
 			"-o", "/bin/dagger",
-			"-ldflags", "-s -d -w",
+			"-ldflags", ldflags,
 			"./cmd/dagger",
 		}).
 		File("/bin/dagger")
 }
-.

@@ -1,7 +1,7 @@
 query latest {
     dagger {
         engine(version: "0.8.5") {
-            cli {
+            cli(operatingSystem: "darwin", arch: "amd64") {
                 export(path: "bin/dagger-0.8.5")
             }
 

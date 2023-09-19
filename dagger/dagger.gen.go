@@ -3720,40 +3720,6 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (any, error) {
 	switch parentName {
-	case "Dagger":
-		switch fnName {
-		case "Engine":
-			var err error
-			var parent Dagger
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var version string
-			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Dagger).Engine(&parent, ctx, version)
-		case "":
-			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
-			var typeDef TypeDefInput
-			err = json.Unmarshal(typeDefBytes, &typeDef)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			mod := dag.CurrentModule()
-			for _, fnDef := range typeDef.AsObject.Functions {
-				mod = mod.WithFunction(dag.NewFunction(fnDef))
-			}
-			return mod, nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
 	case "Engine":
 		switch fnName {
 		case "Arches":
@@ -3773,7 +3739,19 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).CLI(&parent, ctx)
+			var operatingSystem string
+			err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &operatingSystem)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).CLI(&parent, ctx, operatingSystem, arch)
 		case "OSes":
 			var err error
 			var parent Engine
@@ -3802,6 +3780,40 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		}
 	case "Directory":
 		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Dagger":
+		switch fnName {
+		case "Engine":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var version string
+			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Engine(&parent, ctx, version)
+		case "":
+			var err error
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"operatingSystem\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
+			var typeDef TypeDefInput
+			err = json.Unmarshal(typeDefBytes, &typeDef)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			mod := dag.CurrentModule()
+			for _, fnDef := range typeDef.AsObject.Functions {
+				mod = mod.WithFunction(dag.NewFunction(fnDef))
+			}
+			return mod, nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
