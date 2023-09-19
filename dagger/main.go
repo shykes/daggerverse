@@ -5,39 +5,56 @@ import (
 )
 
 // A Dagger module for Dagger
-type Dagger struct{}
-
-func (m *Dagger) Release(ctx context.Context, version string) (*Release, error) {
-	r := &Release{
-		version: version,
-	}
-	return r, nil
+type Dagger struct {
 }
 
-type Release struct {
-	version string
+// The Dagger Engine
+func (d *Dagger) Engine(ctx context.Context, version string) (*Engine, error) {
+	return &Engine{
+		Version: version,
+	}, nil
 }
 
-func (r *Release) Source(ctx context.Context) (*Directory, error) {
-	return r.source(), nil
+type Engine struct {
+	Version string
 }
 
-func (r *Release) source() *Directory {
+func (e *Engine) Source(ctx context.Context) (*Directory, error) {
+	return e.source(), nil
+}
+
+func (e *Engine) source() *Directory {
 	return dag.
 		Git("https://github.com/dagger/dagger").
-		Tag("v" + r.version).
+		Tag("v" + e.Version).
 		Tree()
 }
 
-func (r *Release) CLI(ctx context.Context) (*File, error) {
-	return r.cli(), nil
+func (e *Engine) OS(ctx context.Context) ([]string, error) {
+	return []string{
+		"Darwin",
+		"Linux",
+		"Windows",
+	}, nil
 }
 
-func (r *Release) cli() *File {
+func (e *Engine) Arch(ctx context.Context) ([]string, error) {
+	return []string{
+		"x86_64",
+		"arm64",
+	}, nil
+}
+
+func (e *Engine) CLI(ctx context.Context, OS, arch string) (*File, error) {
+	return e.cli(OS, arch), nil
+}
+
+func (e *Engine) cli(OS, arch string) *File {
+	// FIXME: use OS and arch
 	return dag.
 		Container().
 		From("golang").
-		WithMountedDirectory("/src", r.source()).
+		WithMountedDirectory("/src", e.source()).
 		WithWorkdir("/src").
 		WithEnvVariable("CGO_ENABLED", "0").
 		WithExec([]string{
