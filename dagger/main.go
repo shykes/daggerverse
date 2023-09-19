@@ -7,23 +7,37 @@ import (
 // A Dagger module for Dagger
 type Dagger struct{}
 
-// Fetch a Dagger source code release
-func (m *Dagger) SourceRelease(ctx context.Context, version string) (*Directory, error) {
-	return daggerSourceRelease(version), nil
+func (m *Dagger) Release(ctx context.Context, version string) (*Release, error) {
+	r := &Release{
+		version: version,
+	}
+	return r, nil
 }
 
-func daggerSourceRelease(version string) *Directory {
+type Release struct {
+	version string
+}
+
+func (r *Release) Source(ctx context.Context) (*Directory, error) {
+	return r.source(), nil
+}
+
+func (r *Release) source() *Directory {
 	return dag.
 		Git("https://github.com/dagger/dagger").
-		Tag("v" + version).
+		Tag("v" + r.version).
 		Tree()
 }
 
-func (m *Dagger) CLI(ctx context.Context, version string) (*File, error) {
-	binDagger := dag.
+func (r *Release) CLI(ctx context.Context) (*File, error) {
+	return r.cli(), nil
+}
+
+func (r *Release) cli() *File {
+	return dag.
 		Container().
 		From("golang").
-		WithMountedDirectory("/src", daggerSourceRelease(version)).
+		WithMountedDirectory("/src", r.source()).
 		WithWorkdir("/src").
 		WithEnvVariable("CGO_ENABLED", "0").
 		WithExec([]string{
@@ -33,5 +47,4 @@ func (m *Dagger) CLI(ctx context.Context, version string) (*File, error) {
 			"./cmd/dagger",
 		}).
 		File("/bin/dagger")
-	return binDagger, nil
 }

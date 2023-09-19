@@ -1,0 +1,20 @@
+query testReleases {
+    dagger {
+        v0_8_5 :release(version: "0.8.5") {
+            cli {
+                export(path: "releases/0.8.5/bin/dagger")
+            }
+            source {
+                export(path: "release/0.8.5/src")
+            }
+        }
+        v0_8_4: release(version: "0.8.4") {
+            cli {
+                export(path: "releases/0.8.4/bin/dagger")
+            }
+            source {
+                export(path: "release/0.8.4/src")
+            }
+        }
+    }
+}
