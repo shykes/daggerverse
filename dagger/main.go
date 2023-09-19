@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 )
 
 // A Dagger module for Dagger
@@ -50,24 +51,44 @@ func (e *Engine) CLI(ctx context.Context, operatingSystem, arch string) (*File, 
 }
 
 func (e *Engine) cli(operatingSystem, arch string) *File {
-	ldflags := "-s -w"
-	if operatingSystem == "linux" {
-		ldflags += " -d"
+	base := e.goBase()
+	if operatingSystem != "" {
+		base = base.WithEnvVariable("GOOS", operatingSystem)
 	}
+	if arch != "" {
+		base = base.WithEnvVariable("GOARCH", arch)
+	}
+	return base.
+		WithExec(
+			[]string{"go", "build", "-o", "./bin/dagger", "-ldflags", "-s -w", "./cmd/dagger"},
+		).
+		File("./bin/dagger")
+}
 
-	return dag.
-		Container().
-		From("golang").
-		WithMountedDirectory("/src", e.source()).
-		WithWorkdir("/src").
+func (e *Engine) goBase() *Container {
+	return dag.Container().
+		From(fmt.Sprintf("golang:%s-alpine%s", golangVersion, alpineVersion)).
+		// gcc is needed to run go test -race https://github.com/golang/go/issues/9918 (???)
+		WithExec([]string{"apk", "add", "build-base"}).
 		WithEnvVariable("CGO_ENABLED", "0").
-		WithEnvVariable("GOOS", operatingSystem).
-		WithEnvVariable("GOARCH", arch).
-		WithExec([]string{
-			"go", "build",
-			"-o", "/bin/dagger",
-			"-ldflags", ldflags,
-			"./cmd/dagger",
+		// adding the git CLI to inject vcs info
+		// into the go binaries
+		WithExec([]string{"apk", "add", "git"}).
+		WithWorkdir("/app").
+		// run `go mod download` with only go.mod files (re-run only if mod files have changed)
+		WithDirectory("/app", e.source(), ContainerWithDirectoryOpts{
+			Include: []string{"**/go.mod", "**/go.sum"},
 		}).
-		File("/bin/dagger")
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithExec([]string{"go", "mod", "download"}).
+		// run `go build` with all source
+		WithMountedDirectory("/app", e.source()).
+		// include a cache for go build
+		WithMountedCache("/root/.cache/go-build", dag.CacheVolume("go-build"))
+}
+
+// GoBase is a standardized base image for running Go, cache optimized for the layout
+// of this engine source code
+func (e *Engine) GoBase(ctx context.Context) (*Container, error) {
+	return e.goBase(), nil
 }
