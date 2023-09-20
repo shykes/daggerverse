@@ -3737,7 +3737,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Dagger).Engine(&parent, ctx, version)
+			return (*Dagger).Engine(&parent, version), nil
 		case "":
 			var err error
 			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"operatingSystem\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"description\":\"GoBase is a standardized base image for running Go, cache optimized for the layout\\nof this engine source code\\n\",\"name\":\"GoBase\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
@@ -3756,6 +3756,78 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
 	case "Engine":
+		switch fnName {
+		case "Arches":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Arches(&parent), nil
+		case "CLI":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var operatingSystem string
+			err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &operatingSystem)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).CLI(&parent, operatingSystem, arch), nil
+		case "GoBase":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).GoBase(&parent), nil
+		case "OSes":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).OSes(&parent), nil
+		case "Source":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Source(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "File":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Container":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Directory":
 		switch fnName {
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
