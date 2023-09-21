@@ -9,8 +9,10 @@ query latest {
                 export(path: "dagger-0.8.5/")
             }
 
-            devContainer {
-                id
+            worker {
+                devContainer {
+                    id
+                }
             }
         }
     }

@@ -3721,18 +3721,17 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (any, error) {
 	switch parentName {
-	case "Directory":
-		switch fnName {
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Container":
-		switch fnName {
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
 	case "Dagger":
 		switch fnName {
+		case "Cloud":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Cloud(&parent), nil
 		case "Engine":
 			var err error
 			var parent Dagger
@@ -3750,7 +3749,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			return (*Dagger).Engine(&parent, version), nil
 		case "":
 			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"AlpineVersion\",\"returnType\":{\"kind\":\"StringKind\"}},{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Buildctl\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"operatingSystem\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"CNIPlugins\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DNSName\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DevContainer\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"description\":\"GoBase is a standardized base image for running Go, cache optimized for the layout\\nof this engine source code\\n\",\"name\":\"GoBase\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"runner binary\\n\",\"name\":\"Runner\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Shim\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Tests\",\"returnType\":{\"kind\":\"VoidKind\",\"optional\":true}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"name\":\"Cloud\",\"returnType\":{\"asObject\":{\"functions\":[{\"name\":\"About\",\"returnType\":{\"kind\":\"StringKind\"}},{\"name\":\"URL\",\"returnType\":{\"kind\":\"StringKind\"}}],\"name\":\"Cloud\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"operatingSystem\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"description\":\"GoBase is a standardized base image for running Go, cache optimized for the layout\\nof this engine source code\\n\",\"name\":\"GoBase\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"description\":\"The Dagger Engine source code\\n\",\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Worker\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"GoBase\",\"typeDef\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DaggerCLI\",\"typeDef\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}}],\"functions\":[{\"name\":\"Buildctl\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"CNIPlugins\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DNSName\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The worker daemon\\n\",\"name\":\"Daemon\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DevContainer\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"QemuBins\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Runc\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Shim\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"description\":\"Run all worker tests\\n\",\"name\":\"Tests\",\"returnType\":{\"kind\":\"VoidKind\",\"optional\":true}}],\"name\":\"Worker\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
 			var typeDef TypeDefInput
 			err = json.Unmarshal(typeDefBytes, &typeDef)
 			if err != nil {
@@ -3765,17 +3764,31 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
-	case "Engine":
+	case "Cloud":
 		switch fnName {
-		case "AlpineVersion":
+		case "About":
 			var err error
-			var parent Engine
+			var parent Cloud
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).AlpineVersion(&parent), nil
+			return (*Cloud).About(&parent), nil
+		case "URL":
+			var err error
+			var parent Cloud
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Cloud).URL(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Engine":
+		switch fnName {
 		case "Arches":
 			var err error
 			var parent Engine
@@ -3785,15 +3798,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Engine).Arches(&parent), nil
-		case "Buildctl":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Buildctl(&parent), nil
 		case "CLI":
 			var err error
 			var parent Engine
@@ -3815,33 +3819,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Engine).CLI(&parent, operatingSystem, arch), nil
-		case "CNIPlugins":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).CNIPlugins(&parent), nil
-		case "DNSName":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).DNSName(&parent), nil
-		case "DevContainer":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).DevContainer(&parent), nil
 		case "GoBase":
 			var err error
 			var parent Engine
@@ -3860,9 +3837,74 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Engine).OSes(&parent), nil
-		case "Runner":
+		case "Source":
 			var err error
 			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Source(&parent), nil
+		case "Worker":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Worker(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "File":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Container":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Directory":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Worker":
+		switch fnName {
+		case "Buildctl":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Buildctl(&parent), nil
+		case "CNIPlugins":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).CNIPlugins(&parent), nil
+		case "DNSName":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).DNSName(&parent), nil
+		case "Daemon":
+			var err error
+			var parent Worker
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -3874,39 +3916,52 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Runner(&parent, version), nil
+			return (*Worker).Daemon(&parent, version), nil
+		case "DevContainer":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).DevContainer(&parent), nil
+		case "QemuBins":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).QemuBins(&parent), nil
+		case "Runc":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Runc(&parent), nil
 		case "Shim":
 			var err error
-			var parent Engine
+			var parent Worker
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Shim(&parent), nil
-		case "Source":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Source(&parent), nil
+			return (*Worker).Shim(&parent), nil
 		case "Tests":
 			var err error
-			var parent Engine
+			var parent Worker
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return nil, (*Engine).Tests(&parent, ctx)
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "File":
-		switch fnName {
+			return nil, (*Worker).Tests(&parent, ctx)
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
