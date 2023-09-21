@@ -1,0 +1,8 @@
+{
+  "root": "",
+  "name": "datetime",
+  "sdk": "go",
+  "dependencies": [
+    "github.com/samalba/inline-python-mod@be4e7f66c02e4735ee88013c196a16b697c6e095"
+  ]
+}
