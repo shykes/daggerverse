@@ -3773,8 +3773,22 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (any, error) {
 	switch parentName {
+	case "File":
+		switch fnName {
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
 	case "Myip":
 		switch fnName {
+		case "Code":
+			var err error
+			var parent Myip
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Myip).Code(&parent), nil
 		case "IP":
 			var err error
 			var parent Myip
@@ -3786,7 +3800,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			return (*Myip).IP(&parent, ctx)
 		case "":
 			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"name\":\"IP\",\"returnType\":{\"kind\":\"StringKind\"}}],\"name\":\"Myip\"},\"kind\":\"ObjectKind\"}")
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"name\":\"Code\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"description\":\"Return the public IP address of the current Dagger engine\\n\",\"name\":\"IP\",\"returnType\":{\"kind\":\"StringKind\"}}],\"name\":\"Myip\"},\"kind\":\"ObjectKind\"}")
 			var typeDef TypeDefInput
 			err = json.Unmarshal(typeDefBytes, &typeDef)
 			if err != nil {

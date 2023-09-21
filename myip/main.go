@@ -7,6 +7,13 @@ type Myip struct{}
 
 // Return the public IP address of the current Dagger engine
 func (m *Myip) IP(ctx context.Context) (string, error) {
-	code := `import sys,requests as r; sys.stdout.write(r.get('https://api.ipify.org?format=json').json()['ip'])`
+	code, err := m.Code().Contents(ctx)
+	if err != nil {
+		return code, err
+	}
 	return dag.InlinePython().WithPackage("requests").Code(code).Stdout(ctx)
+}
+
+func (m *Myip) Code() *File {
+	return dag.Host().File("myip.py")
 }
