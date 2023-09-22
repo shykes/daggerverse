@@ -9,15 +9,18 @@ const (
 )
 
 type Engine struct {
-	Version string
+	SourceRepo   string
+	SourceBranch string
 }
 
-// The Dagger Engine source code
 func (e *Engine) Source() *Directory {
-	return dag.
-		Git("https://github.com/dagger/dagger").
-		Tag("v" + e.Version).
-		Tree()
+	return dag.Git(e.SourceRepo).Branch(e.SourceBranch).Tree()
+}
+
+func (e *Engine) FromZenithBranch() *Engine {
+	e.SourceRepo = "https://github.com/shykes/dagger"
+	e.SourceBranch = "zenith-functions"
+	return e
 }
 
 func (e *Engine) OSes() []string {
@@ -35,17 +38,28 @@ func (e *Engine) Arches() []string {
 	}
 }
 
-func (e *Engine) CLI(operatingSystem, arch string) *File {
-	base := e.GoBase()
-	if operatingSystem != "" {
-		base = base.WithEnvVariable("GOOS", operatingSystem)
+type CLIOpts struct {
+	OperatingSystem string
+	Arch            string
+	WorkerRegistry  string `doc:"Registry from which to auto-pull the worker container image"`
+}
+
+func (e *Engine) CLI(opts CLIOpts) *File {
+	if opts.WorkerRegistry == "" {
+		opts.WorkerRegistry = "registry.dagger.io/engine"
 	}
-	if arch != "" {
-		base = base.WithEnvVariable("GOARCH", arch)
+	workerRegisterLDFlag := fmt.Sprintf("-X github.com/dagger/dagger/engine.EngineImageRepo=%s", opts.WorkerRegistry)
+
+	base := e.GoBase()
+	if opts.OperatingSystem != "" {
+		base = base.WithEnvVariable("GOOS", opts.OperatingSystem)
+	}
+	if opts.Arch != "" {
+		base = base.WithEnvVariable("GOARCH", opts.Arch)
 	}
 	return base.
 		WithExec(
-			[]string{"go", "build", "-o", "./bin/dagger", "-ldflags", "-s -w", "./cmd/dagger"},
+			[]string{"go", "build", "-o", "./bin/dagger", "-ldflags", "-s -w " + workerRegisterLDFlag, "./cmd/dagger"},
 		).
 		File("./bin/dagger")
 }
@@ -77,6 +91,6 @@ func (e *Engine) GoBase() *Container {
 func (e *Engine) Worker() *Worker {
 	return &Worker{
 		GoBase:    e.GoBase(),
-		DaggerCLI: e.CLI("", ""),
+		DaggerCLI: e.CLI(CLIOpts{}),
 	}
 }

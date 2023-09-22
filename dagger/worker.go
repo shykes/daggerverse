@@ -27,10 +27,37 @@ const (
 type Worker struct {
 	GoBase    *Container
 	DaggerCLI *File
+	Version   string
 }
 
-func (w *Worker) DevContainer() *Container {
-	return dag.Container().
+func (w *Worker) Arches() []string {
+	return []string{"amd64", "arm64"}
+}
+
+// Build a worker container for each supported architecture
+func (w *Worker) Containers() []*Container {
+	arches := w.Arches()
+	platformVariants := make([]*Container, 0, len(arches))
+	for _, arch := range arches {
+		platformVariants = append(platformVariants, w.Container(arch))
+	}
+	return platformVariants
+}
+
+// Publish the worker container to the given registry
+func (w *Worker) Publish(ctx context.Context, ref string) (string, error) {
+	return dag.Container().Publish(ctx, ref, ContainerPublishOpts{
+		PlatformVariants: w.Containers(),
+	})
+}
+
+// Build a worker container for the given architecture
+func (w *Worker) Container(arch string) *Container {
+	var opts ContainerOpts
+	if arch != "" {
+		opts.Platform = Platform("linux/" + arch)
+	}
+	return dag.Container(opts).
 		From("alpine:"+alpineVersion).
 		WithDefaultArgs().
 		WithExec([]string{
@@ -45,7 +72,7 @@ func (w *Worker) DevContainer() *Container {
 		}).
 		WithFile("/usr/local/bin/buildctl", w.Buildctl()).
 		WithFile("/usr/local/bin/"+shimBinName, w.Shim()).
-		WithFile("/usr/local/bin/"+workerBinName, w.Daemon("")).
+		WithFile("/usr/local/bin/"+workerBinName, w.Daemon(w.Version)).
 		WithDirectory("/usr/local/bin", w.QemuBins()).
 		WithDirectory("/opt/cni/bin", w.CNIPlugins()).
 		WithDirectory(workerDefaultStateDir, dag.Directory()).
@@ -156,7 +183,7 @@ func (w *Worker) Runc() *File {
 
 // Run all worker tests
 func (w *Worker) Tests(ctx context.Context) error {
-	worker := w.DevContainer()
+	worker := w.Container("")
 
 	// This creates an engine.tar container file that can be used by the integration tests.
 	// In particular, it is used by core/integration/remotecache_test.go to create a

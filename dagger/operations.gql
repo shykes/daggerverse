@@ -1,17 +1,12 @@
-query latest {
+query {
     dagger {
-        engine(version: "0.8.5") {
-            cli(operatingSystem: "darwin", arch: "amd64") {
-                export(path: "bin/dagger-0.8.5")
-            }
-
-            source {
-                export(path: "dagger-0.8.5/")
-            }
-
-            worker {
-                devContainer {
-                    id
+        engine {
+            fromZenithBranch {
+                cli(workerRegistry: "ttl.sh/dagger-engine-worker-zenith", arch: "amd64", operatingSystem: "darwin") {
+                    export(path: "./bin/dagger-zenith")
+                }
+                worker {
+                    publish(ref: "ttl.sh/dagger-engine-worker-zenith:main")
                 }
             }
         }
