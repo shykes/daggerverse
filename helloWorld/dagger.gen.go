@@ -3604,6 +3604,7 @@ const (
 	Listkind    TypeDefKind = "ListKind"
 	Objectkind  TypeDefKind = "ObjectKind"
 	Stringkind  TypeDefKind = "StringKind"
+	Voidkind    TypeDefKind = "VoidKind"
 )
 
 type Client struct {
@@ -3730,7 +3731,16 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*HelloWorld).Message(&parent, ctx)
+			return (*HelloWorld).Message(&parent), nil
+		case "Shout":
+			var err error
+			var parent HelloWorld
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*HelloWorld).Shout(&parent), nil
 		case "WithGreeting":
 			var err error
 			var parent HelloWorld
@@ -3745,7 +3755,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*HelloWorld).WithGreeting(&parent, ctx, greeting)
+			return (*HelloWorld).WithGreeting(&parent, greeting), nil
 		case "WithName":
 			var err error
 			var parent HelloWorld
@@ -3760,10 +3770,10 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*HelloWorld).WithName(&parent, ctx, name)
+			return (*HelloWorld).WithName(&parent, name), nil
 		case "":
 			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"fields\":[{\"name\":\"Greeting\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"Name\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Message\",\"returnType\":{\"kind\":\"StringKind\"}},{\"args\":[{\"name\":\"greeting\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"WithGreeting\",\"returnType\":{\"asObject\":{\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"name\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"name\":\"WithName\",\"returnType\":{\"asObject\":{\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}}],\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}")
+			var typeDefBytes []byte = []byte("{\"asObject\":{\"fields\":[{\"name\":\"Greeting\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"Name\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"description\":\"Say hello to the world!\\n\",\"name\":\"Message\",\"returnType\":{\"kind\":\"StringKind\"}},{\"name\":\"Shout\",\"returnType\":{\"kind\":\"StringKind\"}},{\"args\":[{\"name\":\"greeting\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Change the greeting\\n\",\"name\":\"WithGreeting\",\"returnType\":{\"asObject\":{\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"name\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Change the name\\n\",\"name\":\"WithName\",\"returnType\":{\"asObject\":{\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}}],\"name\":\"HelloWorld\"},\"kind\":\"ObjectKind\"}")
 			var typeDef TypeDefInput
 			err = json.Unmarshal(typeDefBytes, &typeDef)
 			if err != nil {
