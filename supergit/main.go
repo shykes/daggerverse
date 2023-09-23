@@ -18,6 +18,10 @@ type Remote struct {
 	URL string `json:"url"`
 }
 
+func (r *Remote) Fetch(ref string) *Directory {
+	return dag.Git(r.URL).Branch(ref).Tree()
+}
+
 func (r *Remote) Tags(ctx context.Context, opts TagsOpts) ([]*Tag, error) {
 	var (
 		filter *regexp.Regexp
