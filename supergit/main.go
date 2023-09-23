@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"strings"
+	"regexp"
 )
 
 type Supergit struct {}
@@ -14,29 +15,57 @@ func (m *Supergit) Remote(url string) *Remote {
 }
 
 type Remote struct {
-	URL string
+	URL string `json:"url"`
 }
 
-func (r *Remote) Tags(ctx context.Context, filter string) ([]string, error) {
+func (r *Remote) Tags(ctx context.Context, opts TagsOpts) ([]*Tag, error) {
+	var (
+		filter *regexp.Regexp
+		err error
+	)
+	if opts.Filter != "" {
+		filter, err = regexp.Compile(opts.Filter)
+		if err != nil {
+			return nil, err
+		}
+	}
 	output, err := container().WithExec([]string{"ls-remote", "--tags", r.URL}).Stdout(ctx)
 	if err != nil {
 		return nil, err
 	}
 	lines := strings.Split(output, "\n")
-	tags := make([]string, 0, len(lines))
+	tags := make([]*Tag, 0, len(lines))
 	for i := range lines {
 		parts := strings.SplitN(lines[i], "\t", 2)
 		if len(parts) < 2 {
 			continue
 		}
-		tags = append(tags, strings.TrimPrefix(parts[1], "refs/tags/"))
+		commit := parts[0]
+		name := strings.TrimPrefix(parts[1], "refs/tags/")
+		if filter != nil {
+			if !filter.MatchString(name) {
+				continue
+			}
+		}
+		tags = append(tags, &Tag{
+			Name: name,
+			Commit: commit,
+		})
 	}
 	return tags, nil
 }
 
+type TagsOpts struct {
+	Filter string `doc:"Only include tags matching this regular expression"`
+}
+
 type Tag struct {
-	Name string
-	Commit string
+	Name string `json:"name"`
+	Commit string `json:"commit"`
+}
+
+func (t *Tag) Foo() string {
+	return "bar"
 }
 
 func container() *Container {
