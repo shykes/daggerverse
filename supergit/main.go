@@ -33,7 +33,7 @@ func (r *Remote) Tags(ctx context.Context, opts TagsOpts) ([]*Tag, error) {
 			return nil, err
 		}
 	}
-	output, err := container().WithExec([]string{"ls-remote", "--tags", r.URL}).Stdout(ctx)
+	output, err := container().WithExec([]string{"git", "ls-remote", "--tags", r.URL}).Stdout(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +76,5 @@ func container() *Container {
 	return dag.
 		Container().
 		From("cgr.dev/chainguard/wolfi-base").
-		WithExec([]string{"apk", "add", "git"}).
-		WithEntrypoint([]string{"git"})
+		WithExec([]string{"apk", "add", "git"})
 }
