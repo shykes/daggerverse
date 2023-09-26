@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"strings"
 	"regexp"
+	"strings"
 )
 
-type Supergit struct {}
+type Supergit struct{}
 
 func (m *Supergit) Remote(url string) *Remote {
 	return &Remote{
@@ -19,13 +19,34 @@ type Remote struct {
 }
 
 func (r *Remote) Fetch(ref string) *Directory {
-	return dag.Git(r.URL).Branch(ref).Tree()
+	gitDir := "/git/gitdir"
+	workTree := "/git/worktree"
+	return container().
+		WithDirectory(workTree, dag.Directory()).
+		// Mount git dir as cache volume (FIXME: this may or may not work properly)
+		WithMountedCache(gitDir, dag.CacheVolume("supergit-"+r.URL)).
+		WithExec([]string{
+			"git", "--git-dir", gitDir,
+			"init", "-q", "--bare",
+		}).
+		WithExec([]string{
+			"git", "--git-dir", gitDir,
+			"--work-tree", workTree,
+			"fetch", r.URL, ref + ":" + ref,
+		}).
+		WithExec([]string{
+			"git", "--git-dir", gitDir,
+			"--work-tree", workTree,
+			"-C", workTree,
+			"checkout", ref,
+		}).
+		Directory(workTree)
 }
 
 func (r *Remote) Tags(ctx context.Context, opts TagsOpts) ([]*Tag, error) {
 	var (
 		filter *regexp.Regexp
-		err error
+		err    error
 	)
 	if opts.Filter != "" {
 		filter, err = regexp.Compile(opts.Filter)
@@ -52,7 +73,7 @@ func (r *Remote) Tags(ctx context.Context, opts TagsOpts) ([]*Tag, error) {
 			}
 		}
 		tags = append(tags, &Tag{
-			Name: name,
+			Name:   name,
 			Commit: commit,
 		})
 	}
@@ -64,7 +85,7 @@ type TagsOpts struct {
 }
 
 type Tag struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
 	Commit string `json:"commit"`
 }
 
