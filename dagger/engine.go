@@ -90,7 +90,7 @@ func (e *Engine) GoBase() *Container {
 
 func (e *Engine) Worker() *Worker {
 	return &Worker{
-		GoBase:    e.GoBase(),
-		DaggerCLI: e.CLI(CLIOpts{}),
+		GoBase: e.GoBase(),
+		Engine: e,
 	}
 }
