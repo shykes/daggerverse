@@ -14,7 +14,7 @@ import (
 
 	"github.com/Khan/genqlient/graphql"
 
-	"dagger/querybuilder"
+	"dagger/internal/querybuilder"
 )
 
 // assertNotNil panic if the given value is nil.
@@ -41,10 +41,13 @@ type DirectoryID string
 // A file identifier.
 type FileID string
 
+// A reference to a Function.
 type FunctionID string
 
+// An arbitrary JSON-encoded value.
 type JSON string
 
+// A reference to a Module.
 type ModuleID string
 
 // The platform config OS and architecture in a Container.
@@ -58,6 +61,12 @@ type SecretID string
 // A content-addressed socket identifier.
 type SocketID string
 
+// A reference to a TypeDef.
+type TypeDefID string
+
+// The absense of a value.
+//
+// A Null Void is used as a placeholder for resolvers that do not return anything.
 type Void string
 
 // Key value object that represents a build argument.
@@ -69,80 +78,18 @@ type BuildArg struct {
 	Value string `json:"value,omitempty"`
 }
 
-// A definition of a field on a custom object defined in a Module.
-// A field on an object has a static value, as opposed to a function on an
-// object whose value is computed by invoking code (and can accept arguments).
-type FieldTypeDefInput struct {
-	// A doc string for the field, if any
-	Description string `json:"description,omitempty"`
-
-	// The name of the field in the object
-	Name string `json:"name,omitempty"`
-
-	// The type of the field
-	TypeDef *TypeDefInput `json:"typeDef,omitempty"`
-}
-
-type FunctionArgDef struct {
-	// A default value to use for this argument if not explicitly set by the caller, if any
-	DefaultValue JSON `json:"defaultValue,omitempty"`
-
-	// A doc string for the argument, if any
-	Description string `json:"description,omitempty"`
-
-	// The name of the argument
-	Name string `json:"name,omitempty"`
-
-	// The type of the argument
-	TypeDef *TypeDefInput `json:"typeDef,omitempty"`
-}
-
 type FunctionCallInput struct {
 	// The name of the argument to the function
 	Name string `json:"name,omitempty"`
 
-	// The value of the argument to the function, representing as a JSON-serialized string.
+	// The value of the argument represented as a string of the JSON serialization.
 	Value JSON `json:"value,omitempty"`
-}
-
-type FunctionDef struct {
-	// Arguments accepted by this function, if any
-	Args []*FunctionArgDef `json:"args,omitempty"`
-
-	// A doc string for the function, if any
-	Description string `json:"description,omitempty"`
-
-	// The name of the function
-	Name string `json:"name,omitempty"`
-
-	// The type returned by this function
-	ReturnType *TypeDefInput `json:"returnType,omitempty"`
-}
-
-type ListTypeDefInput struct {
-	// The type of the elements in the list
-	ElementTypeDef *TypeDefInput `json:"elementTypeDef,omitempty"`
 }
 
 type ModuleEnvironmentVariable struct {
 	Name string `json:"name,omitempty"`
 
 	Value string `json:"value,omitempty"`
-}
-
-// A definition of a custom object defined in a Module.
-type ObjectTypeDefInput struct {
-	// The doc string for the object, if any
-	Description string `json:"description,omitempty"`
-
-	// Static fields defined on this object, if any
-	Fields []*FieldTypeDefInput `json:"fields,omitempty"`
-
-	// Functions defined on this object, if any
-	Functions []*FunctionDef `json:"functions,omitempty"`
-
-	// The name of the object
-	Name string `json:"name,omitempty"`
 }
 
 // Key value object that represents a Pipeline label.
@@ -152,23 +99,6 @@ type PipelineLabel struct {
 
 	// Label value.
 	Value string `json:"value,omitempty"`
-}
-
-// A definition of a type used in a Module as an argument, return type or object field.
-type TypeDefInput struct {
-	// If kind is LIST, the list-specific type definition.
-	// If kind is not LIST, this will be null."
-	AsList *ListTypeDefInput `json:"asList,omitempty"`
-
-	// If kind is OBJECT, the object-specific type definition.
-	// If kind is not OBJECT, this will be null."
-	AsObject *ObjectTypeDefInput `json:"asObject,omitempty"`
-
-	// The kind of type this is (e.g. primitive, list, object)
-	Kind TypeDefKind `json:"kind,omitempty"`
-
-	// Whether this type can be set to null
-	Optional bool `json:"optional,omitempty"`
 }
 
 // A directory whose contents persist across runs.
@@ -1533,25 +1463,35 @@ func (r *Directory) With(f WithDirectoryFunc) *Directory {
 
 // DirectoryAsModuleOpts contains options for Directory.AsModule
 type DirectoryAsModuleOpts struct {
+	// An optional subpath of the directory which contains the module's source
+	// code.
+	//
+	// This is needed when the module code is in a subdirectory but requires
+	// parent directories to be loaded in order to execute. For example, the
+	// module source code may need a go.mod, project.toml, package.json, etc. file
+	// from a parent directory.
+	//
+	// If not set, the module source code is loaded from the root of the
+	// directory.
 	SourceSubpath string
+	// A pre-built runtime container to use instead of building one from the
+	// source code. This is useful for bootstrapping.
+	//
+	// You should ignore this unless you're building a Dagger SDK.
+	Runtime *Container
 }
 
 // Load the directory as a Dagger module
-//
-// sourceSubpath is an optional parameter that, if set, points to a subpath of this
-// directory that contains the module's source code. This is needed when the module
-// code is in a subdirectory but requires parent directories to be loaded in order
-// to execute. For example, the module source code may need a go.mod, project.toml,
-// package.json, etc. file from a parent directory.
-//
-// If sourceSubpath is not set, the module source code is loaded from the root of
-// the directory.
 func (r *Directory) AsModule(opts ...DirectoryAsModuleOpts) *Module {
 	q := r.q.Select("asModule")
 	for i := len(opts) - 1; i >= 0; i-- {
 		// `sourceSubpath` optional argument
 		if !querybuilder.IsZeroValue(opts[i].SourceSubpath) {
 			q = q.Arg("sourceSubpath", opts[i].SourceSubpath)
+		}
+		// `runtime` optional argument
+		if !querybuilder.IsZeroValue(opts[i].Runtime) {
+			q = q.Arg("runtime", opts[i].Runtime)
 		}
 	}
 
@@ -2136,6 +2076,10 @@ func (r *File) WithTimestamps(timestamp int) *File {
 	}
 }
 
+// Function represents a resolver provided by a Module.
+//
+// A function always evaluates against a parent object and is given a set of
+// named arguments.
 type Function struct {
 	q *querybuilder.Selection
 	c graphql.Client
@@ -2144,6 +2088,14 @@ type Function struct {
 	description *string
 	id          *FunctionID
 	name        *string
+}
+type WithFunctionFunc func(r *Function) *Function
+
+// With calls the provided function with current Function.
+//
+// This is useful for reusability and readability by not breaking the calling chain.
+func (r *Function) With(f WithFunctionFunc) *Function {
+	return f(r)
 }
 
 // Arguments accepted by this function, if any
@@ -2222,6 +2174,7 @@ func (r *Function) Description(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
+// The ID of the function
 func (r *Function) ID(ctx context.Context) (FunctionID, error) {
 	if r.id != nil {
 		return *r.id, nil
@@ -2295,6 +2248,52 @@ func (r *Function) ReturnType() *TypeDef {
 	}
 }
 
+// FunctionWithArgOpts contains options for Function.WithArg
+type FunctionWithArgOpts struct {
+	// A doc string for the argument, if any
+	Description string
+	// A default value to use for this argument if not explicitly set by the caller, if any
+	DefaultValue JSON
+}
+
+// Returns the function with the provided argument
+func (r *Function) WithArg(name string, typeDef *TypeDef, opts ...FunctionWithArgOpts) *Function {
+	assertNotNil("typeDef", typeDef)
+	q := r.q.Select("withArg")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `description` optional argument
+		if !querybuilder.IsZeroValue(opts[i].Description) {
+			q = q.Arg("description", opts[i].Description)
+		}
+		// `defaultValue` optional argument
+		if !querybuilder.IsZeroValue(opts[i].DefaultValue) {
+			q = q.Arg("defaultValue", opts[i].DefaultValue)
+		}
+	}
+	q = q.Arg("name", name)
+	q = q.Arg("typeDef", typeDef)
+
+	return &Function{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Returns the function with the doc string
+func (r *Function) WithDescription(description string) *Function {
+	q := r.q.Select("withDescription")
+	q = q.Arg("description", description)
+
+	return &Function{
+		q: q,
+		c: r.c,
+	}
+}
+
+// An argument accepted by a function.
+//
+// This is a specification for an argument at function definition time, not an
+// argument passed at function call time.
 type FunctionArg struct {
 	q *querybuilder.Selection
 	c graphql.Client
@@ -2662,6 +2661,7 @@ func (r *Label) Value(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
+// A definition of a list type in a Module.
 type ListTypeDef struct {
 	q *querybuilder.Selection
 	c graphql.Client
@@ -2685,6 +2685,7 @@ type Module struct {
 	id                     *ModuleID
 	name                   *string
 	sdk                    *string
+	sdkRuntime             *string
 	serve                  *Void
 	sourceDirectorySubPath *string
 }
@@ -2751,35 +2752,14 @@ func (r *Module) Description(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
-// Functions served by this module
-func (r *Module) Functions(ctx context.Context) ([]Function, error) {
-	q := r.q.Select("functions")
+// The code generated by the SDK's runtime
+func (r *Module) GeneratedCode() *Directory {
+	q := r.q.Select("generatedCode")
 
-	q = q.Select("id")
-
-	type functions struct {
-		Id FunctionID
+	return &Directory{
+		q: q,
+		c: r.c,
 	}
-
-	convert := func(fields []functions) []Function {
-		out := []Function{}
-
-		for i := range fields {
-			out = append(out, Function{id: &fields[i].Id})
-		}
-
-		return out
-	}
-	var response []functions
-
-	q = q.Bind(&response)
-
-	err := q.Execute(ctx, r.c)
-	if err != nil {
-		return nil, err
-	}
-
-	return convert(response), nil
 }
 
 // The ID of the module
@@ -2848,12 +2828,56 @@ func (r *Module) Name(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
+// Objects served by this module
+func (r *Module) Objects(ctx context.Context) ([]TypeDef, error) {
+	q := r.q.Select("objects")
+
+	q = q.Select("id")
+
+	type objects struct {
+		Id TypeDefID
+	}
+
+	convert := func(fields []objects) []TypeDef {
+		out := []TypeDef{}
+
+		for i := range fields {
+			out = append(out, TypeDef{id: &fields[i].Id})
+		}
+
+		return out
+	}
+	var response []objects
+
+	q = q.Bind(&response)
+
+	err := q.Execute(ctx, r.c)
+	if err != nil {
+		return nil, err
+	}
+
+	return convert(response), nil
+}
+
 // The SDK used by this module
 func (r *Module) SDK(ctx context.Context) (string, error) {
 	if r.sdk != nil {
 		return *r.sdk, nil
 	}
 	q := r.q.Select("sdk")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// The SDK runtime module image ref.
+func (r *Module) SDKRuntime(ctx context.Context) (string, error) {
+	if r.sdkRuntime != nil {
+		return *r.sdkRuntime, nil
+	}
+	q := r.q.Select("sdkRuntime")
 
 	var response string
 
@@ -2911,10 +2935,11 @@ func (r *Module) SourceDirectorySubPath(ctx context.Context) (string, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
-// This module plus the given Function associated with it
-func (r *Module) WithFunction(id *Function) *Module {
-	q := r.q.Select("withFunction")
-	q = q.Arg("id", id)
+// This module plus the given Object type and associated functions
+func (r *Module) WithObject(object *TypeDef) *Module {
+	assertNotNil("object", object)
+	q := r.q.Select("withObject")
+	q = q.Arg("object", object)
 
 	return &Module{
 		q: q,
@@ -3290,10 +3315,11 @@ func (r *Client) Module(opts ...ModuleOpts) *Module {
 }
 
 // Create a new function from the provided definition.
-func (r *Client) NewFunction(def *FunctionDef) *Function {
-	assertNotNil("def", def)
+func (r *Client) NewFunction(name string, returnType *TypeDef) *Function {
+	assertNotNil("returnType", returnType)
 	q := r.q.Select("newFunction")
-	q = q.Arg("def", def)
+	q = q.Arg("name", name)
+	q = q.Arg("returnType", returnType)
 
 	return &Function{
 		q: q,
@@ -3370,6 +3396,26 @@ func (r *Client) Socket(opts ...SocketOpts) *Socket {
 	}
 
 	return &Socket{
+		q: q,
+		c: r.c,
+	}
+}
+
+// TypeDefOpts contains options for Client.TypeDef
+type TypeDefOpts struct {
+	ID TypeDefID
+}
+
+func (r *Client) TypeDef(opts ...TypeDefOpts) *TypeDef {
+	q := r.q.Select("typeDef")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `id` optional argument
+		if !querybuilder.IsZeroValue(opts[i].ID) {
+			q = q.Arg("id", opts[i].ID)
+		}
+	}
+
+	return &TypeDef{
 		q: q,
 		c: r.c,
 	}
@@ -3513,8 +3559,17 @@ type TypeDef struct {
 	q *querybuilder.Selection
 	c graphql.Client
 
+	id       *TypeDefID
 	kind     *TypeDefKind
 	optional *bool
+}
+type WithTypeDefFunc func(r *TypeDef) *TypeDef
+
+// With calls the provided function with current TypeDef.
+//
+// This is useful for reusability and readability by not breaking the calling chain.
+func (r *TypeDef) With(f WithTypeDefFunc) *TypeDef {
+	return f(r)
 }
 
 // If kind is LIST, the list-specific type definition.
@@ -3537,6 +3592,54 @@ func (r *TypeDef) AsObject() *ObjectTypeDef {
 		q: q,
 		c: r.c,
 	}
+}
+
+func (r *TypeDef) ID(ctx context.Context) (TypeDefID, error) {
+	if r.id != nil {
+		return *r.id, nil
+	}
+	q := r.q.Select("id")
+
+	var response TypeDefID
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// XXX_GraphQLType is an internal function. It returns the native GraphQL type name
+func (r *TypeDef) XXX_GraphQLType() string {
+	return "TypeDef"
+}
+
+// XXX_GraphQLIDType is an internal function. It returns the native GraphQL type name for the ID of this object
+func (r *TypeDef) XXX_GraphQLIDType() string {
+	return "TypeDefID"
+}
+
+// XXX_GraphQLID is an internal function. It returns the underlying type ID
+func (r *TypeDef) XXX_GraphQLID(ctx context.Context) (string, error) {
+	id, err := r.ID(ctx)
+	if err != nil {
+		return "", err
+	}
+	return string(id), nil
+}
+
+func (r *TypeDef) MarshalJSON() ([]byte, error) {
+	id, err := r.ID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(id)
+}
+func (r *TypeDef) UnmarshalJSON(bs []byte) error {
+	var id string
+	err := json.Unmarshal(bs, &id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // The kind of type this is (e.g. primitive, list, object)
@@ -3563,6 +3666,103 @@ func (r *TypeDef) Optional(ctx context.Context) (bool, error) {
 
 	q = q.Bind(&response)
 	return response, q.Execute(ctx, r.c)
+}
+
+// TypeDefWithFieldOpts contains options for TypeDef.WithField
+type TypeDefWithFieldOpts struct {
+	// A doc string for the field, if any
+	Description string
+}
+
+// Adds a static field for an Object TypeDef, failing if the type is not an object.
+func (r *TypeDef) WithField(name string, typeDef *TypeDef, opts ...TypeDefWithFieldOpts) *TypeDef {
+	assertNotNil("typeDef", typeDef)
+	q := r.q.Select("withField")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `description` optional argument
+		if !querybuilder.IsZeroValue(opts[i].Description) {
+			q = q.Arg("description", opts[i].Description)
+		}
+	}
+	q = q.Arg("name", name)
+	q = q.Arg("typeDef", typeDef)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Adds a function for an Object TypeDef, failing if the type is not an object.
+func (r *TypeDef) WithFunction(function *Function) *TypeDef {
+	assertNotNil("function", function)
+	q := r.q.Select("withFunction")
+	q = q.Arg("function", function)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Sets the kind of the type.
+func (r *TypeDef) WithKind(kind TypeDefKind) *TypeDef {
+	q := r.q.Select("withKind")
+	q = q.Arg("kind", kind)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Returns a TypeDef of kind List with the provided type for its elements.
+func (r *TypeDef) WithListOf(elementType *TypeDef) *TypeDef {
+	assertNotNil("elementType", elementType)
+	q := r.q.Select("withListOf")
+	q = q.Arg("elementType", elementType)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+// TypeDefWithObjectOpts contains options for TypeDef.WithObject
+type TypeDefWithObjectOpts struct {
+	Description string
+}
+
+// Returns a TypeDef of kind Object with the provided name.
+//
+// Note that an object's fields and functions may be omitted if the intent is
+// only to refer to an object. This is how functions are able to return their
+// own object, or any other circular reference.
+func (r *TypeDef) WithObject(name string, opts ...TypeDefWithObjectOpts) *TypeDef {
+	q := r.q.Select("withObject")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `description` optional argument
+		if !querybuilder.IsZeroValue(opts[i].Description) {
+			q = q.Arg("description", opts[i].Description)
+		}
+	}
+	q = q.Arg("name", name)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Sets whether this type can be set to null.
+func (r *TypeDef) WithOptional(optional bool) *TypeDef {
+	q := r.q.Select("withOptional")
+	q = q.Arg("optional", optional)
+
+	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
 }
 
 type CacheSharingMode string
@@ -3723,6 +3923,33 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 	switch parentName {
 	case "Engine":
 		switch fnName {
+		case "Source":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Source(&parent), nil
+		case "FromZenithBranch":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).FromZenithBranch(&parent), nil
+		case "OSes":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).OSes(&parent), nil
 		case "Arches":
 			var err error
 			var parent Engine
@@ -3741,31 +3968,28 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			var opts CLIOpts
-			err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &opts.OperatingSystem)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
+			if inputArgs["operatingSystem"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &opts.OperatingSystem)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
 			}
-			err = json.Unmarshal([]byte(inputArgs["arch"]), &opts.Arch)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
+			if inputArgs["arch"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["arch"]), &opts.Arch)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
 			}
-			err = json.Unmarshal([]byte(inputArgs["workerRegistry"]), &opts.WorkerRegistry)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
+			if inputArgs["workerRegistry"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["workerRegistry"]), &opts.WorkerRegistry)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
 			}
 			return (*Engine).CLI(&parent, opts), nil
-		case "FromZenithBranch":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).FromZenithBranch(&parent), nil
 		case "GoBase":
 			var err error
 			var parent Engine
@@ -3775,24 +3999,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Engine).GoBase(&parent), nil
-		case "OSes":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).OSes(&parent), nil
-		case "Source":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Source(&parent), nil
 		case "Worker":
 			var err error
 			var parent Engine
@@ -3805,18 +4011,26 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
-	case "File":
+	case "Dagger":
 		switch fnName {
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Container":
-		switch fnName {
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Directory":
-		switch fnName {
+		case "Engine":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Engine(&parent), nil
+		case "Cloud":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Cloud(&parent), nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
@@ -3831,39 +4045,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Worker).Arches(&parent), nil
-		case "Buildctl":
-			var err error
-			var parent Worker
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Worker).Buildctl(&parent), nil
-		case "CNIPlugins":
-			var err error
-			var parent Worker
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Worker).CNIPlugins(&parent), nil
-		case "Container":
-			var err error
-			var parent Worker
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var arch string
-			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Worker).Container(&parent, arch), nil
 		case "Containers":
 			var err error
 			var parent Worker
@@ -3873,30 +4054,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Worker).Containers(&parent), nil
-		case "DNSName":
-			var err error
-			var parent Worker
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Worker).DNSName(&parent), nil
-		case "Daemon":
-			var err error
-			var parent Worker
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var version string
-			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Worker).Daemon(&parent, version), nil
 		case "Publish":
 			var err error
 			var parent Worker
@@ -3912,6 +4069,21 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Worker).Publish(&parent, ctx, ref)
+		case "Container":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Container(&parent, arch), nil
 		case "QemuBins":
 			var err error
 			var parent Worker
@@ -3920,8 +4092,14 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Worker).QemuBins(&parent), nil
-		case "Runc":
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).QemuBins(&parent, arch), nil
+		case "Buildctl":
 			var err error
 			var parent Worker
 			err = json.Unmarshal(parentJSON, &parent)
@@ -3929,7 +4107,13 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Worker).Runc(&parent), nil
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Buildctl(&parent, arch), nil
 		case "Shim":
 			var err error
 			var parent Worker
@@ -3938,7 +4122,79 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Worker).Shim(&parent), nil
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Shim(&parent, arch), nil
+		case "Daemon":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var version string
+			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Daemon(&parent, arch, version), nil
+		case "CNIPlugins":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).CNIPlugins(&parent, arch), nil
+		case "DNSName":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).DNSName(&parent, arch), nil
+		case "Runc":
+			var err error
+			var parent Worker
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var arch string
+			err = json.Unmarshal([]byte(inputArgs["arch"]), &arch)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Worker).Runc(&parent, arch), nil
 		case "Tests":
 			var err error
 			var parent Worker
@@ -3948,43 +4204,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return nil, (*Worker).Tests(&parent, ctx)
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Dagger":
-		switch fnName {
-		case "Cloud":
-			var err error
-			var parent Dagger
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Dagger).Cloud(&parent), nil
-		case "Engine":
-			var err error
-			var parent Dagger
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Dagger).Engine(&parent), nil
-		case "":
-			var err error
-			var typeDefBytes []byte = []byte("{\"asObject\":{\"functions\":[{\"name\":\"Cloud\",\"returnType\":{\"asObject\":{\"functions\":[{\"name\":\"About\",\"returnType\":{\"kind\":\"StringKind\"}},{\"name\":\"URL\",\"returnType\":{\"kind\":\"StringKind\"}}],\"name\":\"Cloud\"},\"kind\":\"ObjectKind\"}},{\"description\":\"The Dagger Engine\\n\",\"name\":\"Engine\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"SourceRepo\",\"typeDef\":{\"kind\":\"StringKind\"}},{\"name\":\"SourceBranch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"args\":[{\"name\":\"operatingSystem\",\"typeDef\":{\"kind\":\"StringKind\",\"optional\":true}},{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\",\"optional\":true}},{\"description\":\"Registry from which to auto-pull the worker container image\",\"name\":\"workerRegistry\",\"typeDef\":{\"kind\":\"StringKind\",\"optional\":true}}],\"name\":\"CLI\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"FromZenithBranch\",\"returnType\":{\"asObject\":{\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}},{\"description\":\"GoBase is a standardized base image for running Go, cache optimized for the layout\\nof this engine source code\\n\",\"name\":\"GoBase\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"OSes\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Source\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Worker\",\"returnType\":{\"asObject\":{\"fields\":[{\"name\":\"GoBase\",\"typeDef\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"name\":\"DaggerCLI\",\"typeDef\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"functions\":[{\"name\":\"Arches\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"kind\":\"StringKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"Buildctl\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"CNIPlugins\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"arch\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Build a worker container for the given architecture\\n\",\"name\":\"Container\",\"returnType\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},{\"description\":\"Build a worker container for each supported architecture\\n\",\"name\":\"Containers\",\"returnType\":{\"asList\":{\"elementTypeDef\":{\"asObject\":{\"name\":\"Container\"},\"kind\":\"ObjectKind\"}},\"kind\":\"ListKind\"}},{\"name\":\"DNSName\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"version\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"The worker daemon\\n\",\"name\":\"Daemon\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"args\":[{\"name\":\"ref\",\"typeDef\":{\"kind\":\"StringKind\"}}],\"description\":\"Publish the worker container to the given registry\\n\",\"name\":\"Publish\",\"returnType\":{\"kind\":\"StringKind\"}},{\"name\":\"QemuBins\",\"returnType\":{\"asObject\":{\"name\":\"Directory\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Runc\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"name\":\"Shim\",\"returnType\":{\"asObject\":{\"name\":\"File\"},\"kind\":\"ObjectKind\"}},{\"description\":\"Run all worker tests\\n\",\"name\":\"Tests\",\"returnType\":{\"kind\":\"VoidKind\",\"optional\":true}}],\"name\":\"Worker\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Engine\"},\"kind\":\"ObjectKind\"}}],\"name\":\"Dagger\"},\"kind\":\"ObjectKind\"}")
-			var typeDef TypeDefInput
-			err = json.Unmarshal(typeDefBytes, &typeDef)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			mod := dag.CurrentModule()
-			for _, fnDef := range typeDef.AsObject.Functions {
-				mod = mod.WithFunction(dag.NewFunction(fnDef))
-			}
-			return mod, nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
@@ -4011,6 +4230,110 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
+	case "":
+		return dag.CurrentModule().
+			WithObject(
+				dag.TypeDef().WithObject("Dagger").
+					WithFunction(
+						dag.NewFunction("Engine",
+							dag.TypeDef().WithObject("Engine")).
+							WithDescription("The Dagger Engine\n")).
+					WithFunction(
+						dag.NewFunction("Cloud",
+							dag.TypeDef().WithObject("Cloud")))).
+			WithObject(
+				dag.TypeDef().WithObject("Worker").
+					WithFunction(
+						dag.NewFunction("Arches",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+					WithFunction(
+						dag.NewFunction("Containers",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithObject("Container"))).
+							WithDescription("Build a worker container for each supported architecture\n")).
+					WithFunction(
+						dag.NewFunction("Publish",
+							dag.TypeDef().WithKind(Stringkind)).
+							WithDescription("Publish the worker container to the given registry\n").
+							WithArg("ref", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Container",
+							dag.TypeDef().WithObject("Container")).
+							WithDescription("Build a worker container for the given architecture\n").
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("QemuBins",
+							dag.TypeDef().WithObject("Directory")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Buildctl",
+							dag.TypeDef().WithObject("File")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Shim",
+							dag.TypeDef().WithObject("File")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Daemon",
+							dag.TypeDef().WithObject("File")).
+							WithDescription("The worker daemon\n").
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind)).
+							WithArg("version", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("CNIPlugins",
+							dag.TypeDef().WithObject("Directory")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("DNSName",
+							dag.TypeDef().WithObject("File")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Runc",
+							dag.TypeDef().WithObject("File")).
+							WithArg("arch", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Tests",
+							dag.TypeDef().WithKind(Voidkind).WithOptional(true)).
+							WithDescription("Run all worker tests\n")).
+					WithField("GoBase", dag.TypeDef().WithObject("Container")).
+					WithField("Engine", dag.TypeDef().WithObject("Engine")).
+					WithField("Version", dag.TypeDef().WithKind(Stringkind))).
+			WithObject(
+				dag.TypeDef().WithObject("Cloud").
+					WithFunction(
+						dag.NewFunction("About",
+							dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("URL",
+							dag.TypeDef().WithKind(Stringkind)))).
+			WithObject(
+				dag.TypeDef().WithObject("Engine").
+					WithFunction(
+						dag.NewFunction("Source",
+							dag.TypeDef().WithObject("Directory"))).
+					WithFunction(
+						dag.NewFunction("FromZenithBranch",
+							dag.TypeDef().WithObject("Engine"))).
+					WithFunction(
+						dag.NewFunction("OSes",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+					WithFunction(
+						dag.NewFunction("Arches",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+					WithFunction(
+						dag.NewFunction("CLI",
+							dag.TypeDef().WithObject("File")).
+							WithArg("OperatingSystem", dag.TypeDef().WithKind(Stringkind).WithOptional(true)).
+							WithArg("Arch", dag.TypeDef().WithKind(Stringkind).WithOptional(true)).
+							WithArg("WorkerRegistry", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Registry from which to auto-pull the worker container image"})).
+					WithFunction(
+						dag.NewFunction("GoBase",
+							dag.TypeDef().WithObject("Container")).
+							WithDescription("GoBase is a standardized base image for running Go, cache optimized for the layout\nof this engine source code\n")).
+					WithFunction(
+						dag.NewFunction("Worker",
+							dag.TypeDef().WithObject("Worker"))).
+					WithField("SourceRepo", dag.TypeDef().WithKind(Stringkind)).
+					WithField("SourceBranch", dag.TypeDef().WithKind(Stringkind))), nil
 	default:
 		return nil, fmt.Errorf("unknown object %s", parentName)
 	}

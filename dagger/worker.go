@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
 const (
 	workerBinName = "dagger-engine"
 	shimBinName   = "dagger-shim"
+	daggerBinName = "dagger"
 	goVersion     = "1.20.6"
 	runcVersion   = "v1.1.5"
 	cniVersion    = "v1.2.0"
-	qemuBinImage  = "tonistiigi/binfmt:buildkit-v7.1.0-30@sha256:45dd57b4ba2f24e2354f71f1e4e51f073cb7a28fd848ce6f5f2a7701142a6bf0" // nolint:gosec
+	qemuBinImage  = "tonistiigi/binfmt:buildkit-v7.1.0-30" // nolint:gosec
 
 	workerDefaultStateDir = "/var/lib/dagger"
 	workerTomlPath        = "/etc/dagger/engine.toml"
@@ -25,9 +25,9 @@ const (
 )
 
 type Worker struct {
-	GoBase    *Container
-	DaggerCLI *File
-	Version   string
+	GoBase  *Container
+	Engine  *Engine
+	Version string
 }
 
 func (w *Worker) Arches() []string {
@@ -67,14 +67,15 @@ func (w *Worker) Container(arch string) *Container {
 			// for CNI
 			"iptables", "ip6tables", "dnsmasq",
 		}).
-		WithFile("/usr/local/bin/runc", w.Runc(), ContainerWithFileOpts{
+		WithFile("/usr/local/bin/runc", w.Runc(arch), ContainerWithFileOpts{
 			Permissions: 0o700,
 		}).
-		WithFile("/usr/local/bin/buildctl", w.Buildctl()).
-		WithFile("/usr/local/bin/"+shimBinName, w.Shim()).
-		WithFile("/usr/local/bin/"+workerBinName, w.Daemon(w.Version)).
-		WithDirectory("/usr/local/bin", w.QemuBins()).
-		WithDirectory("/opt/cni/bin", w.CNIPlugins()).
+		WithFile("/usr/local/bin/buildctl", w.Buildctl(arch)).
+		WithFile("/usr/local/bin/"+shimBinName, w.Shim(arch)).
+		WithFile("/usr/local/bin/"+workerBinName, w.Daemon(arch, w.Version)).
+		WithFile("/usr/local/bin/"+daggerBinName, w.daggerBin(arch)).
+		WithDirectory("/usr/local/bin", w.QemuBins(arch)).
+		WithDirectory("/opt/cni/bin", w.CNIPlugins(arch)).
 		WithDirectory(workerDefaultStateDir, dag.Directory()).
 		WithNewFile(workerTomlPath, ContainerWithNewFileOpts{
 			Contents:    devWorkerConfig(),
@@ -87,16 +88,16 @@ func (w *Worker) Container(arch string) *Container {
 		WithEntrypoint([]string{"dagger-entrypoint.sh"})
 }
 
-func (w *Worker) QemuBins() *Directory {
-	return dag.Container().
+func (w *Worker) QemuBins(arch string) *Directory {
+	return dag.Container(ContainerOpts{Platform: Platform("linux/" + arch)}).
 		From(qemuBinImage).
 		Rootfs()
 }
 
-func (w *Worker) Buildctl() *File {
+func (w *Worker) Buildctl(arch string) *File {
 	return w.GoBase.
 		WithEnvVariable("GOOS", "linux").
-		WithEnvVariable("GOARCH", runtime.GOARCH).
+		WithEnvVariable("GOARCH", arch).
 		WithExec([]string{
 			"go", "build",
 			"-o", "./bin/buildctl",
@@ -106,10 +107,10 @@ func (w *Worker) Buildctl() *File {
 		File("./bin/buildctl")
 }
 
-func (w *Worker) Shim() *File {
+func (w *Worker) Shim(arch string) *File {
 	return w.GoBase.
 		WithEnvVariable("GOOS", "linux").
-		WithEnvVariable("GOARCH", runtime.GOARCH).
+		WithEnvVariable("GOARCH", arch).
 		WithExec([]string{
 			"go", "build",
 			"-o", "./bin/" + shimBinName,
@@ -120,7 +121,7 @@ func (w *Worker) Shim() *File {
 }
 
 // The worker daemon
-func (w *Worker) Daemon(version string) *File {
+func (w *Worker) Daemon(arch string, version string) *File {
 	buildArgs := []string{
 		"go", "build",
 		"-o", "./bin/" + workerBinName,
@@ -134,15 +135,15 @@ func (w *Worker) Daemon(version string) *File {
 	buildArgs = append(buildArgs, "/app/cmd/engine")
 	return w.GoBase.
 		WithEnvVariable("GOOS", "linux").
-		WithEnvVariable("GOARCH", runtime.GOARCH).
+		WithEnvVariable("GOARCH", arch).
 		WithExec(buildArgs).
 		File("./bin/" + workerBinName)
 }
 
-func (w *Worker) CNIPlugins() *Directory {
+func (w *Worker) CNIPlugins(arch string) *Directory {
 	cniURL := fmt.Sprintf(
 		"https://github.com/containernetworking/plugins/releases/download/%s/cni-plugins-%s-%s-%s.tgz",
-		cniVersion, "linux", runtime.GOARCH, cniVersion,
+		cniVersion, "linux", arch, cniVersion,
 	)
 
 	return dag.Container().
@@ -156,14 +157,14 @@ func (w *Worker) CNIPlugins() *Directory {
 			"./bridge", "./firewall", // required by dagger network stack
 			"./loopback", "./host-local", // implicitly required (container fails without them)
 		}).
-		WithFile("/opt/cni/bin/dnsname", w.DNSName()).
+		WithFile("/opt/cni/bin/dnsname", w.DNSName(arch)).
 		Directory("/opt/cni/bin")
 }
 
-func (w *Worker) DNSName() *File {
+func (w *Worker) DNSName(arch string) *File {
 	return w.GoBase.
 		WithEnvVariable("GOOS", "linux").
-		WithEnvVariable("GOARCH", runtime.GOARCH).
+		WithEnvVariable("GOARCH", arch).
 		WithExec([]string{
 			"go", "build",
 			"-o", "./bin/dnsname",
@@ -173,12 +174,16 @@ func (w *Worker) DNSName() *File {
 		File("./bin/dnsname")
 }
 
-func (w *Worker) Runc() *File {
+func (w *Worker) Runc(arch string) *File {
 	return dag.HTTP(fmt.Sprintf(
 		"https://github.com/opencontainers/runc/releases/download/%s/runc.%s",
 		runcVersion,
-		runtime.GOARCH,
+		arch,
 	))
+}
+
+func (w *Worker) daggerBin(arch string) *File {
+	return w.Engine.CLI(CLIOpts{Arch: arch, OperatingSystem: "linux"})
 }
 
 // Run all worker tests
@@ -203,7 +208,7 @@ func (w *Worker) Tests(ctx context.Context) error {
 
 	testEngineUtils := dag.Host().Directory(tmpDir, HostDirectoryOpts{
 		Include: []string{"engine.tar"},
-	}).WithFile("/dagger", w.DaggerCLI, DirectoryWithFileOpts{
+	}).WithFile("/dagger", w.Engine.CLI(CLIOpts{}), DirectoryWithFileOpts{
 		Permissions: 0755,
 	})
 
@@ -255,7 +260,7 @@ func (w *Worker) Tests(ctx context.Context) error {
 		WithServiceBinding("dagger-engine", worker).
 		WithServiceBinding("registry", registrySvc).
 		WithEnvVariable("CGO_ENABLED", cgoEnabledEnv).
-		WithMountedFile(cliBinPath, w.DaggerCLI).
+		WithMountedFile(cliBinPath, w.Engine.CLI(CLIOpts{})).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_CLI_BIN", cliBinPath).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_RUNNER_HOST", endpoint).
 		WithExec(args).
