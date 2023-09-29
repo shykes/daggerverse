@@ -51,6 +51,12 @@ func (w *Worker) Publish(ctx context.Context, ref string) (string, error) {
 	})
 }
 
+// Set the engine version
+func (w *Worker) WithVersion(version string) *Worker {
+	w.Version = version
+	return w
+}
+
 // Build a worker container for the given architecture
 func (w *Worker) Container(arch string) *Container {
 	var opts ContainerOpts
