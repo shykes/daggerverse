@@ -51,6 +51,12 @@ func (w *Worker) Publish(ctx context.Context, ref string) (string, error) {
 	})
 }
 
+// Set the engine version
+func (w *Worker) WithVersion(version string) *Worker {
+	w.Version = version
+	return w
+}
+
 // Build a worker container for the given architecture
 func (w *Worker) Container(arch string) *Container {
 	var opts ContainerOpts
@@ -72,8 +78,8 @@ func (w *Worker) Container(arch string) *Container {
 		}).
 		WithFile("/usr/local/bin/buildctl", w.Buildctl(arch)).
 		WithFile("/usr/local/bin/"+shimBinName, w.Shim(arch)).
-		WithFile("/usr/local/bin/"+workerBinName, w.Daemon(arch, w.Version)).
-		WithFile("/usr/local/bin/"+daggerBinName, w.daggerBin(arch)).
+		WithFile("/usr/local/bin/"+workerBinName, w.Daemon(arch)).
+		WithFile("/usr/local/bin/"+daggerBinName, w.DaggerBin(arch)).
 		WithDirectory("/usr/local/bin", w.QemuBins(arch)).
 		WithDirectory("/opt/cni/bin", w.CNIPlugins(arch)).
 		WithDirectory(workerDefaultStateDir, dag.Directory()).
@@ -121,15 +127,15 @@ func (w *Worker) Shim(arch string) *File {
 }
 
 // The worker daemon
-func (w *Worker) Daemon(arch string, version string) *File {
+func (w *Worker) Daemon(arch string) *File {
 	buildArgs := []string{
 		"go", "build",
 		"-o", "./bin/" + workerBinName,
 		"-ldflags",
 	}
 	ldflags := []string{"-s", "-w"}
-	if version != "" {
-		ldflags = append(ldflags, "-X", "github.com/dagger/dagger/engine.Version="+version)
+	if w.Version != "" {
+		ldflags = append(ldflags, "-X", "github.com/dagger/dagger/engine.Version="+w.Version)
 	}
 	buildArgs = append(buildArgs, strings.Join(ldflags, " "))
 	buildArgs = append(buildArgs, "/app/cmd/engine")
@@ -182,8 +188,8 @@ func (w *Worker) Runc(arch string) *File {
 	))
 }
 
-func (w *Worker) daggerBin(arch string) *File {
-	return w.Engine.CLI(CLIOpts{Arch: arch, OperatingSystem: "linux"})
+func (w *Worker) DaggerBin(arch string) *File {
+	return w.Engine.CLI(CLIOpts{Arch: arch, OperatingSystem: "linux", Version: w.Version})
 }
 
 // Run all worker tests
