@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -42,13 +43,18 @@ type CLIOpts struct {
 	OperatingSystem string
 	Arch            string
 	WorkerRegistry  string `doc:"Registry from which to auto-pull the worker container image"`
+	Version         string
 }
 
 func (e *Engine) CLI(opts CLIOpts) *File {
 	if opts.WorkerRegistry == "" {
 		opts.WorkerRegistry = "registry.dagger.io/engine"
 	}
-	workerRegisterLDFlag := fmt.Sprintf("-X github.com/dagger/dagger/engine.EngineImageRepo=%s", opts.WorkerRegistry)
+	ldflags := []string{"-s", "-w"}
+	if opts.Version != "" {
+		ldflags = append(ldflags, "-X", "github.com/dagger/dagger/engine.Version="+opts.Version)
+	}
+	ldflags = append(ldflags, fmt.Sprintf("-X github.com/dagger/dagger/engine.EngineImageRepo=%s", opts.WorkerRegistry))
 
 	base := e.GoBase()
 	if opts.OperatingSystem != "" {
@@ -59,7 +65,7 @@ func (e *Engine) CLI(opts CLIOpts) *File {
 	}
 	return base.
 		WithExec(
-			[]string{"go", "build", "-o", "./bin/dagger", "-ldflags", "-s -w " + workerRegisterLDFlag, "./cmd/dagger"},
+			[]string{"go", "build", "-o", "./bin/dagger", "-ldflags", strings.Join(ldflags, " "), "./cmd/dagger"},
 		).
 		File("./bin/dagger")
 }
