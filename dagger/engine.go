@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"strings"
 )
@@ -17,32 +16,6 @@ type Engine struct {
 
 func (e *Engine) Source() *Directory {
 	return dag.Git(e.SourceRepo).Branch(e.SourceBranch).Tree()
-}
-
-func (e *Engine) Warm(ctx context.Context) error {
-	_, err := dag.Container().From("cgr.dev/chainguard/wolfi-base").
-		WithExec([]string{"apk", "add", "nodejs"}).
-		WithExec([]string{"true"}).
-		Sync(ctx)
-	return err
-}
-
-func (e *Engine) Playground(ctx context.Context, hostname string, key string) (*Container, error) {
-	//cli := e.CLI()
-	playground := dag.
-		Container().
-		From("cgr.dev/chainguard/wolfi-base").
-		WithExec([]string{"apk", "add", "nodejs"}).
-		WithMountedDirectory("playground", dag.Host().Directory("playground")).
-		WithWorkdir("playground").
-		WithExec([]string{"npm", "install"}).
-		WithExposedPort(80).
-		WithExec([]string{
-			"sh", "-c", `
-node playground.js "http://$DAGGER_SESSION_TOKEN:@localhost:$DAGGER_SESSION_PORT/query"
-`},
-			ContainerWithExecOpts{ExperimentalPrivilegedNesting: true})
-	return dag.Tailscale().Gateway(hostname, key, playground).Sync(ctx)
 }
 
 func (e *Engine) FromZenithBranch() *Engine {
