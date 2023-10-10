@@ -26,7 +26,7 @@ const (
 
 type Worker struct {
 	GoBase  *Container
-	Engine  *Engine
+	Engine  *EngineSource
 	Version string
 }
 

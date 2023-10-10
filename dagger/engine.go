@@ -6,25 +6,62 @@ import (
 )
 
 const (
-	alpineVersion = "3.18"
+	alpineVersion  = "3.18"
+	engineUpstream = "https://github.com/dagger/dagger"
 )
 
+// The Dagger Engine
+func (d *Dagger) Engine() *Engine {
+	return new(Engine)
+}
+
+// The Dagger Engine
 type Engine struct {
-	SourceRepo   string
-	SourceBranch string
 }
 
-func (e *Engine) Source() *Directory {
-	return dag.Git(e.SourceRepo).Branch(e.SourceBranch).Tree()
+// A development version of the engine source code
+// Default to main branch on official upstream repository
+func (e *Engine) Dev(o EngineDevOpts) *EngineSource {
+	repo := o.Repository
+	if repo == "" {
+		repo = engineUpstream
+	}
+	branch := o.Branch
+	if branch == "" {
+		branch = "main"
+	}
+	return &EngineSource{
+		Source: dag.Git(repo).Branch(branch).Tree(),
+	}
 }
 
-func (e *Engine) FromZenithBranch() *Engine {
-	e.SourceRepo = "https://github.com/shykes/dagger"
-	e.SourceBranch = "zenith-functions"
-	return e
+// An official source release of the Dagger Engine
+func (e *Engine) Release(version string) *EngineSource {
+	// FIXME: pass version flag here instead of CLI
+	return &EngineSource{
+		Source: dag.Git(engineUpstream).Tag("v" + version).Tree(),
+	}
 }
 
-func (e *Engine) OSes() []string {
+// The Zenith development branch
+func (e *Engine) Zenith() *EngineSource {
+	return e.Dev(EngineDevOpts{
+		Repository: "https://github.com/shykes/dagger",
+		Branch:     "zenith-functions",
+	})
+}
+
+type EngineDevOpts struct {
+	Repository string `doc:"Git repository to fetch. Default: https://github.com/dagger/dagger"`
+	Branch     string `doc:"Git branch to fetch. Default: main"`
+}
+
+type EngineSource struct {
+	Source *Directory `json:"source"`
+}
+
+// Supported operating systems
+func (e *EngineSource) OSes() []string {
 	return []string{
 		"darwin",
 		"linux",
@@ -32,7 +69,8 @@ func (e *Engine) OSes() []string {
 	}
 }
 
-func (e *Engine) Arches() []string {
+// Supported hardware architectures
+func (e *EngineSource) Arches() []string {
 	return []string{
 		"x86_64",
 		"arm64",
@@ -46,7 +84,7 @@ type CLIOpts struct {
 	Version         string
 }
 
-func (e *Engine) CLI(opts CLIOpts) *File {
+func (e *EngineSource) CLI(opts CLIOpts) *File {
 	if opts.WorkerRegistry == "" {
 		opts.WorkerRegistry = "registry.dagger.io/engine"
 	}
@@ -72,7 +110,7 @@ func (e *Engine) CLI(opts CLIOpts) *File {
 
 // GoBase is a standardized base image for running Go, cache optimized for the layout
 // of this engine source code
-func (e *Engine) GoBase() *Container {
+func (e *EngineSource) GoBase() *Container {
 	return dag.Container().
 		From(fmt.Sprintf("golang:%s-alpine%s", golangVersion, alpineVersion)).
 		// gcc is needed to run go test -race https://github.com/golang/go/issues/9918 (???)
@@ -83,18 +121,18 @@ func (e *Engine) GoBase() *Container {
 		WithExec([]string{"apk", "add", "git"}).
 		WithWorkdir("/app").
 		// run `go mod download` with only go.mod files (re-run only if mod files have changed)
-		WithDirectory("/app", e.Source(), ContainerWithDirectoryOpts{
+		WithDirectory("/app", e.Source, ContainerWithDirectoryOpts{
 			Include: []string{"**/go.mod", "**/go.sum"},
 		}).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithExec([]string{"go", "mod", "download"}).
 		// run `go build` with all source
-		WithMountedDirectory("/app", e.Source()).
+		WithMountedDirectory("/app", e.Source).
 		// include a cache for go build
 		WithMountedCache("/root/.cache/go-build", dag.CacheVolume("go-build"))
 }
 
-func (e *Engine) Worker() *Worker {
+func (e *EngineSource) Worker() *Worker {
 	return &Worker{
 		GoBase: e.GoBase(),
 		Engine: e,
