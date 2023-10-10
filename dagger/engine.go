@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
@@ -35,11 +36,48 @@ func (e *Engine) Dev(o EngineDevOpts) *EngineSource {
 	}
 }
 
-// An official source release of the Dagger Engine
-func (e *Engine) Release(version string) *EngineSource {
-	// FIXME: pass version flag here instead of CLI
+func (e *Engine) Versions(ctx context.Context) ([]string, error) {
+	tags, err := dag.Supergit().Remote(engineUpstream).Tags(ctx, RemoteTagsOpts{Filter: "^v[0-9\\.]+"})
+	if err != nil {
+		return nil, err
+	}
+	versions := make([]string, 0, len(tags))
+	for _, tag := range tags {
+		name, err := tag.Name(ctx)
+		if err != nil {
+			return versions, err
+		}
+		versions = append(versions, name[1:])
+	}
+	return versions, nil
+}
+
+func (e *Engine) Releases(ctx context.Context) ([]*EngineRelease, error) {
+	versions, err := e.Versions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	releases := make([]*EngineRelease, 0, len(versions))
+	for _, v := range versions {
+		releases = append(releases, e.Release(v))
+	}
+	return releases, nil
+}
+
+type EngineRelease struct {
+	Version string `json:"version"`
+}
+
+func (r *EngineRelease) Source() *EngineSource {
 	return &EngineSource{
-		Source: dag.Git(engineUpstream).Tag("v" + version).Tree(),
+		Source: dag.Git(engineUpstream).Tag("v" + r.Version).Tree(),
+	}
+}
+
+// An official source release of the Dagger Engine
+func (e *Engine) Release(version string) *EngineRelease {
+	return &EngineRelease{
+		Version: version,
 	}
 }
 

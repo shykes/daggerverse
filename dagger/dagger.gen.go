@@ -44,6 +44,8 @@ type FileID string
 // A reference to a Function.
 type FunctionID string
 
+type GeneratedCodeID string
+
 // An arbitrary JSON-encoded value.
 type JSON string
 
@@ -157,25 +159,99 @@ func (r *CacheVolume) UnmarshalJSON(bs []byte) error {
 	return nil
 }
 
+type Commit struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	id *string
+}
+
+func (r *Commit) ID(ctx context.Context) (string, error) {
+	if r.id != nil {
+		return *r.id, nil
+	}
+	q := r.q.Select("id")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// XXX_GraphQLType is an internal function. It returns the native GraphQL type name
+func (r *Commit) XXX_GraphQLType() string {
+	return "Commit"
+}
+
+// XXX_GraphQLIDType is an internal function. It returns the native GraphQL type name for the ID of this object
+func (r *Commit) XXX_GraphQLIDType() string {
+	return "string"
+}
+
+// XXX_GraphQLID is an internal function. It returns the underlying type ID
+func (r *Commit) XXX_GraphQLID(ctx context.Context) (string, error) {
+	id, err := r.ID(ctx)
+	if err != nil {
+		return "", err
+	}
+	return string(id), nil
+}
+
+func (r *Commit) MarshalJSON() ([]byte, error) {
+	id, err := r.ID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(id)
+}
+func (r *Commit) UnmarshalJSON(bs []byte) error {
+	var id string
+	err := json.Unmarshal(bs, &id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Commit) Repository() *Repository {
+	q := r.q.Select("repository")
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Commit) Tree() *Directory {
+	q := r.q.Select("tree")
+
+	return &Directory{
+		q: q,
+		c: r.c,
+	}
+}
+
 // An OCI-compatible container, also known as a docker container.
 type Container struct {
 	q *querybuilder.Selection
 	c graphql.Client
 
-	endpoint    *string
-	envVariable *string
-	export      *bool
-	hostname    *string
-	id          *ContainerID
-	imageRef    *string
-	label       *string
-	platform    *Platform
-	publish     *string
-	stderr      *string
-	stdout      *string
-	sync        *ContainerID
-	user        *string
-	workdir     *string
+	endpoint      *string
+	envVariable   *string
+	export        *bool
+	hostname      *string
+	id            *ContainerID
+	imageRef      *string
+	label         *string
+	platform      *Platform
+	publish       *string
+	shellEndpoint *string
+	stderr        *string
+	stdout        *string
+	sync          *ContainerID
+	user          *string
+	workdir       *string
 }
 type WithContainerFunc func(r *Container) *Container
 
@@ -725,6 +801,19 @@ func (r *Container) Rootfs() *Directory {
 		q: q,
 		c: r.c,
 	}
+}
+
+// TODO
+func (r *Container) ShellEndpoint(ctx context.Context) (string, error) {
+	if r.shellEndpoint != nil {
+		return *r.shellEndpoint, nil
+	}
+	q := r.q.Select("shellEndpoint")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
 }
 
 // The error stream of the last executed command.
@@ -2484,6 +2573,209 @@ func (r *FunctionCallArgValue) Value(ctx context.Context) (JSON, error) {
 	return response, q.Execute(ctx, r.c)
 }
 
+type GeneratedCode struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	id *GeneratedCodeID
+}
+type WithGeneratedCodeFunc func(r *GeneratedCode) *GeneratedCode
+
+// With calls the provided function with current GeneratedCode.
+//
+// This is useful for reusability and readability by not breaking the calling chain.
+func (r *GeneratedCode) With(f WithGeneratedCodeFunc) *GeneratedCode {
+	return f(r)
+}
+
+// The directory containing the generated code
+func (r *GeneratedCode) Code() *Directory {
+	q := r.q.Select("code")
+
+	return &Directory{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *GeneratedCode) ID(ctx context.Context) (GeneratedCodeID, error) {
+	if r.id != nil {
+		return *r.id, nil
+	}
+	q := r.q.Select("id")
+
+	var response GeneratedCodeID
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// XXX_GraphQLType is an internal function. It returns the native GraphQL type name
+func (r *GeneratedCode) XXX_GraphQLType() string {
+	return "GeneratedCode"
+}
+
+// XXX_GraphQLIDType is an internal function. It returns the native GraphQL type name for the ID of this object
+func (r *GeneratedCode) XXX_GraphQLIDType() string {
+	return "GeneratedCodeID"
+}
+
+// XXX_GraphQLID is an internal function. It returns the underlying type ID
+func (r *GeneratedCode) XXX_GraphQLID(ctx context.Context) (string, error) {
+	id, err := r.ID(ctx)
+	if err != nil {
+		return "", err
+	}
+	return string(id), nil
+}
+
+func (r *GeneratedCode) MarshalJSON() ([]byte, error) {
+	id, err := r.ID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(id)
+}
+func (r *GeneratedCode) UnmarshalJSON(bs []byte) error {
+	var id string
+	err := json.Unmarshal(bs, &id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// List of paths to mark generated in version control (i.e. .gitattributes)
+func (r *GeneratedCode) VcsGeneratedPaths(ctx context.Context) ([]string, error) {
+	q := r.q.Select("vcsGeneratedPaths")
+
+	var response []string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// List of paths to ignore in version control (i.e. .gitignore)
+func (r *GeneratedCode) VcsIgnoredPaths(ctx context.Context) ([]string, error) {
+	q := r.q.Select("vcsIgnoredPaths")
+
+	var response []string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// Set the directory containing the generated code
+func (r *GeneratedCode) WithCode(code *Directory) *GeneratedCode {
+	assertNotNil("code", code)
+	q := r.q.Select("withCode")
+	q = q.Arg("code", code)
+
+	return &GeneratedCode{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Set the list of paths to mark generated in version control
+func (r *GeneratedCode) WithVCSGeneratedPaths(paths []string) *GeneratedCode {
+	q := r.q.Select("withVCSGeneratedPaths")
+	q = q.Arg("paths", paths)
+
+	return &GeneratedCode{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Set the list of paths to ignore in version control
+func (r *GeneratedCode) WithVCSIgnoredPaths(paths []string) *GeneratedCode {
+	q := r.q.Select("withVCSIgnoredPaths")
+	q = q.Arg("paths", paths)
+
+	return &GeneratedCode{
+		q: q,
+		c: r.c,
+	}
+}
+
+type GitCommand struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	stderr *string
+	stdout *string
+}
+type WithGitCommandFunc func(r *GitCommand) *GitCommand
+
+// With calls the provided function with current GitCommand.
+//
+// This is useful for reusability and readability by not breaking the calling chain.
+func (r *GitCommand) With(f WithGitCommandFunc) *GitCommand {
+	return f(r)
+}
+
+func (r *GitCommand) Args(ctx context.Context) ([]string, error) {
+	q := r.q.Select("args")
+
+	var response []string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *GitCommand) Input() *Repository {
+	q := r.q.Select("input")
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *GitCommand) Output() *Repository {
+	q := r.q.Select("output")
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *GitCommand) Stderr(ctx context.Context) (string, error) {
+	if r.stderr != nil {
+		return *r.stderr, nil
+	}
+	q := r.q.Select("stderr")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *GitCommand) Stdout(ctx context.Context) (string, error) {
+	if r.stdout != nil {
+		return *r.stdout, nil
+	}
+	q := r.q.Select("stdout")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *GitCommand) Sync() *GitCommand {
+	q := r.q.Select("sync")
+
+	return &GitCommand{
+		q: q,
+		c: r.c,
+	}
+}
+
 // A git ref (tag, branch or commit).
 type GitRef struct {
 	q *querybuilder.Selection
@@ -2753,10 +3045,10 @@ func (r *Module) Description(ctx context.Context) (string, error) {
 }
 
 // The code generated by the SDK's runtime
-func (r *Module) GeneratedCode() *Directory {
+func (r *Module) GeneratedCode() *GeneratedCode {
 	q := r.q.Select("generatedCode")
 
-	return &Directory{
+	return &GeneratedCode{
 		q: q,
 		c: r.c,
 	}
@@ -3231,6 +3523,26 @@ func (r *Client) Function(id FunctionID) *Function {
 	}
 }
 
+// GeneratedCodeOpts contains options for Client.GeneratedCode
+type GeneratedCodeOpts struct {
+	ID GeneratedCodeID
+}
+
+func (r *Client) GeneratedCode(opts ...GeneratedCodeOpts) *GeneratedCode {
+	q := r.q.Select("generatedCode")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `id` optional argument
+		if !querybuilder.IsZeroValue(opts[i].ID) {
+			q = q.Arg("id", opts[i].ID)
+		}
+	}
+
+	return &GeneratedCode{
+		q: q,
+		c: r.c,
+	}
+}
+
 // GitOpts contains options for Client.Git
 type GitOpts struct {
 	// Set to true to keep .git directory.
@@ -3401,6 +3713,15 @@ func (r *Client) Socket(opts ...SocketOpts) *Socket {
 	}
 }
 
+func (r *Client) Supergit() *Supergit {
+	q := r.q.Select("supergit")
+
+	return &Supergit{
+		q: q,
+		c: r.c,
+	}
+}
+
 // TypeDefOpts contains options for Client.TypeDef
 type TypeDefOpts struct {
 	ID TypeDefID
@@ -3416,6 +3737,243 @@ func (r *Client) TypeDef(opts ...TypeDefOpts) *TypeDef {
 	}
 
 	return &TypeDef{
+		q: q,
+		c: r.c,
+	}
+}
+
+type Remote struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	url *string
+}
+
+// Lookup a tag in the remote
+func (r *Remote) Tag(name string) *RemoteTag {
+	q := r.q.Select("tag")
+	q = q.Arg("name", name)
+
+	return &RemoteTag{
+		q: q,
+		c: r.c,
+	}
+}
+
+// RemoteTagsOpts contains options for Remote.Tags
+type RemoteTagsOpts struct {
+	// Only include tags matching this regular expression
+	Filter string
+}
+
+// Query the remote for its tags
+func (r *Remote) Tags(ctx context.Context, opts ...RemoteTagsOpts) ([]RemoteTag, error) {
+	q := r.q.Select("tags")
+	for i := len(opts) - 1; i >= 0; i-- {
+		// `filter` optional argument
+		if !querybuilder.IsZeroValue(opts[i].Filter) {
+			q = q.Arg("filter", opts[i].Filter)
+		}
+	}
+
+	q = q.Select("id")
+
+	type tags struct {
+		Id string
+	}
+
+	convert := func(fields []tags) []RemoteTag {
+		out := []RemoteTag{}
+
+		for i := range fields {
+			out = append(out, RemoteTag{id: &fields[i].Id})
+		}
+
+		return out
+	}
+	var response []tags
+
+	q = q.Bind(&response)
+
+	err := q.Execute(ctx, r.c)
+	if err != nil {
+		return nil, err
+	}
+
+	return convert(response), nil
+}
+
+func (r *Remote) URL(ctx context.Context) (string, error) {
+	if r.url != nil {
+		return *r.url, nil
+	}
+	q := r.q.Select("url")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+type RemoteTag struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	commit *string
+	id     *string
+	name   *string
+}
+
+func (r *RemoteTag) Commit(ctx context.Context) (string, error) {
+	if r.commit != nil {
+		return *r.commit, nil
+	}
+	q := r.q.Select("commit")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *RemoteTag) ID(ctx context.Context) (string, error) {
+	if r.id != nil {
+		return *r.id, nil
+	}
+	q := r.q.Select("id")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+// XXX_GraphQLType is an internal function. It returns the native GraphQL type name
+func (r *RemoteTag) XXX_GraphQLType() string {
+	return "RemoteTag"
+}
+
+// XXX_GraphQLIDType is an internal function. It returns the native GraphQL type name for the ID of this object
+func (r *RemoteTag) XXX_GraphQLIDType() string {
+	return "string"
+}
+
+// XXX_GraphQLID is an internal function. It returns the underlying type ID
+func (r *RemoteTag) XXX_GraphQLID(ctx context.Context) (string, error) {
+	id, err := r.ID(ctx)
+	if err != nil {
+		return "", err
+	}
+	return string(id), nil
+}
+
+func (r *RemoteTag) MarshalJSON() ([]byte, error) {
+	id, err := r.ID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(id)
+}
+func (r *RemoteTag) UnmarshalJSON(bs []byte) error {
+	var id string
+	err := json.Unmarshal(bs, &id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *RemoteTag) Name(ctx context.Context) (string, error) {
+	if r.name != nil {
+		return *r.name, nil
+	}
+	q := r.q.Select("name")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+type Repository struct {
+	q *querybuilder.Selection
+	c graphql.Client
+}
+type WithRepositoryFunc func(r *Repository) *Repository
+
+// With calls the provided function with current Repository.
+//
+// This is useful for reusability and readability by not breaking the calling chain.
+func (r *Repository) With(f WithRepositoryFunc) *Repository {
+	return f(r)
+}
+
+func (r *Repository) Commit(id string) *Commit {
+	q := r.q.Select("commit")
+	q = q.Arg("id", id)
+
+	return &Commit{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Repository) GitCommand(args []string) *GitCommand {
+	q := r.q.Select("gitCommand")
+	q = q.Arg("args", args)
+
+	return &GitCommand{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Repository) State() *Directory {
+	q := r.q.Select("state")
+
+	return &Directory{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Repository) Tag(name string) *Tag {
+	q := r.q.Select("tag")
+	q = q.Arg("name", name)
+
+	return &Tag{
+		q: q,
+		c: r.c,
+	}
+}
+
+// Execute a git command in the repository
+func (r *Repository) WithGitCommand(args []string) *Repository {
+	q := r.q.Select("withGitCommand")
+	q = q.Arg("args", args)
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Repository) WithRemote(name string, url string) *Repository {
+	q := r.q.Select("withRemote")
+	q = q.Arg("name", name)
+	q = q.Arg("url", url)
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Repository) Worktree() *Directory {
+	q := r.q.Select("worktree")
+
+	return &Directory{
 		q: q,
 		c: r.c,
 	}
@@ -3552,6 +4110,91 @@ func (r *Socket) UnmarshalJSON(bs []byte) error {
 	})
 
 	return nil
+}
+
+type Supergit struct {
+	q *querybuilder.Selection
+	c graphql.Client
+}
+
+func (r *Supergit) Container() *Container {
+	q := r.q.Select("container")
+
+	return &Container{
+		q: q,
+		c: r.c,
+	}
+}
+
+// A new git remote
+func (r *Supergit) Remote(url string) *Remote {
+	q := r.q.Select("remote")
+	q = q.Arg("url", url)
+
+	return &Remote{
+		q: q,
+		c: r.c,
+	}
+}
+
+// A new git repository
+func (r *Supergit) Repository() *Repository {
+	q := r.q.Select("repository")
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+type Tag struct {
+	q *querybuilder.Selection
+	c graphql.Client
+
+	fullName *string
+	name     *string
+}
+
+func (r *Tag) FullName(ctx context.Context) (string, error) {
+	if r.fullName != nil {
+		return *r.fullName, nil
+	}
+	q := r.q.Select("fullName")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *Tag) Name(ctx context.Context) (string, error) {
+	if r.name != nil {
+		return *r.name, nil
+	}
+	q := r.q.Select("name")
+
+	var response string
+
+	q = q.Bind(&response)
+	return response, q.Execute(ctx, r.c)
+}
+
+func (r *Tag) Repository() *Repository {
+	q := r.q.Select("repository")
+
+	return &Repository{
+		q: q,
+		c: r.c,
+	}
+}
+
+func (r *Tag) Tree() *Directory {
+	q := r.q.Select("tree")
+
+	return &Directory{
+		q: q,
+		c: r.c,
+	}
 }
 
 // A definition of a parameter or return type in a Module.
@@ -4118,29 +4761,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
-	case "Dagger":
-		switch fnName {
-		case "Engine":
-			var err error
-			var parent Dagger
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Dagger).Engine(&parent), nil
-		case "Cloud":
-			var err error
-			var parent Dagger
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Dagger).Cloud(&parent), nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
 	case "Cloud":
 		switch fnName {
 		case "About":
@@ -4164,47 +4784,137 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
+	case "Dagger":
+		switch fnName {
+		case "Cloud":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Cloud(&parent), nil
+		case "Engine":
+			var err error
+			var parent Dagger
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Dagger).Engine(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
 	case "Engine":
+		switch fnName {
+		case "Dev":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var o EngineDevOpts
+			if inputArgs["repository"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["repository"]), &o.Repository)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			if inputArgs["branch"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["branch"]), &o.Branch)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			return (*Engine).Dev(&parent, o), nil
+		case "Versions":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Versions(&parent, ctx)
+		case "Releases":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Releases(&parent, ctx)
+		case "Release":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var version string
+			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Release(&parent, version), nil
+		case "Zenith":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Zenith(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "EngineRelease":
 		switch fnName {
 		case "Source":
 			var err error
-			var parent Engine
+			var parent EngineRelease
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Source(&parent), nil
-		case "FromZenithBranch":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).FromZenithBranch(&parent), nil
+			return (*EngineRelease).Source(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "EngineSource":
+		switch fnName {
 		case "OSes":
 			var err error
-			var parent Engine
+			var parent EngineSource
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).OSes(&parent), nil
+			return (*EngineSource).OSes(&parent), nil
 		case "Arches":
 			var err error
-			var parent Engine
+			var parent EngineSource
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Arches(&parent), nil
+			return (*EngineSource).Arches(&parent), nil
 		case "CLI":
 			var err error
-			var parent Engine
+			var parent EngineSource
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -4239,25 +4949,25 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 					os.Exit(2)
 				}
 			}
-			return (*Engine).CLI(&parent, opts), nil
+			return (*EngineSource).CLI(&parent, opts), nil
 		case "GoBase":
 			var err error
-			var parent Engine
+			var parent EngineSource
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).GoBase(&parent), nil
+			return (*EngineSource).GoBase(&parent), nil
 		case "Worker":
 			var err error
-			var parent Engine
+			var parent EngineSource
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(2)
 			}
-			return (*Engine).Worker(&parent), nil
+			return (*EngineSource).Worker(&parent), nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
@@ -4325,17 +5035,8 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 							dag.TypeDef().WithKind(Voidkind).WithOptional(true)).
 							WithDescription("Run all worker tests\n")).
 					WithField("GoBase", dag.TypeDef().WithObject("Container")).
-					WithField("Engine", dag.TypeDef().WithObject("Engine")).
+					WithField("Engine", dag.TypeDef().WithObject("EngineSource")).
 					WithField("Version", dag.TypeDef().WithKind(Stringkind))).
-			WithObject(
-				dag.TypeDef().WithObject("Dagger").
-					WithFunction(
-						dag.NewFunction("Engine",
-							dag.TypeDef().WithObject("Engine")).
-							WithDescription("The Dagger Engine\n")).
-					WithFunction(
-						dag.NewFunction("Cloud",
-							dag.TypeDef().WithObject("Cloud")))).
 			WithObject(
 				dag.TypeDef().WithObject("Cloud").
 					WithFunction(
@@ -4345,19 +5046,53 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 						dag.NewFunction("URL",
 							dag.TypeDef().WithKind(Stringkind)))).
 			WithObject(
+				dag.TypeDef().WithObject("Dagger").
+					WithFunction(
+						dag.NewFunction("Cloud",
+							dag.TypeDef().WithObject("Cloud"))).
+					WithFunction(
+						dag.NewFunction("Engine",
+							dag.TypeDef().WithObject("Engine")).
+							WithDescription("The Dagger Engine\n"))).
+			WithObject(
 				dag.TypeDef().WithObject("Engine").
 					WithFunction(
-						dag.NewFunction("Source",
-							dag.TypeDef().WithObject("Directory"))).
+						dag.NewFunction("Dev",
+							dag.TypeDef().WithObject("EngineSource")).
+							WithDescription("A development version of the engine source code\nDefault to main branch on official upstream repository\n").
+							WithArg("Repository", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Git repository to fetch. Default: https://github.com/dagger/dagger"}).
+							WithArg("Branch", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Git branch to fetch. Default: main"})).
 					WithFunction(
-						dag.NewFunction("FromZenithBranch",
-							dag.TypeDef().WithObject("Engine"))).
+						dag.NewFunction("Versions",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+					WithFunction(
+						dag.NewFunction("Releases",
+							dag.TypeDef().WithListOf(dag.TypeDef().WithObject("EngineRelease")))).
+					WithFunction(
+						dag.NewFunction("Release",
+							dag.TypeDef().WithObject("EngineRelease")).
+							WithDescription("An official source release of the Dagger Engine\n").
+							WithArg("version", dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("Zenith",
+							dag.TypeDef().WithObject("EngineSource")).
+							WithDescription("The Zenith development branch\n"))).
+			WithObject(
+				dag.TypeDef().WithObject("EngineRelease").
+					WithFunction(
+						dag.NewFunction("Source",
+							dag.TypeDef().WithObject("EngineSource"))).
+					WithField("Version", dag.TypeDef().WithKind(Stringkind))).
+			WithObject(
+				dag.TypeDef().WithObject("EngineSource").
 					WithFunction(
 						dag.NewFunction("OSes",
-							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind))).
+							WithDescription("Supported operating systems\n")).
 					WithFunction(
 						dag.NewFunction("Arches",
-							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
+							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind))).
+							WithDescription("Supported hardware architectures\n")).
 					WithFunction(
 						dag.NewFunction("CLI",
 							dag.TypeDef().WithObject("File")).
@@ -4372,8 +5107,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 					WithFunction(
 						dag.NewFunction("Worker",
 							dag.TypeDef().WithObject("Worker"))).
-					WithField("SourceRepo", dag.TypeDef().WithKind(Stringkind)).
-					WithField("SourceBranch", dag.TypeDef().WithKind(Stringkind))), nil
+					WithField("Source", dag.TypeDef().WithObject("Directory"))), nil
 	default:
 		return nil, fmt.Errorf("unknown object %s", parentName)
 	}
