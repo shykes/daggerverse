@@ -20,20 +20,39 @@ func (d *Dagger) Engine() *Engine {
 type Engine struct {
 }
 
+// Return the latest release of the Dagger Engine
+func (e *Engine) Latest() (*EngineRelease, error) {
+	return nil, fmt.Errorf("not yet implemented")
+}
+
 // A development version of the engine source code
 // Default to main branch on official upstream repository
-func (e *Engine) Dev(o EngineDevOpts) *EngineSource {
+func (e *Engine) Dev() *EngineDev {
+	return &EngineDev{}
+}
+
+// Participate in developing the open-source Dagger Engine
+type EngineDev struct {
+}
+
+// A development version of the engine source code, pulled from a git branch
+func (dev *EngineDev) Branch(name string, o EngineDevBranchOpts) *EngineSource {
 	repo := o.Repository
 	if repo == "" {
 		repo = engineUpstream
 	}
-	branch := o.Branch
-	if branch == "" {
-		branch = "main"
-	}
 	return &EngineSource{
-		Source: dag.Git(repo).Branch(branch).Tree(),
+		Source: dag.Git(repo).Branch(name).Tree(),
 	}
+}
+
+type EngineDevBranchOpts struct {
+	Repository string `doc:"Git repository to fetch. Default: https://github.com/dagger/dagger"`
+}
+
+// A development version of the engine source code, pulled from a pull request
+func (dev *EngineDev) PullRequest(number int) *EngineSource {
+	return dev.Branch(fmt.Sprintf("pull/%d/head", number), EngineDevBranchOpts{})
 }
 
 func (e *Engine) Versions(ctx context.Context) ([]string, error) {
@@ -83,15 +102,7 @@ func (e *Engine) Release(version string) *EngineRelease {
 
 // The Zenith development branch
 func (e *Engine) Zenith() *EngineSource {
-	return e.Dev(EngineDevOpts{
-		Repository: "https://github.com/shykes/dagger",
-		Branch:     "zenith-functions",
-	})
-}
-
-type EngineDevOpts struct {
-	Repository string `doc:"Git repository to fetch. Default: https://github.com/dagger/dagger"`
-	Branch     string `doc:"Git branch to fetch. Default: main"`
+	return e.Dev().Branch("main", EngineDevBranchOpts{})
 }
 
 type EngineSource struct {

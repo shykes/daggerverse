@@ -44,6 +44,7 @@ type FileID string
 // A reference to a Function.
 type FunctionID string
 
+// A reference to GeneratedCode.
 type GeneratedCodeID string
 
 // An arbitrary JSON-encoded value.
@@ -269,7 +270,7 @@ type ContainerBuildOpts struct {
 	// Default: './Dockerfile'.
 	Dockerfile string
 	// Additional build arguments.
-	BuildArgs []*BuildArg
+	BuildArgs []BuildArg
 	// Target build stage to build.
 	Target string
 	// Secrets to pass to the build.
@@ -708,7 +709,7 @@ type ContainerPipelineOpts struct {
 	// Pipeline description.
 	Description string
 	// Pipeline labels.
-	Labels []*PipelineLabel
+	Labels []PipelineLabel
 }
 
 // Creates a named sub-pipeline
@@ -803,7 +804,10 @@ func (r *Container) Rootfs() *Directory {
 	}
 }
 
-// TODO
+// Return a websocket endpoint that, if connected to, will start the container with a TTY streamed
+// over the websocket.
+//
+// Primarily intended for internal use with the dagger CLI.
 func (r *Container) ShellEndpoint(ctx context.Context) (string, error) {
 	if r.shellEndpoint != nil {
 		return *r.shellEndpoint, nil
@@ -1622,7 +1626,7 @@ type DirectoryDockerBuildOpts struct {
 	// The platform to build.
 	Platform Platform
 	// Build arguments to use in the build.
-	BuildArgs []*BuildArg
+	BuildArgs []BuildArg
 	// Target build stage to build.
 	Target string
 	// Secrets to pass to the build.
@@ -1768,7 +1772,7 @@ type DirectoryPipelineOpts struct {
 	// Pipeline description.
 	Description string
 	// Pipeline labels.
-	Labels []*PipelineLabel
+	Labels []PipelineLabel
 }
 
 // Creates a named sub-pipeline
@@ -2222,7 +2226,7 @@ func (r *Function) Args(ctx context.Context) ([]FunctionArg, error) {
 
 // FunctionCallOpts contains options for Function.Call
 type FunctionCallOpts struct {
-	Input []*FunctionCallInput
+	Input []FunctionCallInput
 }
 
 // Execute this function using dynamic input+output types.
@@ -3179,7 +3183,7 @@ func (r *Module) SDKRuntime(ctx context.Context) (string, error) {
 
 // ModuleServeOpts contains options for Module.Serve
 type ModuleServeOpts struct {
-	Environment []*ModuleEnvironmentVariable
+	Environment []ModuleEnvironmentVariable
 }
 
 // Serve a module's API in the current session.
@@ -3528,6 +3532,7 @@ type GeneratedCodeOpts struct {
 	ID GeneratedCodeID
 }
 
+// Load GeneratedCode by ID, or create a new one if id is unset.
 func (r *Client) GeneratedCode(opts ...GeneratedCodeOpts) *GeneratedCode {
 	q := r.q.Select("generatedCode")
 	for i := len(opts) - 1; i >= 0; i-- {
@@ -3644,7 +3649,7 @@ type PipelineOpts struct {
 	// Pipeline description.
 	Description string
 	// Pipeline labels.
-	Labels []*PipelineLabel
+	Labels []PipelineLabel
 }
 
 // Creates a named sub-pipeline.
@@ -4564,6 +4569,230 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (any, error) {
 	switch parentName {
+	case "Cloud":
+		switch fnName {
+		case "About":
+			var err error
+			var parent Cloud
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Cloud).About(&parent), nil
+		case "URL":
+			var err error
+			var parent Cloud
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Cloud).URL(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "Engine":
+		switch fnName {
+		case "Latest":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Latest(&parent)
+		case "Dev":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Dev(&parent), nil
+		case "Versions":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Versions(&parent, ctx)
+		case "Releases":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Releases(&parent, ctx)
+		case "Release":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var version string
+			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Release(&parent, version), nil
+		case "Zenith":
+			var err error
+			var parent Engine
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*Engine).Zenith(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "EngineDev":
+		switch fnName {
+		case "Branch":
+			var err error
+			var parent EngineDev
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var name string
+			err = json.Unmarshal([]byte(inputArgs["name"]), &name)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var o EngineDevBranchOpts
+			if inputArgs["repository"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["repository"]), &o.Repository)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			return (*EngineDev).Branch(&parent, name, o), nil
+		case "PullRequest":
+			var err error
+			var parent EngineDev
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var number int
+			err = json.Unmarshal([]byte(inputArgs["number"]), &number)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineDev).PullRequest(&parent, number), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "EngineRelease":
+		switch fnName {
+		case "Source":
+			var err error
+			var parent EngineRelease
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineRelease).Source(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
+	case "EngineSource":
+		switch fnName {
+		case "OSes":
+			var err error
+			var parent EngineSource
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineSource).OSes(&parent), nil
+		case "Arches":
+			var err error
+			var parent EngineSource
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineSource).Arches(&parent), nil
+		case "CLI":
+			var err error
+			var parent EngineSource
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			var opts CLIOpts
+			if inputArgs["operatingSystem"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &opts.OperatingSystem)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			if inputArgs["arch"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["arch"]), &opts.Arch)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			if inputArgs["workerRegistry"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["workerRegistry"]), &opts.WorkerRegistry)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			if inputArgs["version"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["version"]), &opts.Version)
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(2)
+				}
+			}
+			return (*EngineSource).CLI(&parent, opts), nil
+		case "GoBase":
+			var err error
+			var parent EngineSource
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineSource).GoBase(&parent), nil
+		case "Worker":
+			var err error
+			var parent EngineSource
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(2)
+			}
+			return (*EngineSource).Worker(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
 	case "Worker":
 		switch fnName {
 		case "Arches":
@@ -4761,29 +4990,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
-	case "Cloud":
-		switch fnName {
-		case "About":
-			var err error
-			var parent Cloud
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Cloud).About(&parent), nil
-		case "URL":
-			var err error
-			var parent Cloud
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Cloud).URL(&parent), nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
 	case "Dagger":
 		switch fnName {
 		case "Cloud":
@@ -4804,170 +5010,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 				os.Exit(2)
 			}
 			return (*Dagger).Engine(&parent), nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "Engine":
-		switch fnName {
-		case "Dev":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var o EngineDevOpts
-			if inputArgs["repository"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["repository"]), &o.Repository)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			if inputArgs["branch"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["branch"]), &o.Branch)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			return (*Engine).Dev(&parent, o), nil
-		case "Versions":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Versions(&parent, ctx)
-		case "Releases":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Releases(&parent, ctx)
-		case "Release":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var version string
-			err = json.Unmarshal([]byte(inputArgs["version"]), &version)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Release(&parent, version), nil
-		case "Zenith":
-			var err error
-			var parent Engine
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*Engine).Zenith(&parent), nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "EngineRelease":
-		switch fnName {
-		case "Source":
-			var err error
-			var parent EngineRelease
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*EngineRelease).Source(&parent), nil
-		default:
-			return nil, fmt.Errorf("unknown function %s", fnName)
-		}
-	case "EngineSource":
-		switch fnName {
-		case "OSes":
-			var err error
-			var parent EngineSource
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*EngineSource).OSes(&parent), nil
-		case "Arches":
-			var err error
-			var parent EngineSource
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*EngineSource).Arches(&parent), nil
-		case "CLI":
-			var err error
-			var parent EngineSource
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			var opts CLIOpts
-			if inputArgs["operatingSystem"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["operatingSystem"]), &opts.OperatingSystem)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			if inputArgs["arch"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["arch"]), &opts.Arch)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			if inputArgs["workerRegistry"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["workerRegistry"]), &opts.WorkerRegistry)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			if inputArgs["version"] != nil {
-				err = json.Unmarshal([]byte(inputArgs["version"]), &opts.Version)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(2)
-				}
-			}
-			return (*EngineSource).CLI(&parent, opts), nil
-		case "GoBase":
-			var err error
-			var parent EngineSource
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*EngineSource).GoBase(&parent), nil
-		case "Worker":
-			var err error
-			var parent EngineSource
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(2)
-			}
-			return (*EngineSource).Worker(&parent), nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
@@ -5038,14 +5080,6 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 					WithField("Engine", dag.TypeDef().WithObject("EngineSource")).
 					WithField("Version", dag.TypeDef().WithKind(Stringkind))).
 			WithObject(
-				dag.TypeDef().WithObject("Cloud").
-					WithFunction(
-						dag.NewFunction("About",
-							dag.TypeDef().WithKind(Stringkind))).
-					WithFunction(
-						dag.NewFunction("URL",
-							dag.TypeDef().WithKind(Stringkind)))).
-			WithObject(
 				dag.TypeDef().WithObject("Dagger").
 					WithFunction(
 						dag.NewFunction("Cloud",
@@ -5055,13 +5089,23 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 							dag.TypeDef().WithObject("Engine")).
 							WithDescription("The Dagger Engine\n"))).
 			WithObject(
+				dag.TypeDef().WithObject("Cloud").
+					WithFunction(
+						dag.NewFunction("About",
+							dag.TypeDef().WithKind(Stringkind))).
+					WithFunction(
+						dag.NewFunction("URL",
+							dag.TypeDef().WithKind(Stringkind)))).
+			WithObject(
 				dag.TypeDef().WithObject("Engine").
 					WithFunction(
+						dag.NewFunction("Latest",
+							dag.TypeDef().WithObject("EngineRelease")).
+							WithDescription("Return the latest release of the Dagger Engine\n")).
+					WithFunction(
 						dag.NewFunction("Dev",
-							dag.TypeDef().WithObject("EngineSource")).
-							WithDescription("A development version of the engine source code\nDefault to main branch on official upstream repository\n").
-							WithArg("Repository", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Git repository to fetch. Default: https://github.com/dagger/dagger"}).
-							WithArg("Branch", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Git branch to fetch. Default: main"})).
+							dag.TypeDef().WithObject("EngineDev")).
+							WithDescription("A development version of the engine source code\nDefault to main branch on official upstream repository\n")).
 					WithFunction(
 						dag.NewFunction("Versions",
 							dag.TypeDef().WithListOf(dag.TypeDef().WithKind(Stringkind)))).
@@ -5077,6 +5121,19 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 						dag.NewFunction("Zenith",
 							dag.TypeDef().WithObject("EngineSource")).
 							WithDescription("The Zenith development branch\n"))).
+			WithObject(
+				dag.TypeDef().WithObject("EngineDev").
+					WithFunction(
+						dag.NewFunction("Branch",
+							dag.TypeDef().WithObject("EngineSource")).
+							WithDescription("A development version of the engine source code, pulled from a git branch\n").
+							WithArg("name", dag.TypeDef().WithKind(Stringkind)).
+							WithArg("Repository", dag.TypeDef().WithKind(Stringkind).WithOptional(true), FunctionWithArgOpts{Description: "Git repository to fetch. Default: https://github.com/dagger/dagger"})).
+					WithFunction(
+						dag.NewFunction("PullRequest",
+							dag.TypeDef().WithObject("EngineSource")).
+							WithDescription("A development version of the engine source code, pulled from a pull request\n").
+							WithArg("number", dag.TypeDef().WithKind(Integerkind)))).
 			WithObject(
 				dag.TypeDef().WithObject("EngineRelease").
 					WithFunction(
