@@ -86,7 +86,3 @@ type RemoteTag struct {
 	Name   string `json:"name"`
 	Commit string `json:"commit"`
 }
-
-func (rt *RemoteTag) ID() string {
-	return rt.Commit
-}
