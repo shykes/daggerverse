@@ -56,7 +56,7 @@ func (dev *EngineDev) PullRequest(number int) *EngineSource {
 }
 
 func (e *Engine) Versions(ctx context.Context) ([]string, error) {
-	tags, err := dag.Supergit().Remote(engineUpstream).Tags(ctx, RemoteTagsOpts{Filter: "^v[0-9\\.]+"})
+	tags, err := dag.Supergit().Remote(engineUpstream).Tags(ctx, Opt("^v[0-9\\.]+"))
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,7 @@
 {
   "name": "dagger",
   "sdk": "go",
-  "sdkRuntime": "vito/dagger-sdk-go:no-ptrs@sha256:2bb26bae3f30b920a4530b7495127fe4986102b06a99ff170500e83c25739b27",
   "dependencies": [
-    "github.com/shykes/daggerverse/supergit@064a5fd512ea7699341c75d499b113fcd183af3b"
+    "github.com/shykes/daggerverse/supergit@80d227931ae812f75501c08b3fe8533f212e1777"
   ]
 }
