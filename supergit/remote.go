@@ -45,14 +45,16 @@ func tagSplit(line string) (string, string) {
 	return commit, name
 }
 
-// Query the remote for its tags
-func (r *Remote) Tags(ctx context.Context, opts RemoteTagOpts) ([]*RemoteTag, error) {
+// Query the remote for its tags.
+//
+//	If `filter` is set, only tag matching that regular expression will be included.
+func (r *Remote) Tags(ctx context.Context, filter Optional[string]) ([]*RemoteTag, error) {
 	var (
-		filter *regexp.Regexp
-		err    error
+		filterRE *regexp.Regexp
+		err      error
 	)
-	if opts.Filter != "" {
-		filter, err = regexp.Compile(opts.Filter)
+	if filterStr, isSet := filter.Get(); isSet {
+		filterRE, err = regexp.Compile(filterStr)
 		if err != nil {
 			return nil, err
 		}
@@ -65,8 +67,8 @@ func (r *Remote) Tags(ctx context.Context, opts RemoteTagOpts) ([]*RemoteTag, er
 	tags := make([]*RemoteTag, 0, len(lines))
 	for i := range lines {
 		commit, name := tagSplit(lines[i])
-		if filter != nil {
-			if !filter.MatchString(name) {
+		if filterRE != nil {
+			if !filterRE.MatchString(name) {
 				continue
 			}
 		}
@@ -76,10 +78,6 @@ func (r *Remote) Tags(ctx context.Context, opts RemoteTagOpts) ([]*RemoteTag, er
 		})
 	}
 	return tags, nil
-}
-
-type RemoteTagOpts struct {
-	Filter string `doc:"Only include tags matching this regular expression"`
 }
 
 // A git tag
