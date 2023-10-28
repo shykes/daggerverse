@@ -2,6 +2,6 @@
   "name": "dagger",
   "sdk": "go",
   "dependencies": [
-    "github.com/shykes/daggerverse/supergit@80d227931ae812f75501c08b3fe8533f212e1777"
+    "github.com/shykes/daggerverse/supergit@01988e9bca25b252cdeec8ca65b32461fea0b989"
   ]
 }
