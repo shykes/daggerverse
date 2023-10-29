@@ -36,11 +36,8 @@ type EngineDev struct {
 }
 
 // A development version of the engine source code, pulled from a git branch
-func (dev *EngineDev) Branch(name string, o EngineDevBranchOpts) *EngineSource {
-	repo := o.Repository
-	if repo == "" {
-		repo = engineUpstream
-	}
+func (dev *EngineDev) Branch(name string, repository Optional[string]) *EngineSource {
+	repo := repository.GetOr(engineUpstream)
 	return &EngineSource{
 		Source: dag.Git(repo).Branch(name).Tree(),
 	}
@@ -52,11 +49,11 @@ type EngineDevBranchOpts struct {
 
 // A development version of the engine source code, pulled from a pull request
 func (dev *EngineDev) PullRequest(number int) *EngineSource {
-	return dev.Branch(fmt.Sprintf("pull/%d/head", number), EngineDevBranchOpts{})
+	return dev.Branch(fmt.Sprintf("pull/%d/head", number), Opt(""))
 }
 
 func (e *Engine) Versions(ctx context.Context) ([]string, error) {
-	tags, err := dag.Supergit().Remote(engineUpstream).Tags(ctx, Opt("^v[0-9\\.]+"))
+	tags, err := dag.Supergit().Remote(engineUpstream).Tags(ctx, SupergitRemoteTagsOpts{Filter: "^v[0-9\\.]+"})
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +99,7 @@ func (e *Engine) Release(version string) *EngineRelease {
 
 // The Zenith development branch
 func (e *Engine) Zenith() *EngineSource {
-	return e.Dev().Branch("main", EngineDevBranchOpts{})
+	return e.Dev().Branch("main", Opt(""))
 }
 
 type EngineSource struct {
@@ -126,29 +123,25 @@ func (e *EngineSource) Arches() []string {
 	}
 }
 
-type CLIOpts struct {
-	OperatingSystem string
-	Arch            string
-	WorkerRegistry  string `doc:"Registry from which to auto-pull the worker container image"`
-	Version         string
-}
-
-func (e *EngineSource) CLI(opts CLIOpts) *File {
-	if opts.WorkerRegistry == "" {
-		opts.WorkerRegistry = "registry.dagger.io/engine"
-	}
+func (e *EngineSource) CLI(
+	operatingSystem Optional[string],
+	arch Optional[string],
+	// Registry from which to auto-pull the worker container image
+	workerRegistry Optional[string],
+	version Optional[string],
+) *File {
 	ldflags := []string{"-s", "-w"}
-	if opts.Version != "" {
-		ldflags = append(ldflags, "-X", "github.com/dagger/dagger/engine.Version="+opts.Version)
+	if version, ok := version.Get(); ok {
+		ldflags = append(ldflags, "-X", "github.com/dagger/dagger/engine.Version="+version)
 	}
-	ldflags = append(ldflags, fmt.Sprintf("-X github.com/dagger/dagger/engine.EngineImageRepo=%s", opts.WorkerRegistry))
+	ldflags = append(ldflags, fmt.Sprintf("-X github.com/dagger/dagger/engine.EngineImageRepo=%s", workerRegistry.GetOr("registry.dagger.io/engine")))
 
 	base := e.GoBase()
-	if opts.OperatingSystem != "" {
-		base = base.WithEnvVariable("GOOS", opts.OperatingSystem)
+	if os, ok := operatingSystem.Get(); ok {
+		base = base.WithEnvVariable("GOOS", os)
 	}
-	if opts.Arch != "" {
-		base = base.WithEnvVariable("GOARCH", opts.Arch)
+	if arch, ok := arch.Get(); ok {
+		base = base.WithEnvVariable("GOARCH", arch)
 	}
 	return base.
 		WithExec(

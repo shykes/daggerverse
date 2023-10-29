@@ -189,7 +189,7 @@ func (w *Worker) Runc(arch string) *File {
 }
 
 func (w *Worker) DaggerBin(arch string) *File {
-	return w.Engine.CLI(CLIOpts{Arch: arch, OperatingSystem: "linux", Version: w.Version})
+	return w.Engine.CLI(Opt("linux"), Opt("arch"), Opt(""), Opt(w.Version))
 }
 
 // Run all worker tests
@@ -214,20 +214,20 @@ func (w *Worker) Tests(ctx context.Context) error {
 
 	testEngineUtils := dag.Host().Directory(tmpDir, HostDirectoryOpts{
 		Include: []string{"engine.tar"},
-	}).WithFile("/dagger", w.Engine.CLI(CLIOpts{}), DirectoryWithFileOpts{
+	}).WithFile("/dagger", w.Engine.CLI(Opt(""), Opt(""), Opt(""), Opt("")), DirectoryWithFileOpts{
 		Permissions: 0755,
 	})
 
-	worker = worker.
+	workerSvc := worker.
 		WithServiceBinding("registry", registry()).
 		WithServiceBinding("privateregistry", privateRegistry()).
 		WithExposedPort(devWorkerListenPort, ContainerWithExposedPortOpts{Protocol: Tcp}).
 		WithMountedCache(workerDefaultStateDir, dag.CacheVolume("dagger-dev-engine-test-state")).
 		WithExec(nil, ContainerWithExecOpts{
 			InsecureRootCapabilities: true,
-		})
+		}).AsService()
 
-	endpoint, err := worker.Endpoint(ctx, ContainerEndpointOpts{Port: devWorkerListenPort, Scheme: "tcp"})
+	endpoint, err := workerSvc.Endpoint(ctx, ServiceEndpointOpts{Port: devWorkerListenPort, Scheme: "tcp"})
 	if err != nil {
 		return fmt.Errorf("failed to get dev engine endpoint: %w", err)
 	}
@@ -263,9 +263,9 @@ func (w *Worker) Tests(ctx context.Context) error {
 		WithEnvVariable("_DAGGER_TESTS_ENGINE_TAR", filepath.Join(utilDirPath, "engine.tar")).
 		WithWorkdir("/app").
 		WithServiceBinding("dagger-engine", worker.AsService()).
-		WithServiceBinding("registry", registrySvc).
+		WithServiceBinding("registry", registry()).
 		WithEnvVariable("CGO_ENABLED", cgoEnabledEnv).
-		WithMountedFile(cliBinPath, w.Engine.CLI(CLIOpts{})).
+		WithMountedFile(cliBinPath, w.Engine.CLI(Opt(""), Opt(""), Opt(""), Opt(""))).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_CLI_BIN", cliBinPath).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_RUNNER_HOST", endpoint).
 		WithExec(args).
