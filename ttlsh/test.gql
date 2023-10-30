@@ -1,7 +1,0 @@
-query test {
-	container {
-		from(address: "alpine") {
-			ttlpush(repo: "solotest", tag: "latest")
-		}
-	}
-}
