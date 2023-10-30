@@ -12,8 +12,6 @@ const (
 	backendHostname = "backend"
 )
 
-// FIXME: make auth key a secret
-
 // Expose a backend service on Tailscale at the given hostname, using the given Tailscale key.
 func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, backend Optional[*Service]) (*Service, error) {
 	backendService := backend.GetOr(dag.Container().From("index.docker.io/nginx").AsService())
@@ -40,6 +38,8 @@ func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, b
 	}
 	proxyScript := strings.Join(proxyCmds, "\n")
 	script := proxyScript + "\n\n" + `
+	# This is a decoy port to allow using the gateway as a service (FIXME: this shouldn't be needed)
+	nc -l -p 9999 &
 	tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
 	tailscale login --hostname "$TAILSCALE_HOSTNAME" --authkey "$TAILSCALE_AUTHKEY"
 	tailscale up
@@ -52,6 +52,7 @@ func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, b
 			WithEnvVariable("TAILSCALE_HOSTNAME", hostname).
 			WithSecretVariable("TAILSCALE_AUTHKEY", key).
 			WithServiceBinding(backendHostname, backendService).
+			WithExposedPort(9999).
 			WithExec([]string{"sh", "-c", script}).
 			AsService(),
 		nil
