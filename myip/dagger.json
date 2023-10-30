@@ -1,8 +1,7 @@
 {
-  "root": "",
   "name": "myip",
   "sdk": "go",
   "dependencies": [
-    "github.com/samalba/inline-python-mod@4a1e9d9f4cf71337e9aeb3406578333e1ddde9a1"
+    "github.com/samalba/inline-python-mod@8e1b5f9645ef229e07cddf160899fbc04087910e"
   ]
 }
