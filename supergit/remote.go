@@ -27,8 +27,9 @@ func (r *Remote) Tag(ctx context.Context, name string) (*RemoteTag, error) {
 	line, _, _ := strings.Cut(output, "\n")
 	commit, name := tagSplit(line)
 	return &RemoteTag{
-		Commit: commit,
-		Name:   name,
+		CommitID: commit,
+		Name:     name,
+		URL:      r.URL,
 	}, nil
 }
 
@@ -63,8 +64,9 @@ func (r *Remote) Tags(ctx context.Context, filter Optional[string]) ([]*RemoteTa
 			}
 		}
 		tags = append(tags, &RemoteTag{
-			Name:   name,
-			Commit: commit,
+			Name:     name,
+			CommitID: commit,
+			URL:      r.URL,
 		})
 	}
 	return tags, nil
@@ -72,8 +74,16 @@ func (r *Remote) Tags(ctx context.Context, filter Optional[string]) ([]*RemoteTa
 
 // A git tag
 type RemoteTag struct {
-	Name   string `json:"name"`
-	Commit string `json:"commit"`
+	Name     string `json:"name"`
+	CommitID string `json:"commit"`
+	URL      string `json:"URL"`
+}
+
+// Return the commit referenced by the remote tag
+func (t *RemoteTag) Commit() *Commit {
+	return new(Supergit).Repository().
+		WithGitCommand([]string{"fetch", t.URL, t.Name}).
+		Commit(t.CommitID)
 }
 
 // Lookup a branch in the remote
@@ -83,10 +93,11 @@ func (r *Remote) Branch(ctx context.Context, name string) (*RemoteBranch, error)
 		return nil, err
 	}
 	line, _, _ := strings.Cut(output, "\n")
-	commit, name := tagSplit(line)
+	commit, name := branchSplit(line)
 	return &RemoteBranch{
-		Commit: commit,
-		Name:   name,
+		URL:      r.URL,
+		CommitID: commit,
+		Name:     name,
 	}, nil
 }
 
@@ -119,8 +130,9 @@ func (r *Remote) Branches(ctx context.Context, filter Optional[string]) ([]*Remo
 			}
 		}
 		branches = append(branches, &RemoteBranch{
-			Name:   name,
-			Commit: commit,
+			Name:     name,
+			CommitID: commit,
+			URL:      r.URL,
 		})
 	}
 	return branches, nil
@@ -128,8 +140,16 @@ func (r *Remote) Branches(ctx context.Context, filter Optional[string]) ([]*Remo
 
 // A git branch
 type RemoteBranch struct {
-	Name   string `json:"name"`
-	Commit string `json:"commit"`
+	Name     string `json:"name"`
+	CommitID string `json:"commit"`
+	URL      string `json:"URL"`
+}
+
+// Return the commit referenced by the remote branch
+func (b *RemoteBranch) Commit() *Commit {
+	return new(Supergit).Repository().
+		WithGitCommand([]string{"fetch", b.URL, b.Name}).
+		Commit(b.CommitID)
 }
 
 func refSplit(line, trimPrefix string) (string, string) {
