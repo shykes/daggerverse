@@ -12,15 +12,11 @@ const (
 	backendHostname = "backend"
 )
 
-var (
-	defaultBackendService = dag.Container().From("index.docker.io/nginx").AsService()
-)
-
 // FIXME: make auth key a secret
 
 // Expose a backend service on Tailscale at the given hostname, using the given Tailscale key.
 func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, backend Optional[*Service]) (*Service, error) {
-	backendService := backend.GetOr(defaultBackendService)
+	backendService := backend.GetOr(dag.Container().From("index.docker.io/nginx").AsService())
 	ports, err := backendService.Ports(ctx)
 	if err != nil {
 		return nil, err
