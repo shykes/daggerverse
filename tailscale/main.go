@@ -12,14 +12,19 @@ const (
 	backendHostname = "backend"
 )
 
+var (
+	defaultBackendService = dag.Container().From("index.docker.io/nginx").AsService()
+)
+
 // FIXME: make auth key a secret
 
-func (m *Tailscale) Gateway(ctx context.Context, hostname string, key string, backend *Container) (*Container, error) {
-	ports, err := backend.ExposedPorts(ctx)
+// Expose a backend service on Tailscale at the given hostname, using the given Tailscale key.
+func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, backend Optional[*Service]) (*Service, error) {
+	backendService := backend.GetOr(defaultBackendService)
+	ports, err := backendService.Ports(ctx)
 	if err != nil {
 		return nil, err
 	}
-
 	var proxyCmds []string
 	for _, port := range ports {
 		// FIXME: add UDP
@@ -49,20 +54,9 @@ func (m *Tailscale) Gateway(ctx context.Context, hostname string, key string, ba
 			WithExec([]string{"apk", "add", "tailscale"}).
 			WithExec([]string{"apk", "add", "socat"}).
 			WithEnvVariable("TAILSCALE_HOSTNAME", hostname).
-			WithEnvVariable("TAILSCALE_AUTHKEY", key).
-			WithServiceBinding(backendHostname, backend).
-			WithExec([]string{"sh", "-c", script}),
+			WithSecretVariable("TAILSCALE_AUTHKEY", key).
+			WithServiceBinding(backendHostname, backendService).
+			WithExec([]string{"sh", "-c", script}).
+			AsService(),
 		nil
-}
-
-func (m *Tailscale) Demo(ctx context.Context, hostname string, key string) error {
-	backend := dag.
-		Container().
-		From("index.docker.io/nginx")
-	gw, err := m.Gateway(ctx, hostname, key, backend)
-	if err != nil {
-		return err
-	}
-	_, err = gw.Sync(ctx)
-	return err
 }
