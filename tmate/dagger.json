@@ -1,0 +1,7 @@
+{
+  "name": "tmate",
+  "sdk": "go",
+  "dependencies": [
+    "github.com/shykes/daggerverse/wolfi@faf1103e0b125477d840d2b96a937518ebc0d5bd"
+  ]
+}
