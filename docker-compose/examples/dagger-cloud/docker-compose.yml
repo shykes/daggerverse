@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+  api:
+    image: golang:1.21
+    ports:
+      - 8020:8020
+    command: ["go", "run", "/api/main.go"]
+    environment:
+      LOCAL: "true"
+      DAGGER_API_SERVER_URL: http://localhost:8080
+      DB_CONNECTION: "postgres://dagger:dagger@db/dagger?sslmode=disable"
+      CLICKHOUSE_SERVER: "clickhouse://clickhouse:9000/cloud?debug=true&dial_timeout=1s"
+    volumes:
+      - .:/api
+      - ../magicache:/magicache
+      - /go/pkg/mod
+    working_dir: /api
+  db:
+    image: postgres:13.8
+    command: ["postgres", "-c", "log_statement=all"]
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: dagger
+      POSTGRES_USER: dagger
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3-alpine
+    ports:
+      - 18123:8123
+      - 9000:9000
+    environment:
+      CLICKHOUSE_DB: cloud
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
