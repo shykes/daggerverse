@@ -39,6 +39,18 @@ func (t *Tmate) BuildEnv() *Container {
 		WithWorkdir("/src")
 }
 
+func (t *Tmate) Container() *Container {
+	return t.BuildEnv().
+		WithExec([]string{"autoupdate"}).
+		WithExec([]string{"./autogen.sh"}).
+		WithExec([]string{"./configure"}).
+		WithExec([]string{"make"}).
+		WithExec([]string{"make", "install"}).
+		WithExec([]string{"tmate"})
+	// WithEntrypoint([]string{"tmate"}).
+	// WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: []string{}})
+}
+
 // A build of tmate as a dynamically linked binary + required libraries
 func (t *Tmate) Dynamic(ctx context.Context) (*Directory, error) {
 	bundle := dag.Directory()
@@ -88,11 +100,30 @@ func dynLibs(ctx context.Context, ctr *Container, binary string) (*Directory, er
 	return libs, nil
 }
 
-// Run tmate in a container
-func (t *Tmate) Wrap(container *Container) *Container {
-	return container.WithFile("/bin/tmate", t.Static())
+func (t *Tmate) Tmate(ctx context.Context) (*Container, error) {
+	ctr := dag.
+		Container().
+		From("ubuntu").
+		WithExec([]string{"tmate"})
+		//WithEntrypoint([]string{"tmate"}).
+		//WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: nil})
+	return t.WrapDynamic(ctx, ctr)
 }
 
-func (t *Tmate) WrapControl(container *Container) *Container {
-	return container
+// Run tmate in a container
+func (t *Tmate) Wrap(container *Container) *Container {
+	return container.
+		WithFile("/bin/tmate", t.Static()).
+		WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: nil}).
+		WithEntrypoint(nil).
+		WithExec([]string{"tmate"})
+}
+
+// Run tmate in a container
+func (t *Tmate) WrapDynamic(ctx context.Context, container *Container) (*Container, error) {
+	binAndLibs, err := t.Dynamic(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return container.WithDirectory("/", binAndLibs), nil
 }
