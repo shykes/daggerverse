@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -57,10 +59,23 @@ func (t *Tmate) Dynamic(ctx context.Context) (*Directory, error) {
 	return bundle, nil
 }
 
+var goarchToPlatformArg = map[string]string{
+	"amd64": "amd64",
+	"arm64": "arm64v8",
+}
+
 // A static build of Tmate
-func (t *Tmate) Static() *File {
+func (t *Tmate) Static() (*File, error) {
+	platformArg, ok := goarchToPlatformArg[runtime.GOARCH]
+	if !ok {
+		return nil, fmt.Errorf("unsupported GOARCH: %s", runtime.GOARCH)
+	}
 	// FIXME: replace Dockerfile with pure Go
-	return t.Source().DockerBuild().File("tmate")
+	return t.Source().DockerBuild(DirectoryDockerBuildOpts{
+		// The Dockerfile doesn't use the standard multiplatform build support,
+		// need to explicitly pass this build arg and set it to the arch.
+		BuildArgs: []BuildArg{{Name: "PLATFORM", Value: platformArg}},
+	}).File("tmate"), nil
 }
 
 // Given a container and the path of an executable within it,
@@ -89,8 +104,12 @@ func dynLibs(ctx context.Context, ctr *Container, binary string) (*Directory, er
 }
 
 // Run tmate in a container
-func (t *Tmate) Wrap(container *Container) *Container {
-	return container.WithFile("/bin/tmate", t.Static())
+func (t *Tmate) Wrap(container *Container) (*Container, error) {
+	staticBin, err := t.Static()
+	if err != nil {
+		return nil, err
+	}
+	return container.WithFile("/bin/tmate", staticBin), nil
 }
 
 func (t *Tmate) WrapControl(container *Container) *Container {
