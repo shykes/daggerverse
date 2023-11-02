@@ -46,9 +46,9 @@ func (t *Tmate) Container() *Container {
 		WithExec([]string{"./configure"}).
 		WithExec([]string{"make"}).
 		WithExec([]string{"make", "install"}).
-		WithExec([]string{"tmate"})
-	// WithEntrypoint([]string{"tmate"}).
-	// WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: []string{}})
+		// WithExec([]string{"tmate"})
+		WithEntrypoint([]string{"tmate"}).
+		WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: []string{}})
 }
 
 // A build of tmate as a dynamically linked binary + required libraries
