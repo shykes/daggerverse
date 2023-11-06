@@ -9,6 +9,7 @@ import (
 
 const (
 	defaultVersion = "2.4.0"
+	defaultBinPath = "/usr/bin"
 )
 
 // A release of the Tmate software
@@ -41,11 +42,14 @@ func (r *Release) StaticBinary() *File {
 
 // A container with tmate installed.
 //
-//	if `base` is set, it is used as a base container, with the static binary added to /bin/
-func (r *Release) Container(base Optional[*Container]) *Container {
+// Arguments:
+//   - `base` (optional): custom base container
+//   - `binPath` the path where the tmate static binary will be installed. Default: /usr/bin
+func (r *Release) Container(base Optional[*Container], binPath Optional[string]) *Container {
 	var ctr *Container
 	if baseCtr := base.GetOr(nil); baseCtr != nil {
-		ctr = baseCtr.WithFile("/bin/tmate", r.StaticBinary())
+		path := binPath.GetOr(defaultBinPath) + "/tmate"
+		ctr = baseCtr.WithFile(path, r.StaticBinary())
 	} else {
 		ctr = r.dynamicBuild()
 	}
