@@ -1,0 +1,8 @@
+{
+  "name": "slim",
+  "sdk": "go",
+  "dependencies": [
+    "github.com/kpenfound/dagger-modules/dockerd@ec3133891c9cea4ec964c6fb597e62567dfecc7e",
+    "github.com/kpenfound/testcontainers-java-repro/module/testcontainers@125daf54f43a40515c14442569669f35c09f4936"
+  ]
+}
