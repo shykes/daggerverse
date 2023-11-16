@@ -8,7 +8,7 @@ import (
 
 type Slim struct{}
 
-func (s *Slim) Debug(ctx context.Context, container *Container) (*Container, error) {
+func (s *Slim) Compare(ctx context.Context, container *Container) (*Container, error) {
 	slimmed, err := s.Slim(ctx, container)
 	if err != nil {
 		return nil, err
@@ -16,8 +16,8 @@ func (s *Slim) Debug(ctx context.Context, container *Container) (*Container, err
 	debug := dag.
 		Container().
 		From("alpine").
-		WithMountedDirectory("/slim", slimmed.Rootfs()).
-		WithMountedDirectory("/unslim", container.Rootfs())
+		WithMountedDirectory("before", slimmed.Rootfs()).
+		WithMountedDirectory("after", container.Rootfs())
 	return debug, nil
 }
 
@@ -43,6 +43,7 @@ func (s *Slim) Slim(ctx context.Context, container *Container) (*Container, erro
 	// Setup the slim container, attached to the dockerd
 	slim := dag.
 		Container().
+		// FIXME: choose image based on default architecture
 		From("index.docker.io/dslim/slim-arm").
 		WithServiceBinding("dockerd", dockerd).
 		WithEnvVariable("DOCKER_HOST", "tcp://dockerd:2375").
