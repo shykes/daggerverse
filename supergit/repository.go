@@ -33,6 +33,7 @@ func (r *Repository) WithGitCommand(args []string) *Repository {
 	return r.GitCommand(args).Output()
 }
 
+// A Git command executed from the current repository state
 func (r *Repository) GitCommand(args []string) *GitCommand {
 	return &GitCommand{
 		Args:  args,
@@ -40,6 +41,7 @@ func (r *Repository) GitCommand(args []string) *GitCommand {
 	}
 }
 
+// A Git command
 type GitCommand struct {
 	Args  []string
 	Input *Repository
