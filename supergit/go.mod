@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/Khan/genqlient v0.6.0
-	golang.org/x/sync v0.3.0
+	golang.org/x/sync v0.4.0
 )
 
 require (

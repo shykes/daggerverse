@@ -99,8 +99,8 @@ func (t *Tag) FullName() string {
 }
 
 type Tag struct {
-	Repository *Repository `json:"repository"`
-	Name       string      `json:"name"`
+	Repository *Repository
+	Name       string
 }
 
 func (t *Tag) Tree() *Directory {
@@ -115,8 +115,8 @@ func (r *Repository) Commit(digest string) *Commit {
 }
 
 type Commit struct {
-	Digest     string      `json:"digest"`
-	Repository *Repository `json:"repository"`
+	Digest     string
+	Repository *Repository
 }
 
 func (c *Commit) Tree() *Directory {

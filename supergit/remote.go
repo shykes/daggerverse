@@ -74,9 +74,9 @@ func (r *Remote) Tags(ctx context.Context, filter Optional[string]) ([]*RemoteTa
 
 // A git tag
 type RemoteTag struct {
-	Name     string `json:"name"`
-	CommitID string `json:"commit"`
-	URL      string `json:"URL"`
+	Name     string
+	CommitID string
+	URL      string
 }
 
 // Return the commit referenced by the remote tag
@@ -140,9 +140,9 @@ func (r *Remote) Branches(ctx context.Context, filter Optional[string]) ([]*Remo
 
 // A git branch
 type RemoteBranch struct {
-	Name     string `json:"name"`
-	CommitID string `json:"commit"`
-	URL      string `json:"URL"`
+	Name     string
+	CommitID string
+	URL      string
 }
 
 // Return the commit referenced by the remote branch
