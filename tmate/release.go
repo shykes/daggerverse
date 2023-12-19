@@ -22,7 +22,7 @@ func (t *Tmate) Release(version Optional[string]) *Release {
 // A release of the Tmate software
 type Release struct {
 	// Version number of this release
-	Version string `json:"version"`
+	Version string
 }
 
 // The source code for this release

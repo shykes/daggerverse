@@ -7,8 +7,8 @@ import (
 
 // A Dagger module for saying hello to the world
 type Hello struct {
-	Greeting string `json:"greeting"`
-	Name     string `json:"name"`
+	Greeting string
+	Name     string
 }
 
 // Change the greeting

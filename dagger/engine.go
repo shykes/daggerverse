@@ -81,7 +81,7 @@ func (e *Engine) Releases(ctx context.Context) ([]*EngineRelease, error) {
 }
 
 type EngineRelease struct {
-	Version string `json:"version"`
+	Version string
 }
 
 func (r *EngineRelease) Source() *EngineSource {
@@ -103,7 +103,7 @@ func (e *Engine) Zenith() *EngineSource {
 }
 
 type EngineSource struct {
-	Source *Directory `json:"source"`
+	Source *Directory
 }
 
 // Supported operating systems

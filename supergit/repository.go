@@ -24,8 +24,8 @@ func (r *Supergit) Repository() *Repository {
 
 // A git repository
 type Repository struct {
-	State    *Directory `json:"state"`
-	Worktree *Directory `json:"worktree"`
+	State    *Directory
+	Worktree *Directory
 }
 
 // Execute a git command in the repository

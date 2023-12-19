@@ -13,8 +13,8 @@ func (w *Wolfi) Base() *Config {
 
 // A Wolfi OS configuration
 type Config struct {
-	Packages []string     `json:"packages"`
-	Overlays []*Container `json:"overlays"`
+	Packages []string
+	Overlays []*Container
 }
 
 // At a package to this configuration

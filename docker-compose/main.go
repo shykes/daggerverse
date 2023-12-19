@@ -88,8 +88,8 @@ func (p *Project) Services(ctx context.Context) ([]*ComposeService, error) {
 
 // A Docker Compose service
 type ComposeService struct {
-	Project *Project `json:"project"`
-	Name    string   `json:"name"`
+	Project *Project
+	Name    string
 }
 
 // The full docker-compose spec for this service

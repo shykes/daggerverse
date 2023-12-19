@@ -25,7 +25,7 @@ func (m *Containers) Scratch() *Ctr {
 
 // A docker-compatible container
 type Ctr struct {
-	State *Container `json:"state"`
+	State *Container
 }
 
 func (c *Ctr) WithFile(path string, file *File) *Ctr {
