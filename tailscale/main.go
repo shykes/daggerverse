@@ -19,7 +19,11 @@ func defaultBackend() *Service {
 // Inspect a backend service for debugging purposes
 func (m *Tailscale) Diagnostics(ctx context.Context, backend Optional[*Service]) (string, error) {
 	var out []string
-	backendService := backend.GetOr(defaultBackend())
+	// FIXME: Start() is a workaround for host services not auto-starting
+	backendService, err := backend.GetOr(defaultBackend()).Start(ctx)
+	if err != nil {
+		return "", err
+	}
 	ports, err := backendService.Ports(ctx)
 	if err != nil {
 		return "", err
@@ -37,7 +41,11 @@ func (m *Tailscale) Diagnostics(ctx context.Context, backend Optional[*Service])
 
 // Expose a backend service on Tailscale at the given hostname, using the given Tailscale key.
 func (m *Tailscale) Gateway(ctx context.Context, hostname string, key *Secret, backend Optional[*Service]) (*Service, error) {
-	backendService := backend.GetOr(defaultBackend())
+	// FIXME: Start() is a workaround for host services not auto-starting
+	backendService, err := backend.GetOr(defaultBackend()).Start(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ports, err := backendService.Ports(ctx)
 	if err != nil {
 		return nil, err
