@@ -1,0 +1,387 @@
+[35m1:[0m connect
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine 
+[35m1:[0m starting engine [90m[0.20s][0m
+Connected to engine 576a7fcf4919 (version v0.9.5)
+[35m1:[0m starting session 
+[35m1:[0m [1.36s] OK!
+[35m1:[0m starting session [90m[0.24s][0m
+Dagger Cloud URL: https://dagger.cloud/runs/8d6a3a45-5781-42ed-81ad-17c523a0207d
+[35m1:[0m connect [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m loading module 
+[35m3:[0m ...
+
+[35m7:[0m upload /Users/shykes/dev/shykes/daggerverse/ollama from shm3.local (client id: esdnrts2wqqtw2ic1q3k43zt5) [32mDONE[0m
+[35m7:[0m > in [34mhost.directory /Users/shykes/dev/shykes/daggerverse/ollama[0m
+[35m7:[0m upload /Users/shykes/dev/shykes/daggerverse/ollama from shm3.local (client id: esdnrts2wqqtw2ic1q3k43zt5) [32mDONE[0m
+
+[35m7:[0m upload /Users/shykes/dev/shykes/daggerverse/ollama from shm3.local (client id: esdnrts2wqqtw2ic1q3k43zt5)
+[35m7:[0m > in [34mhost.directory /Users/shykes/dev/shykes/daggerverse/ollama[0m
+[35m7:[0m transferring /Users/shykes/dev/shykes/daggerverse/ollama: 
+[35m7:[0m transferring /Users/shykes/dev/shykes/daggerverse/ollama: 11.54MiB [90m[1.11s][0m
+[35m7:[0m upload /Users/shykes/dev/shykes/daggerverse/ollama from shm3.local (client id: esdnrts2wqqtw2ic1q3k43zt5) [32mDONE[0m
+
+[35m8:[0m blob://sha256:3bc510387caf1d6f1a059134a2c0008f22719ffe6a690dd4f6eb56fa39fbfd67 [32mDONE[0m
+[35m8:[0m > in [34mhost.directory /Users/shykes/dev/shykes/daggerverse/ollama[0m
+[35m8:[0m blob://sha256:3bc510387caf1d6f1a059134a2c0008f22719ffe6a690dd4f6eb56fa39fbfd67 [32mDONE[0m
+
+[35m8:[0m blob://sha256:3bc510387caf1d6f1a059134a2c0008f22719ffe6a690dd4f6eb56fa39fbfd67 [32mDONE[0m
+[35m8:[0m > in [34mhost.directory /Users/shykes/dev/shykes/daggerverse/ollama[0m
+[35m8:[0m blob://sha256:3bc510387caf1d6f1a059134a2c0008f22719ffe6a690dd4f6eb56fa39fbfd67 [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m11:[0m upload /usr/local/share/dagger/python-sdk/runtime from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: dagger.json) [32mDONE[0m
+[35m11:[0m > in [34mload builtin module sdk python[0m
+[35m11:[0m upload /usr/local/share/dagger/python-sdk/runtime from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: dagger.json) [32mDONE[0m
+
+[35m11:[0m upload /usr/local/share/dagger/python-sdk/runtime from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: dagger.json)
+[35m11:[0m > in [34mload builtin module sdk python[0m
+[35m11:[0m transferring /usr/local/share/dagger/python-sdk/runtime: 
+[35m11:[0m transferring /usr/local/share/dagger/python-sdk/runtime: 32B [90m[0.00s][0m
+[35m11:[0m upload /usr/local/share/dagger/python-sdk/runtime from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: dagger.json) [32mDONE[0m
+
+[35m12:[0m blob://sha256:7a03bed2f8664f614c53b8b8bb1e50bb1162b2283b09a13c1985f7cb51f21bfc [32mDONE[0m
+[35m12:[0m > in [34mload builtin module sdk python[0m
+[35m12:[0m blob://sha256:7a03bed2f8664f614c53b8b8bb1e50bb1162b2283b09a13c1985f7cb51f21bfc [32mDONE[0m
+
+[35m12:[0m blob://sha256:7a03bed2f8664f614c53b8b8bb1e50bb1162b2283b09a13c1985f7cb51f21bfc [36mCACHED[0m
+[35m12:[0m > in [34mload builtin module sdk python[0m
+[35m12:[0m blob://sha256:7a03bed2f8664f614c53b8b8bb1e50bb1162b2283b09a13c1985f7cb51f21bfc [36mCACHED[0m
+
+[35m14:[0m upload /usr/local/share/dagger/python-sdk from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) [32mDONE[0m
+[35m14:[0m > in [34mload builtin module sdk python[0m
+[35m14:[0m upload /usr/local/share/dagger/python-sdk from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) [32mDONE[0m
+
+[35m14:[0m upload /usr/local/share/dagger/python-sdk from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8)
+[35m14:[0m > in [34mload builtin module sdk python[0m
+[35m14:[0m transferring /usr/local/share/dagger/python-sdk: 
+[35m14:[0m transferring /usr/local/share/dagger/python-sdk: 2.354KiB [90m[0.00s][0m
+[35m14:[0m upload /usr/local/share/dagger/python-sdk from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) [32mDONE[0m
+
+[35m15:[0m blob://sha256:4c4aca6aa64adbfd640575d07966479d759a03a8e3be0c0d4aac2654f64c3ea7 [32mDONE[0m
+[35m15:[0m > in [34mload builtin module sdk python[0m
+[35m15:[0m blob://sha256:4c4aca6aa64adbfd640575d07966479d759a03a8e3be0c0d4aac2654f64c3ea7 [32mDONE[0m
+
+[35m15:[0m blob://sha256:4c4aca6aa64adbfd640575d07966479d759a03a8e3be0c0d4aac2654f64c3ea7 [36mCACHED[0m
+[35m15:[0m > in [34mload builtin module sdk python[0m
+[35m15:[0m blob://sha256:4c4aca6aa64adbfd640575d07966479d759a03a8e3be0c0d4aac2654f64c3ea7 [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m loading module [90m[1.57s][0m
+[35m3:[0m loading objects 
+[35m3:[0m ...
+
+[35m18:[0m mkdir / [32mDONE[0m
+[35m18:[0m mkdir / [32mDONE[0m
+
+[35m17:[0m mkfile /schema.json [36mCACHED[0m
+[35m17:[0m mkfile /schema.json [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m20:[0m upload /usr/local/share/dagger from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: go-module-sdk-image.tar) [32mDONE[0m
+[35m20:[0m > in [34mload builtin module sdk go[0m
+[35m20:[0m upload /usr/local/share/dagger from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: go-module-sdk-image.tar) [32mDONE[0m
+
+[35m20:[0m upload /usr/local/share/dagger from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: go-module-sdk-image.tar)
+[35m20:[0m > in [34mload builtin module sdk go[0m
+[35m20:[0m transferring /usr/local/share/dagger: 
+[35m20:[0m transferring /usr/local/share/dagger: 47B [90m[0.00s][0m
+[35m20:[0m upload /usr/local/share/dagger from 576a7fcf4919 (client id: 7f44yds4c2d50neolaazsdyh8) (include: go-module-sdk-image.tar) [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m21:[0m blob://sha256:b3348961f46e87184bd6bdce171a6fbe1e45f01c1fe54ced09b558d09d907b1d [32mDONE[0m
+[35m21:[0m > in [34mload builtin module sdk go[0m
+[35m21:[0m blob://sha256:b3348961f46e87184bd6bdce171a6fbe1e45f01c1fe54ced09b558d09d907b1d [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m21:[0m blob://sha256:b3348961f46e87184bd6bdce171a6fbe1e45f01c1fe54ced09b558d09d907b1d [36mCACHED[0m
+[35m21:[0m > in [34mload builtin module sdk go[0m
+[35m21:[0m blob://sha256:b3348961f46e87184bd6bdce171a6fbe1e45f01c1fe54ced09b558d09d907b1d [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m22:[0m oci-layout://dagger/import@sha256:743cc6f5cf1884aa71c09cc75e5eb6e95916705cbf83a2a54ee78dea1c4d1f9b [32mDONE[0m
+[35m22:[0m > in [34mload builtin module sdk go[0m
+[35m22:[0m resolve dagger/import@sha256:743cc6f5cf1884aa71c09cc75e5eb6e95916705cbf83a2a54ee78dea1c4d1f9b [90m[0.00s][0m
+[35m22:[0m oci-layout://dagger/import@sha256:743cc6f5cf1884aa71c09cc75e5eb6e95916705cbf83a2a54ee78dea1c4d1f9b [32mDONE[0m
+
+[35m22:[0m oci-layout://dagger/import@sha256:743cc6f5cf1884aa71c09cc75e5eb6e95916705cbf83a2a54ee78dea1c4d1f9b [36mCACHED[0m
+[35m22:[0m > in [34mload builtin module sdk go[0m
+[35m22:[0m oci-layout://dagger/import@sha256:743cc6f5cf1884aa71c09cc75e5eb6e95916705cbf83a2a54ee78dea1c4d1f9b [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m24:[0m exec go build -o /runtime . [36mCACHED[0m
+[35m24:[0m exec go build -o /runtime . [36mCACHED[0m
+
+[35m25:[0m exec /usr/local/bin/codegen --module . --propagate-logs=true --introspection-json-path /schema.json [36mCACHED[0m
+[35m25:[0m exec /usr/local/bin/codegen --module . --propagate-logs=true --introspection-json-path /schema.json [36mCACHED[0m
+
+[35m26:[0m rm /runtime/dagger.gen.go [36mCACHED[0m
+[35m26:[0m rm /runtime/dagger.gen.go [36mCACHED[0m
+
+[35m23:[0m exec /runtime [36mCACHED[0m
+[35m23:[0m exec /runtime [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m24:[0m exec go build -o /runtime . [36mCACHED[0m
+[35m24:[0m exec go build -o /runtime . [36mCACHED[0m
+
+[35m28:[0m exec /runtime
+[35m28:[0m ...
+
+[35m1:[0m connect [32mDONE[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine [90m[0.00s][0m
+[35m1:[0m starting session [90m[0.02s][0m
+[35m1:[0m [0.02s] OK!
+[35m1:[0m connect [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m38:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (include: runtime/template) [32mDONE[0m
+[35m38:[0m > in [34mhost.directory /src[0m
+[35m38:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (include: runtime/template) [32mDONE[0m
+
+[35m40:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (exclude: runtime) [32mDONE[0m
+[35m40:[0m > in [34mhost.directory /src[0m
+[35m40:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (exclude: runtime) [32mDONE[0m
+
+[35m40:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (exclude: runtime)
+[35m40:[0m > in [34mhost.directory /src[0m
+[35m40:[0m transferring /src: 
+[35m40:[0m ...
+
+[35m38:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (include: runtime/template) [32mDONE[0m
+[35m38:[0m > in [34mhost.directory /src[0m
+[35m38:[0m transferring /src: 932B [90m[0.00s][0m
+[35m38:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (include: runtime/template) [32mDONE[0m
+
+[35m41:[0m blob://sha256:9dd16583f1c349b206a8074aeec11caa26f6ed4151c223bdc1b9072696d9c990 [32mDONE[0m
+[35m41:[0m > in [34mhost.directory /src[0m
+[35m41:[0m blob://sha256:9dd16583f1c349b206a8074aeec11caa26f6ed4151c223bdc1b9072696d9c990 [32mDONE[0m
+
+[35m41:[0m blob://sha256:9dd16583f1c349b206a8074aeec11caa26f6ed4151c223bdc1b9072696d9c990 [36mCACHED[0m
+[35m41:[0m > in [34mhost.directory /src[0m
+[35m41:[0m blob://sha256:9dd16583f1c349b206a8074aeec11caa26f6ed4151c223bdc1b9072696d9c990 [36mCACHED[0m
+
+[35m40:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (exclude: runtime)
+[35m40:[0m > in [34mhost.directory /src[0m
+[35m40:[0m transferring /src: 292.6KiB [90m[0.02s][0m
+[35m40:[0m upload /src from buildkitsandbox (client id: 735ij055h3vw5u5w66skvlrf6) (exclude: runtime) [32mDONE[0m
+
+[35m43:[0m blob://sha256:d130626de175d3a529b3b96f5bee08931bf59a526a4fca0368330245fcba461c [32mDONE[0m
+[35m43:[0m > in [34mhost.directory /src[0m
+[35m43:[0m blob://sha256:d130626de175d3a529b3b96f5bee08931bf59a526a4fca0368330245fcba461c [32mDONE[0m
+
+[35m28:[0m exec /runtime
+[35m28:[0m ...
+
+[35m43:[0m blob://sha256:d130626de175d3a529b3b96f5bee08931bf59a526a4fca0368330245fcba461c [36mCACHED[0m
+[35m43:[0m > in [34mhost.directory /src[0m
+[35m43:[0m blob://sha256:d130626de175d3a529b3b96f5bee08931bf59a526a4fca0368330245fcba461c [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m47:[0m resolve image config for docker.io/library/python:3.11-slim [32mDONE[0m
+[35m47:[0m > in [34mfrom python:3.11-slim[0m
+[35m47:[0m resolve image config for docker.io/library/python:3.11-slim [32mDONE[0m
+
+[35m28:[0m exec /runtime
+[35m28:[0m exec /runtime [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m79:[0m pull docker.io/library/python:3.11-slim [32mDONE[0m
+[35m79:[0m > in [34mfrom python:3.11-slim[0m
+[35m79:[0m resolve docker.io/library/python:3.11-slim@sha256:d11b9bd5e49ea7401753d78f4d3b56f3aec952b85b49bcae88981f0452818e0b [90m[0.00s][0m
+[35m79:[0m pull docker.io/library/python:3.11-slim [32mDONE[0m
+
+[35m74:[0m exec python -m pip install -e /sdk [36mCACHED[0m
+[35m74:[0m exec python -m pip install -e /sdk [36mCACHED[0m
+
+[35m76:[0m copy / /sdk [36mCACHED[0m
+[35m76:[0m copy / /sdk [36mCACHED[0m
+
+[35m77:[0m exec python -m venv /opt/venv [36mCACHED[0m
+[35m77:[0m exec python -m venv /opt/venv [36mCACHED[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m73:[0m mkdir / [36mCACHED[0m
+[35m73:[0m mkdir / [36mCACHED[0m
+
+[35m80:[0m mkfile /schema.json [36mCACHED[0m
+[35m80:[0m mkfile /schema.json [36mCACHED[0m
+
+[35m71:[0m exec python -m dagger codegen --output /sdk/src/dagger/client/gen.py --introspection /schema.json
+[35m71:[0m ...
+
+[35m1:[0m connect [32mDONE[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine [90m[0.00s][0m
+[35m1:[0m starting session [90m[0.23s][0m
+[35m1:[0m [0.23s] OK!
+[35m1:[0m connect [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m71:[0m exec python -m dagger codegen --output /sdk/src/dagger/client/gen.py --introspection /schema.json [32mDONE[0m
+[35m71:[0m [0.59s] Client generated successfully to /sdk/src/dagger/client/gen.py
+[35m71:[0m exec python -m dagger codegen --output /sdk/src/dagger/client/gen.py --introspection /schema.json [32mDONE[0m
+
+[35m70:[0m exec sh -c [ -f pyproject.toml ] || cp /opt/runtime/template/pyproject.toml .
+[35m70:[0m exec sh -c [ -f pyproject.toml ] || cp /opt/runtime/template/pyproject.toml . [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m69:[0m exec sh -c find . -name '*.py' | grep -q . || { mkdir -p src; cp /opt/runtime/template/src/main.py src/main.py; } [32mDONE[0m
+[35m69:[0m exec sh -c find . -name '*.py' | grep -q . || { mkdir -p src; cp /opt/runtime/template/src/main.py src/main.py; } [32mDONE[0m
+
+[35m68:[0m exec python -m pip install .
+[35m68:[0m [0.22s] Processing /src
+[35m68:[0m [0.22s]   Installing build dependencies: started
+[35m68:[0m [1.50s]   Installing build dependencies: finished with status 'done'
+[35m68:[0m [1.50s]   Getting requirements to build wheel: started
+[35m68:[0m [1.62s]   Getting requirements to build wheel: finished with status 'done'
+[35m68:[0m [1.62s]   Preparing metadata (pyproject.toml): started
+[35m68:[0m [1.70s]   Preparing metadata (pyproject.toml): finished with status 'done'
+[35m68:[0m [1.77s] Collecting ollama (from main==0.0.0)
+[35m68:[0m [1.77s]   Obtaining dependency information for ollama from https://files.pythonhosted.org/packages/5d/aa/a0fc92ef5843aae9bbd7414305b2aad3e267b1cda89d3e4ea785b48d3b2f/ollama-0.1.4-py3-none-any.whl.metadata
+[35m68:[0m [1.77s]   Using cached ollama-0.1.4-py3-none-any.whl.metadata (3.8 kB)
+[35m68:[0m [1.81s] Collecting httpx<0.26.0,>=0.25.2 (from ollama->main==0.0.0)
+[35m68:[0m [1.81s]   Obtaining dependency information for httpx<0.26.0,>=0.25.2 from https://files.pythonhosted.org/packages/a2/65/6940eeb21dcb2953778a6895281c179efd9100463ff08cb6232bb6480da7/httpx-0.25.2-py3-none-any.whl.metadata
+[35m68:[0m [1.81s]   Using cached httpx-0.25.2-py3-none-any.whl.metadata (6.9 kB)
+[35m68:[0m [1.81s] Requirement already satisfied: anyio in /usr/local/lib/python3.11/site-packages (from httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (4.2.0)
+[35m68:[0m [1.81s] Requirement already satisfied: certifi in /usr/local/lib/python3.11/site-packages (from httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (2023.11.17)
+[35m68:[0m [1.81s] Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/site-packages (from httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (1.0.2)
+[35m68:[0m [1.81s] Requirement already satisfied: idna in /usr/local/lib/python3.11/site-packages (from httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (3.6)
+[35m68:[0m [1.81s] Requirement already satisfied: sniffio in /usr/local/lib/python3.11/site-packages (from httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (1.3.0)
+[35m68:[0m [1.81s] Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.11/site-packages (from httpcore==1.*->httpx<0.26.0,>=0.25.2->ollama->main==0.0.0) (0.14.0)
+[35m68:[0m [1.82s] Using cached ollama-0.1.4-py3-none-any.whl (8.0 kB)
+[35m68:[0m [1.82s] Using cached httpx-0.25.2-py3-none-any.whl (74 kB)
+[35m68:[0m [1.82s] Building wheels for collected packages: main
+[35m68:[0m [1.82s]   Building wheel for main (pyproject.toml): started
+[35m68:[0m [1.92s]   Building wheel for main (pyproject.toml): finished with status 'done'
+[35m68:[0m [1.92s]   Created wheel for main: filename=main-0.0.0-py3-none-any.whl size=5098 sha256=1ac7ec098cbcb505af131ef44c3083afd30fb0a78b4118d6963a6915fe6a980d
+[35m68:[0m [1.92s]   Stored in directory: /tmp/pip-ephem-wheel-cache-pq_90_bt/wheels/a0/a1/77/062e875f5b546d9255c4403d3277b732c25c5e17cdbf8d14d3
+[35m68:[0m [1.92s] Successfully built main
+[35m68:[0m [1.99s] Installing collected packages: httpx, ollama, main
+[35m68:[0m [1.99s]   Attempting uninstall: httpx
+[35m68:[0m [1.99s]     Found existing installation: httpx 0.26.0
+[35m68:[0m [1.99s]     Uninstalling httpx-0.26.0:
+[35m68:[0m [2.00s]       Successfully uninstalled httpx-0.26.0
+[35m68:[0m [2.03s] Successfully installed httpx-0.25.2 main-0.0.0 ollama-0.1.4
+[35m68:[0m [2.03s] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[35m68:[0m [2.04s] 
+[35m68:[0m [2.04s] [notice] A new release of pip is available: 23.2.1 -> 23.3.2
+[35m68:[0m [2.04s] [notice] To update, run: pip install --upgrade pip
+[35m68:[0m exec python -m pip install . [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m67:[0m mkdir / [32mDONE[0m
+[35m67:[0m mkdir / [32mDONE[0m
+
+[35m78:[0m mkfile /runtime
+[35m78:[0m mkfile /runtime [32mDONE[0m
+
+[35m3:[0m load functions
+[35m3:[0m ...
+
+[35m1:[0m connect [32mDONE[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m > in [34minit[0m
+[35m1:[0m starting engine [90m[0.00s][0m
+[35m1:[0m starting session [90m[0.00s][0m
+[35m1:[0m [0.00s] OK!
+[35m1:[0m connect [32mDONE[0m
+
+[35m72:[0m exec /runtime
+[35m72:[0m [0.39s] ╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+[35m72:[0m [0.39s] │ /runtime:8 in <module>                                                       │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │   5 from dagger.mod.cli import app                                           │
+[35m72:[0m [0.39s] │   6                                                                          │
+[35m72:[0m [0.39s] │   7 if __name__ == "__main__":                                               │
+[35m72:[0m [0.39s] │ ❱ 8 │   sys.exit(app())                                                      │
+[35m72:[0m [0.39s] │   9                                                                          │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │ /sdk/src/dagger/mod/cli.py:31 in app                                         │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │   28 │   │   ],                                                              │
+[35m72:[0m [0.39s] │   29 │   )                                                                   │
+[35m72:[0m [0.39s] │   30 │   try:                                                                │
+[35m72:[0m [0.39s] │ ❱ 31 │   │   mod = get_module()                                              │
+[35m72:[0m [0.39s] │   32 │   │   mod()                                                           │
+[35m72:[0m [0.39s] │   33 │   except FatalError as e:                                             │
+[35m72:[0m [0.39s] │   34 │   │   if logger.isEnabledFor(logging.DEBUG):                          │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │ /sdk/src/dagger/mod/cli.py:44 in get_module                                  │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │   41 │   """Get the environment instance from the main module."""            │
+[35m72:[0m [0.39s] │   42 │   # TODO: Allow configuring which package/module to use.              │
+[35m72:[0m [0.39s] │   43 │   try:                                                                │
+[35m72:[0m [0.39s] │ ❱ 44 │   │   py_module = import_module(module_name)                          │
+[35m72:[0m [0.39s] │   45 │   except ModuleNotFoundError as e:                                    │
+[35m72:[0m [0.39s] │   46 │   │   msg = (                                                         │
+[35m72:[0m [0.39s] │   47 │   │   │   f'The "{module_name}" module could not be found. '          │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │ /usr/local/lib/python3.11/importlib/__init__.py:126 in import_module         │
+[35m72:[0m [0.39s] │                                                                              │
+[35m72:[0m [0.39s] │   123 │   │   │   if character != '.':                                       │
+[35m72:[0m [0.39s] │   124 │   │   │   │   break                                                  │
+[35m72:[0m [0.39s] │   125 │   │   │   level += 1                                                 │
+[35m72:[0m [0.39s] │ ❱ 126 │   return _bootstrap._gcd_import(name[level:], package, level)        │
+[35m72:[0m [0.39s] │   127                                                                        │
+[35m72:[0m [0.39s] │   128                                                                        │
+[35m72:[0m [0.39s] │   129 _RELOADING = {}                                                        │
+[35m72:[0m [0.39s] │ in _gcd_import:1204                                                          │
+[35m72:[0m [0.39s] │ in _find_and_load:1176                                                       │
+[35m72:[0m [0.39s] │ in _find_and_load_unlocked:1147                                              │
+[35m72:[0m [0.39s] │ in _load_unlocked:690                                                        │
+[35m72:[0m [0.39s] │ in exec_module:936                                                           │
+[35m72:[0m [0.39s] │ in get_code:1074                                                             │
+[35m72:[0m [0.39s] │ in source_to_code:1004                                                       │
+[35m72:[0m [0.39s] │ in _call_with_frames_removed:241                                             │
+[35m72:[0m [0.39s] ╰──────────────────────────────────────────────────────────────────────────────╯
+[35m72:[0m [0.39s] ╭──────────────────────────────────────────────────────────────────────────────╮
+[35m72:[0m [0.39s] │  /usr/local/lib/python3.11/site-packages/main.py:12                          │
+[35m72:[0m [0.39s] │ return response['message']['content']                                        │
+[35m72:[0m [0.39s] │ ▲                                                                            │
+[35m72:[0m [0.39s] ╰──────────────────────────────────────────────────────────────────────────────╯
+[35m72:[0m [0.39s] SyntaxError: 'return' outside function
+[35m72:[0m exec /runtime [31mERROR: process "/runtime" did not complete successfully: exit code: 1[0m
+
+[35m3:[0m load functions
+[35m3:[0m loading objects [90m[5.27s][0m
+Error: query module objects: json: error calling MarshalJSON for type *dagger.Module: returned error 400 Bad Request: failed to get schema for module "ollama": failed to call module "ollama" to get functions: failed to get function output directory: process "/runtime" did not complete successfully: exit code: 1
+
+[35m3:[0m load functions [31mERROR: query module objects: json: error calling MarshalJSON for type *dagger.Module: returned error 400 Bad Request: failed to get schema for module "ollama": failed to call module "ollama" to get functions: failed to get function output directory: process "/runtime" did not complete successfully: exit code: 1
+[0m
