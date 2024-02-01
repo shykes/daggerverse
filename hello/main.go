@@ -1,9 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
+
+func New(greeting Optional[string], name Optional[string]) *Hello {
+	return &Hello{
+		Greeting: greeting.GetOr(""),
+		Name:     name.GetOr(""),
+	}
+}
 
 // A Dagger module for saying hello to the world
 type Hello struct {
@@ -24,7 +32,9 @@ func (hello *Hello) WithName(name string) *Hello {
 }
 
 // Say hello to the world!
-func (hello *Hello) Message() string {
+// If `giant` is set, write the message in giant multi-character letters.
+// If `shout` is set, make the message uppercase and add more exclamation points
+func (hello *Hello) Message(ctx context.Context, giant Optional[bool], shout Optional[bool]) (string, error) {
 	var (
 		greeting = hello.Greeting
 		name     = hello.Name
@@ -35,10 +45,19 @@ func (hello *Hello) Message() string {
 	if name == "" {
 		name = "World"
 	}
-	return fmt.Sprintf("%s, %s!", greeting, name)
-}
+	message := fmt.Sprintf("%s, %s!", greeting, name)
+	if shout.GetOr(false) {
+		message = strings.ToUpper(message) + "!!!!!"
+	}
+	if !giant.GetOr(false) {
+		return message, nil
+	}
 
-// SHOUT HELLO TO THE WORLD!
-func (hello *Hello) Shout() string {
-	return strings.ToUpper(hello.Message() + "!!!!!!")
+	// Run 'figlet' in a container to produce giant letters
+	return dag.
+		Container().
+		From("alpine:latest").
+		WithExec([]string{"apk", "add", "figlet"}).
+		WithExec([]string{"figlet", message}).
+		Stdout(ctx)
 }

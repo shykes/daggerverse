@@ -1,4 +1,9 @@
 {
   "name": "hello",
-  "sdk": "go"
+  "sdk": "go",
+  "root-for": [
+    {
+      "source": "."
+    }
+  ]
 }
