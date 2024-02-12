@@ -16,25 +16,38 @@ type Hello struct{}
 
 // Say hello to the world!
 func (hello *Hello) Hello(ctx context.Context,
-	// An optional greeting (default is "hello")
-	greeting Optional[string],
-	// An optional name (default is "world")
-	name Optional[string],
+	// Change the greeting
+	// +optional
+	// +default=hello
+	greeting string,
+	// Change the name
+	// +optional
+	// +default=world
+	name string,
 	// Encode the message in giant multi-character letters
-	giant Optional[bool],
+	// +optional
+	giant bool,
 	// Make the message uppercase, and add more exclamation points
-	shout Optional[bool],
-	// Optional container for running the figlet tool
-	figletContainer Optional[*Container],
+	// +optional
+	shout bool,
+	// Custom container for running the figlet tool
+	// +optional
+	figletContainer *Container,
 ) (string, error) {
-	message := fmt.Sprintf("%s, %s!", greeting.GetOr("Hello"), name.GetOr("world"))
-	if shout.GetOr(false) {
+	message := fmt.Sprintf("%s, %s!", greeting, name)
+	if shout {
 		message = strings.ToUpper(message) + "!!!!!"
 	}
-	if giant.GetOr(false) {
-		ctr := figletContainer.GetOr(defaultFigletContainer).WithoutEntrypoint()
+	if giant {
 		// Run 'figlet' in a container to produce giant letters
-		return ctr.WithExec([]string{"figlet", message}).Stdout(ctx)
+		ctr := figletContainer
+		if ctr == nil {
+			ctr = defaultFigletContainer
+		}
+		return ctr.
+			WithoutEntrypoint(). // clear the entrypoint to make sure 'figlet' is executed
+			WithExec([]string{"figlet", message}).
+			Stdout(ctx)
 	}
 	return message, nil
 }
