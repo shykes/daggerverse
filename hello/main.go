@@ -1,3 +1,4 @@
+// A Dagger module to say hello to the world
 package main
 
 import (
@@ -11,7 +12,7 @@ var defaultFigletContainer = dag.
 	From("alpine:latest").
 	WithExec([]string{"apk", "add", "figlet"})
 
-// A Dagger module to say hello to the world
+// A Dagger module to say hello to the world!
 type Hello struct{}
 
 // Say hello to the world!
