@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -65,7 +64,7 @@ func (w *Worker) Container(arch string) *Container {
 	}
 	return dag.Container(opts).
 		From("alpine:"+alpineVersion).
-		WithDefaultArgs().
+		WithoutDefaultArgs().
 		WithExec([]string{
 			"apk", "add",
 			// for Buildkit
@@ -189,35 +188,18 @@ func (w *Worker) Runc(arch string) *File {
 }
 
 func (w *Worker) DaggerBin(arch string) *File {
-	return w.Engine.CLI(Opt("linux"), Opt("arch"), Opt(""), Opt(w.Version))
+	return w.Engine.CLI("linux", "arch", "", w.Version)
 }
 
 // Run all worker tests
 func (w *Worker) Tests(ctx context.Context) error {
 	worker := w.Container("")
-
-	// This creates an engine.tar container file that can be used by the integration tests.
-	// In particular, it is used by core/integration/remotecache_test.go to create a
-	// dev engine that can be used to test remote caching.
-	// I also load the dagger binary, so that the remote cache tests can use it to
-	// run dagger queries.
-	tmpDir, err := os.MkdirTemp("", "dagger-dev-engine-*")
-	if err != nil {
-		return err
-	}
-
-	engineTarPath := filepath.Join(tmpDir, "engine.tar")
-	_, err = worker.Export(ctx, engineTarPath)
-	if err != nil {
-		return fmt.Errorf("failed to export dev engine: %w", err)
-	}
-
-	testEngineUtils := dag.Host().Directory(tmpDir, HostDirectoryOpts{
-		Include: []string{"engine.tar"},
-	}).WithFile("/dagger", w.Engine.CLI(Opt(""), Opt(""), Opt(""), Opt("")), DirectoryWithFileOpts{
-		Permissions: 0755,
-	})
-
+	testEngineUtils := dag.
+		Directory().
+		WithFile("engine.tar", worker.AsTarball()).
+		WithFile("dagger", w.Engine.CLI("", "", "", ""), DirectoryWithFileOpts{
+			Permissions: 0755,
+		})
 	workerSvc := worker.
 		WithServiceBinding("registry", registry()).
 		WithServiceBinding("privateregistry", privateRegistry()).
@@ -226,7 +208,6 @@ func (w *Worker) Tests(ctx context.Context) error {
 		WithExec(nil, ContainerWithExecOpts{
 			InsecureRootCapabilities: true,
 		}).AsService()
-
 	endpoint, err := workerSvc.Endpoint(ctx, ServiceEndpointOpts{Port: devWorkerListenPort, Scheme: "tcp"})
 	if err != nil {
 		return fmt.Errorf("failed to get dev engine endpoint: %w", err)
@@ -258,14 +239,14 @@ func (w *Worker) Tests(ctx context.Context) error {
 	utilDirPath := "/dagger-dev"
 	_, err = w.GoBase.
 		WithExec([]string{"go", "install", "gotest.tools/gotestsum@v1.10.0"}).
-		WithMountedDirectory("/app", dag.Host().Directory(".")). // need all the source for extension tests
+		WithMountedDirectory("/app", w.Engine.Source). // need all the source for extension tests
 		WithMountedDirectory(utilDirPath, testEngineUtils).
 		WithEnvVariable("_DAGGER_TESTS_ENGINE_TAR", filepath.Join(utilDirPath, "engine.tar")).
 		WithWorkdir("/app").
 		WithServiceBinding("dagger-engine", worker.AsService()).
 		WithServiceBinding("registry", registry()).
 		WithEnvVariable("CGO_ENABLED", cgoEnabledEnv).
-		WithMountedFile(cliBinPath, w.Engine.CLI(Opt(""), Opt(""), Opt(""), Opt(""))).
+		WithMountedFile(cliBinPath, w.Engine.CLI("", "", "", "")).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_CLI_BIN", cliBinPath).
 		WithEnvVariable("_EXPERIMENTAL_DAGGER_RUNNER_HOST", endpoint).
 		WithExec(args).
