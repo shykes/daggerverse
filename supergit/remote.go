@@ -36,13 +36,18 @@ func (r *Remote) Tag(ctx context.Context, name string) (*RemoteTag, error) {
 // Query the remote for its tags.
 //
 //	If `filter` is set, only tag matching that regular expression will be included.
-func (r *Remote) Tags(ctx context.Context, filter Optional[string]) ([]*RemoteTag, error) {
+func (r *Remote) Tags(
+	ctx context.Context,
+	// A regular expression to filter tag names. Only matching tag names will be included.
+	// +optional
+	filter string,
+) ([]*RemoteTag, error) {
 	var (
 		filterRE *regexp.Regexp
 		err      error
 	)
-	if filterStr, isSet := filter.Get(); isSet {
-		filterRE, err = regexp.Compile(filterStr)
+	if filter != "" {
+		filterRE, err = regexp.Compile(filter)
 		if err != nil {
 			return nil, err
 		}
@@ -102,13 +107,18 @@ func (r *Remote) Branch(ctx context.Context, name string) (*RemoteBranch, error)
 }
 
 // List available branches in the remote
-func (r *Remote) Branches(ctx context.Context, filter Optional[string]) ([]*RemoteBranch, error) {
+func (r *Remote) Branches(
+	ctx context.Context,
+	// A regular expression to filter branch names. Only matching names are included.
+	// +optional
+	filter string,
+) ([]*RemoteBranch, error) {
 	var (
 		filterRE *regexp.Regexp
 		err      error
 	)
-	if filterStr, isSet := filter.Get(); isSet {
-		filterRE, err = regexp.Compile(filterStr)
+	if filter != "" {
+		filterRE, err = regexp.Compile(filter)
 		if err != nil {
 			return nil, err
 		}
