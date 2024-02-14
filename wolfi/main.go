@@ -1,7 +1,10 @@
 package main
 
+// A Dagger Module to integrate with Wolfi Linux
+// https://wolfi.dev
 type Wolfi struct{}
 
+// Build a Wolfi Linux container
 func (w *Wolfi) Container(
 	// APK packages to install
 	// +optional
