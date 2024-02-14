@@ -16,11 +16,15 @@ func (m *Ttlsh) Publish(
 	// the container to publish
 	ctr *Container,
 	// the repo to publish to, defaults to a random name
-	repo Optional[string],
+	// +optional
+	repo string,
 	// the tag to publish to, defaults to 10m
-	tag Optional[string],
+	// +optional
+	// +default=10m
+	tag string,
 ) (string, error) {
-	repoVal := repo.GetOr(namesgenerator.GetRandomName(0))
-	tagVal := tag.GetOr("10m")
-	return ctr.Publish(ctx, fmt.Sprintf("ttl.sh/%s:%s", repoVal, tagVal))
+	if repo == "" {
+		repo = namesgenerator.GetRandomName(0)
+	}
+	return ctr.Publish(ctx, fmt.Sprintf("ttl.sh/%s:%s", repo, tag))
 }
