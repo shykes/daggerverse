@@ -1,3 +1,4 @@
+// A Dagger Module for integrating with the Docker Engine
 package main
 
 import (
@@ -9,32 +10,26 @@ import (
 )
 
 var (
-	defaultVersion = "24.0"
 	dockerHostname = "dockerd"
 	dockerEndpoint = fmt.Sprintf("tcp://%s:2375", dockerHostname)
 )
 
-// A Dagger module to interact with Docker
-type Docker struct{}
-
-func (d *Docker) Engine(version Optional[string]) *Engine {
-	return &Engine{
-		Version: version.GetOr(defaultVersion),
-	}
+// A Dagger module to integrate with Docker
+type Docker struct {
 }
 
-// A Docker Engine
-type Engine struct {
-	Version string
-}
-
-// The Docker Engine, packaged as a container
-func (e *Engine) Container() *Container {
+// Spawn an ephemeral Docker Engine in a container
+func (e *Docker) Engine(
+	// Docker Engine version
+	// +optional
+	// +default=24.0
+	version string,
+) *Service {
 	return dag.Container().
-		From(fmt.Sprintf("index.docker.io/docker:%s-dind", e.Version)).
+		From(fmt.Sprintf("index.docker.io/docker:%s-dind", version)).
 		WithMountedCache(
 			"/var/lib/docker",
-			dag.CacheVolume(e.Version+"docker-engine-state-"+e.Version),
+			dag.CacheVolume(version+"docker-engine-state-"+version),
 			ContainerWithMountedCacheOpts{
 				Sharing: Private,
 			}).
@@ -46,19 +41,27 @@ func (e *Engine) Container() *Container {
 			"--tls=false",
 		}, ContainerWithExecOpts{
 			InsecureRootCapabilities: true,
-		})
-}
-
-// The Docker Engine, as a containerized service
-func (e *Engine) Service() *Service {
-	return e.Container().AsService()
+		}).
+		AsService()
 }
 
 // A Docker CLI ready to query this engine.
 // Entrypoint is set to `docker`
-func (e *Engine) CLI() *CLI {
+func (d *Docker) CLI(
+	// Version of the Docker CLI to run.
+	// +optional
+	// +default=24.0
+	version string,
+	// Specify the Docker Engine to connect to.
+	// By default, run an ephemeral engine.
+	// +optional
+	engine *Service,
+) *CLI {
+	if engine == nil {
+		engine = d.Engine(version)
+	}
 	return &CLI{
-		Engine: e.Service(),
+		Engine: engine,
 	}
 }
 
@@ -67,24 +70,86 @@ type CLI struct {
 	Engine *Service
 }
 
+// Package the Docker CLI into a container, wired to an engine
 func (c *CLI) Container() *Container {
 	return dag.
 		Container().
 		From(fmt.Sprintf("index.docker.io/docker:cli")).
 		WithServiceBinding("dockerd", c.Engine).
-		WithEnvVariable("DOCKER_HOST", dockerEndpoint).
-		WithEntrypoint([]string{"docker"}).
-		WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: []string{"info"}})
+		WithEnvVariable("DOCKER_HOST", dockerEndpoint)
 }
 
-func (c *CLI) Pull(ctx context.Context, ref string) (*Image, error) {
-	return c.Import(ctx, dag.Container().From(ref))
+// Execute 'docker pull'
+func (c *CLI) Pull(
+	ctx context.Context,
+	// The docker repository to pull from. Example: registry.dagger.io/engine
+	repository,
+	// The docker image tag to pull
+	// +optional
+	// +default=latest
+	tag string) (*Image, error) {
+	return c.Import(ctx, dag.Container().From(repository+":"+tag))
 }
 
-func (c *CLI) Import(ctx context.Context, container *Container) (*Image, error) {
+// Execute 'docker push'
+func (c *CLI) Push(
+	ctx context.Context,
+	// The docker repository to push to.
+	repository,
+	// The tag to push to.
+	// +optional
+	// +default=latest
+	tag string,
+) (string, error) {
+	img, err := c.Image(ctx, repository, tag)
+	if err != nil {
+		return "", err
+	}
+	return img.Push(ctx)
+}
+
+// Execute 'docker pull' and return the CLI state, for chaining.
+func (c *CLI) WithPull(
+	ctx context.Context,
+	// The docker repository to pull from
+	repository,
+	// The tag to pull from
+	// +optional
+	// +default=latest
+	tag string,
+) (*CLI, error) {
+	_, err := c.Pull(ctx, repository, tag)
+	return c, err
+}
+
+// Execute 'docker push' and return the CLI state, for chaining.
+func (c *CLI) WithPush(
+	ctx context.Context,
+	// The docker repository to push to.
+	repository,
+	// The tag to push to.
+	// +optional
+	// +default=latest
+	tag string,
+) (*CLI, error) {
+	img, err := c.Image(ctx, repository, tag)
+	if err != nil {
+		return c, err
+	}
+	_, err = img.Push(ctx)
+	return c, err
+}
+
+// Import a container into the Docker Engine
+func (c *CLI) Import(
+	ctx context.Context,
+	// The container to load
+	container *Container,
+) (*Image, error) {
 	stdout, err := c.Container().
 		WithMountedFile("import.tar", container.AsTarball()).
 		WithExec([]string{
+			"docker",
 			"load",
 			"-q",
 			"-i", "import.tar",
@@ -104,10 +169,60 @@ func (c *CLI) Import(ctx context.Context, container *Container) (*Image, error) 
 	}, nil
 }
 
-func (c *CLI) Images(ctx context.Context) ([]*Image, error) {
+// Look up an image in the local Docker Engine cache
+func (c *CLI) Image(
+	ctx context.Context,
+	// The repository name of the image
+	repository,
+	// The tag of the image
+	// +optional
+	// +default=latest
+	tag string,
+) (*Image, error) {
+	images, err := c.Images(ctx, repository, tag)
+	if err != nil {
+		return nil, err
+	}
+	if len(images) == 0 {
+		return nil, fmt.Errorf("could not retrieve image: '%s:%s'", repository, tag)
+	}
+	return images[0], nil
+}
+
+// Run a container with the docker CLI
+func (c *CLI) Run(
+	ctx context.Context,
+	// Name of the image to run.
+	// Example: registry.dagger.io/engine
+	name,
+	// Tag of the image to run.
+	// +optional
+	// +default=latest
+	tag string,
+	// Additional arguments
+	// +optional
+	args []string,
+) (string, error) {
+	cmd := []string{"docker", "run", name + ":" + tag}
+	if args != nil {
+		cmd = append(cmd, args...)
+	}
+	return c.Container().WithExec(cmd).Stdout(ctx)
+}
+
+// List images on the local Docker Engine cache
+func (c *CLI) Images(
+	ctx context.Context,
+	// Filter by repository
+	// +optional
+	repository,
+	// Filter by tag
+	// +optional
+	tag string,
+) ([]*Image, error) {
 	raw, err := c.Container().
 		WithExec([]string{
-			"image", "list",
+			"docker", "image", "list",
 			"--no-trunc",
 			"--format", "{{json .}}",
 		}).
@@ -118,13 +233,22 @@ func (c *CLI) Images(ctx context.Context) ([]*Image, error) {
 	lines := strings.Split(raw, "\n")
 	images := make([]*Image, 0, len(lines))
 	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
 		var imageInfo struct {
-			ID         string
-			Repository string
-			Tag        string
+			ID         string `json:id`
+			Repository string `json:repository`
+			Tag        string `json:tag`
 		}
 		if err := json.Unmarshal([]byte(line), &imageInfo); err != nil {
 			return images, err
+		}
+		if repository != "" && repository != imageInfo.Repository {
+			continue
+		}
+		if tag != "" && tag != imageInfo.Tag {
+			continue
 		}
 		images = append(images, &Image{
 			Client:     c,
@@ -136,6 +260,7 @@ func (c *CLI) Images(ctx context.Context) ([]*Image, error) {
 	return images, nil
 }
 
+// An image store in the local Docker Engine cache
 type Image struct {
 	Client     *CLI
 	LocalID    string // The local identifer of the docker image. Can't call it ID...
@@ -156,6 +281,16 @@ func (img *Image) Export() *Container {
 	return dag.Container().Import(archive)
 }
 
-func (img *Image) Push(ctx context.Context, ref string) (string, error) {
-	return img.Export().Publish(ctx, ref)
+// Push this image to a registry
+func (img *Image) Push(ctx context.Context) (string, error) {
+	return img.Export().Publish(ctx, img.Ref())
+}
+
+// Return the image's ref (remote address)
+func (img *Image) Ref() string {
+	tag := img.Tag
+	if tag == "" {
+		tag = "latest"
+	}
+	return img.Repository + ":" + img.Tag
 }
