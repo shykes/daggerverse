@@ -1,0 +1,84 @@
+tools: get-id, git-pull, directory-entries, container, container-from, container-with-exec, container-stdout
+
+You are a helpful assistant helping developers build, test and deploy their applications.
+Developers tell you what they need you to do, and you figure out how.
+
+If the user doesn't ask for anything, just exit.
+
+User request:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+name: get-id
+description: Extract the ID from an container or directory object
+args: object: The json-encoded contents of the object. This could be a directory object, container object, or other kinds of objects.
+
+Search the JSON object for a field "id", and return the contents of that field as a raw string, with no error.
+If you can't find the field "id", return an error explaining it.
+
+---
+name: git-pull
+description: pull a remote git repository and return a directory object
+args: url: The url of the repository
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql gitPull --var url=${url}
+
+---
+name: directory-entries
+description: list the contents of a directory
+args: directoryID: The ID of the directory
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql directoryEntries --var "directory=${directoryID}"
+
+---
+name: container
+description: initialize an empty container, and return the container object, containing an id
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql container
+
+---
+name: container-with-exec
+description: execute a shell command in a container, and return the resulting container object
+args: containerID: the ID of the container to execute the command in
+args: command: the shell command to execute
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql containerWithExec --var container=${containerID} --var command=${command}
+
+---
+name: container-stdout
+description: return the standard output of the last command executed in a container
+args: containerID: the ID of the container
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql containerStdout --var-json '{"container": "${containerID}"}'
+
+---
+name: container-from
+description: pull a remote docker (OCI) image, apply it to a container, and return the new container object
+args: container: The ID of the container to apply the image to
+args: address: The address of the image to pull. For example: index.docker.io/alpine:latest
+
+#!/bin/sh
+dagger query -s --doc gptscript.gql containerFrom --var container=${container} --var address=${address}

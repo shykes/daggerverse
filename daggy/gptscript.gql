@@ -1,0 +1,52 @@
+query gitPull($url: String!, $branch: String="main") {
+ git(url: $url) {
+  branch(name: $branch) {
+   tree {
+    id
+   }
+  }
+ }
+}
+
+query directoryEntries($directory: DirectoryID!) {
+ loadDirectoryFromID(id: $directory) {
+  entries
+ }
+}
+
+query container {
+ container {
+  id
+ }
+}
+
+query containerFrom($container: ContainerID!, $address: String!) {
+ loadContainerFromID(id: $container) {
+  from(address: $address) {
+   id
+  }
+ }
+}
+
+
+query containerWithExec($container: ContainerID!, $command: String!) {
+  loadContainerFromID(id: $container) {
+   withExec(args: ["sh", "-c", $command]) {
+    id
+   }
+  }
+}
+
+query containerStdout($container: ContainerID!) {
+  loadContainerFromID(id: $container) {
+   stdout
+  }
+}
+
+query containerRootFS($container: ContainerID!) {
+  loadContainerFromID(id: $container) {
+   rootfs {
+    id
+   }
+  }
+}
