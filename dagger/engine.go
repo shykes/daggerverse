@@ -101,11 +101,6 @@ func (e *Engine) Release(version string) *EngineRelease {
 	}
 }
 
-// The Zenith development branch
-func (e *Engine) Zenith() *EngineSource {
-	return e.Dev().Branch("main", "")
-}
-
 type EngineSource struct {
 	Source *Directory
 }
@@ -166,20 +161,24 @@ func (e *EngineSource) CLI(
 // GoBase is a standardized base image for running Go, cache optimized for the layout
 // of this engine source code
 func (e *EngineSource) GoBase() *Container {
-	return dag.Container().
-		From(fmt.Sprintf("golang:%s-alpine%s", golangVersion, alpineVersion)).
-		// gcc is needed to run go test -race https://github.com/golang/go/issues/9918 (???)
-		WithExec([]string{"apk", "add", "build-base"}).
+	return dag.
+		Wolfi().
+		Container(WolfiContainerOpts{
+			Packages: []string{
+				"go>=1.22",
+				// gcc is needed to run go test -race https://github.com/golang/go/issues/9918 (???)
+				"build-base",
+				// adding the git CLI to inject vcs info the go binaries
+				"git",
+			},
+		}).
 		WithEnvVariable("CGO_ENABLED", "0").
-		// adding the git CLI to inject vcs info
-		// into the go binaries
-		WithExec([]string{"apk", "add", "git"}).
 		WithWorkdir("/app").
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		// run `go mod download` with only go.mod files (re-run only if mod files have changed)
 		WithDirectory("/app", e.Source, ContainerWithDirectoryOpts{
 			Include: []string{"**/go.mod", "**/go.sum"},
 		}).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithExec([]string{"go", "mod", "download"}).
 		// run `go build` with all source
 		WithMountedDirectory("/app", e.Source).

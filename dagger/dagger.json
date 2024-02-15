@@ -3,6 +3,10 @@
   "sdk": "go",
   "dependencies": [
     {
+      "name": "wolfi",
+      "source": "../wolfi"
+    },
+    {
       "name": "supergit",
       "source": "../supergit"
     }
