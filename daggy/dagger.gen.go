@@ -8343,7 +8343,14 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 			if err != nil {
 				panic(fmt.Errorf("%s: %w", "failed to unmarshal parent object", err))
 			}
-			return (*Daggy).Container(&parent), nil
+			var token *Secret
+			if inputArgs["token"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["token"]), &token)
+				if err != nil {
+					panic(fmt.Errorf("%s: %w", "failed to unmarshal input arg token", err))
+				}
+			}
+			return (*Daggy).Container(&parent, token), nil
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
@@ -8358,7 +8365,8 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 							WithArg("token", dag.TypeDef().WithObject("Secret"))).
 					WithFunction(
 						dag.Function("Container",
-							dag.TypeDef().WithObject("Container")))), nil
+							dag.TypeDef().WithObject("Container")).
+							WithArg("token", dag.TypeDef().WithObject("Secret").WithOptional(true), FunctionWithArgOpts{Description: "OpenAI API token"}))), nil
 	default:
 		return nil, fmt.Errorf("unknown object %s", parentName)
 	}

@@ -8,13 +8,13 @@ type Daggy struct{}
 
 func (m *Daggy) Do(ctx context.Context, prompt string, token *Secret) (string, error) {
 	return m.
-		Container().
-		WithSecretVariable("OPENAI_API_KEY", token).
-		WithFile("gptscript.gql", dag.CurrentModule().Source().File("gptscript.gql")).
-		WithFile("dagger.gpt", dag.CurrentModule().Source().File("dagger.gpt")).
-		WithExec([]string{
-			"gptscript", "dagger.gpt", prompt,
-		}).Stdout(ctx)
+		Container(token).
+		WithExec(
+			[]string{"gptscript", "dagger.gpt", prompt},
+			ContainerWithExecOpts{
+				ExperimentalPrivilegedNesting: true,
+			},
+		).Stdout(ctx)
 }
 
 func (m *Daggy) source() *Directory {
@@ -25,16 +25,35 @@ func (m *Daggy) build() *Directory {
 	return dag.Go().Build(m.source())
 }
 
-func (m *Daggy) Container() *Container {
-	return dag.
+func (m *Daggy) Container(
+	// OpenAI API token
+	// +optional
+	token *Secret,
+) *Container {
+	daggerSource := dag.
+		Git("https://github.com/dagger/dagger").
+		Tag("v0.9.10").
+		Tree()
+	daggerCLI := dag.
+		Go().
+		Build(
+			daggerSource,
+			GoBuildOpts{
+				Packages: []string{"./cmd/dagger"},
+			},
+		)
+	ctr := dag.
 		Wolfi().
 		Container().
 		WithEnvVariable("PATH", "/bin:/usr/bin:/usr/local/bin").
 		WithDirectory("/usr/local/bin/", m.build()).
-		WithFile(
-			"/usr/local/bin/dagger",
-			dag.Dagger().Engine().Release("0.9.10").Source().Cli(),
-		).
+		WithDirectory("/usr/local/bin/", daggerCLI).
 		WithDirectory("/daggy", dag.Directory()).
-		WithWorkdir("/daggy")
+		WithWorkdir("/daggy").
+		WithFile("gptscript.gql", dag.CurrentModule().Source().File("gptscript.gql")).
+		WithFile("dagger.gpt", dag.CurrentModule().Source().File("dagger.gpt"))
+	if token != nil {
+		ctr = ctr.WithSecretVariable("OPENAI_API_KEY", token)
+	}
+	return ctr
 }
