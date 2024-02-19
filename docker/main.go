@@ -3,8 +3,10 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"regexp"
 	"strings"
 )
@@ -27,12 +29,12 @@ func (e *Docker) Engine(
 ) *Service {
 	return dag.Container().
 		From(fmt.Sprintf("index.docker.io/docker:%s-dind", version)).
-		WithMountedCache(
-			"/var/lib/docker",
-			dag.CacheVolume(version+"docker-engine-state-"+version),
-			ContainerWithMountedCacheOpts{
-				Sharing: Private,
-			}).
+		//WithMountedCache(
+		//	"/var/lib/docker",
+		//	dag.CacheVolume(version+"docker-engine-state-"+version),
+		//	ContainerWithMountedCacheOpts{
+		//		Sharing: Private,
+		//	}).
 		WithExposedPort(2375).
 		WithExec([]string{
 			"dockerd",
@@ -75,6 +77,7 @@ func (c *CLI) Container() *Container {
 	return dag.
 		Container().
 		From(fmt.Sprintf("index.docker.io/docker:cli")).
+		WithoutEntrypoint().
 		WithServiceBinding("dockerd", c.Engine).
 		WithEnvVariable("DOCKER_HOST", dockerEndpoint)
 }
@@ -101,7 +104,7 @@ func (c *CLI) Push(
 	// +default=latest
 	tag string,
 ) (string, error) {
-	img, err := c.Image(ctx, repository, tag)
+	img, err := c.Image(ctx, repository, tag, "")
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +135,7 @@ func (c *CLI) WithPush(
 	// +default=latest
 	tag string,
 ) (*CLI, error) {
-	img, err := c.Image(ctx, repository, tag)
+	img, err := c.Image(ctx, repository, tag, "")
 	if err != nil {
 		return c, err
 	}
@@ -158,33 +161,52 @@ func (c *CLI) Import(
 	if err != nil {
 		return nil, err
 	}
-	re := regexp.MustCompile(`^Loaded image ID: sha256:[a-fA-F0-9]{64}`)
-	loadedIDs := re.FindAllString(stdout, -1)
-	if len(loadedIDs) == 0 {
+	re := regexp.MustCompile(`^Loaded image ID: (sha256:[a-fA-F0-9]{64})`)
+	match := re.FindStringSubmatch(stdout)
+	if len(match) == 0 {
 		return nil, fmt.Errorf("docker load failed or went undetected")
 	}
-	// FIXME: fill in other image fields
-	return &Image{
-		LocalID: loadedIDs[0],
-	}, nil
+	localID := match[1]
+	return c.Image(ctx, "", "", localID)
+}
+
+func randomName(length int) (string, error) {
+	var letters = []rune("ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789") // Excluding easily confused characters
+	b := make([]rune, length)
+	for i := range b {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		b[i] = letters[n.Int64()]
+	}
+	return string(b), nil
 }
 
 // Look up an image in the local Docker Engine cache
+// If exactly one image matches the filters, return it.
+// Otherwise, return an error.
 func (c *CLI) Image(
 	ctx context.Context,
-	// The repository name of the image
-	repository,
-	// The tag of the image
+	// Filter by image repository
 	// +optional
-	// +default=latest
+	repository,
+	// Filter by image tag
+	// +optional
 	tag string,
+	// Filter by image local ID (short IDs are allowed)
+	// +optional
+	localID string,
 ) (*Image, error) {
-	images, err := c.Images(ctx, repository, tag)
+	images, err := c.Images(ctx, repository, tag, localID)
 	if err != nil {
 		return nil, err
 	}
-	if len(images) == 0 {
-		return nil, fmt.Errorf("could not retrieve image: '%s:%s'", repository, tag)
+	if len(images) < 1 {
+		return nil, fmt.Errorf("no image matches the search criteria: repository=%v tag=%v id=%v'", repository, tag, localID)
+	}
+	if len(images) > 1 {
+		return nil, fmt.Errorf("more than one image matches the search criteria: repository=%v tag=%v id=%v'", repository, tag, localID)
 	}
 	return images[0], nil
 }
@@ -215,10 +237,13 @@ func (c *CLI) Images(
 	ctx context.Context,
 	// Filter by repository
 	// +optional
-	repository,
+	repository string,
 	// Filter by tag
 	// +optional
 	tag string,
+	// Filter by image ID
+	// +optional
+	localID string,
 ) ([]*Image, error) {
 	raw, err := c.Container().
 		WithExec([]string{
@@ -237,17 +262,20 @@ func (c *CLI) Images(
 			continue
 		}
 		var imageInfo struct {
-			ID         string `json:id`
-			Repository string `json:repository`
-			Tag        string `json:tag`
+			ID         string
+			Repository string
+			Tag        string
 		}
 		if err := json.Unmarshal([]byte(line), &imageInfo); err != nil {
 			return images, err
 		}
-		if repository != "" && repository != imageInfo.Repository {
+		if repository != "" && (repository != imageInfo.Repository) {
 			continue
 		}
-		if tag != "" && tag != imageInfo.Tag {
+		if tag != "" && (tag != imageInfo.Tag) {
+			continue
+		}
+		if localID != "" && (!strings.HasPrefix(imageInfo.ID, localID)) {
 			continue
 		}
 		images = append(images, &Image{
