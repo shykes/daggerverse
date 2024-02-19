@@ -20,7 +20,7 @@ func (m *Ttlsh) Publish(
 	repo string,
 	// the tag to publish to, defaults to 10m
 	// +optional
-	// +default=10m
+	// +default="10m"
 	tag string,
 ) (string, error) {
 	if repo == "" {

@@ -21,11 +21,11 @@ type Hello struct{}
 func (hello *Hello) Hello(ctx context.Context,
 	// Change the greeting
 	// +optional
-	// +default=hello
+	// +default="hello"
 	greeting string,
 	// Change the name
 	// +optional
-	// +default=world
+	// +default="world"
 	name string,
 	// Encode the message in giant multi-character letters
 	// +optional

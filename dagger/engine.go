@@ -132,7 +132,7 @@ func (e *EngineSource) CLI(
 	arch string,
 	// Registry from which to auto-pull the worker container image
 	// +optional
-	// +default=registry.dagger.io/engine
+	// +default="registry.dagger.io/engine"
 	workerRegistry string,
 	// Version of the Dagger CLI to build
 	// +optional
