@@ -10,7 +10,9 @@ import (
 var defaultFigletContainer = dag.
 	Container().
 	From("alpine:latest").
-	WithExec([]string{"apk", "add", "figlet"})
+	WithExec([]string{
+		"apk", "add", "figlet",
+	})
 
 // A Dagger module to say hello to the world!
 type Hello struct{}
