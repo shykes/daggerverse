@@ -17,6 +17,14 @@ func (m *Daggy) Do(ctx context.Context, prompt string, token *Secret) (string, e
 		).Stdout(ctx)
 }
 
+func (m *Daggy) Debug(
+	// OpenAI API key
+	// +optional
+	token *Secret,
+) *Terminal {
+	return m.Container(token).Terminal()
+}
+
 func (m *Daggy) source() *Directory {
 	return dag.Git("https://github.com/gptscript-ai/gptscript").Branch("main").Tree()
 }
