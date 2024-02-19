@@ -4,10 +4,8 @@ import ()
 
 type Gptscript struct{}
 
-func (m *Gptscript) Directory(dirid DirectoryID) *Directory {
-	return dag.LoadDirectoryFromID(dirid)
+func (m *Gptscript) Do(ctx context.Context, prompt string) (string, error) {
+
 }
 
-func (m *Gptscript) GitPull(url string) *Directory {
-	return dag.Git(url).Branch("main").Tree()
-}
+func (m *Gptscript) Terminal(ctx context.Context) (error) {
