@@ -48,13 +48,13 @@ func (c *Ctr) WithoutEntrypoint() *Ctr {
 
 func (c *Ctr) WithoutDefaultArgs() *Ctr {
 	return &Ctr{
-		State: c.State.WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: nil}),
+		State: c.State.WithDefaultArgs(nil),
 	}
 }
 
 func (c *Ctr) WithDefaultArgs(args []string) *Ctr {
 	return &Ctr{
-		State: c.State.WithDefaultArgs(ContainerWithDefaultArgsOpts{Args: args}),
+		State: c.State.WithDefaultArgs(args),
 	}
 }
 

@@ -1,4 +1,5 @@
 {
   "name": "containers",
-  "sdk": "go"
+  "sdk": "go",
+  "source": "."
 }
