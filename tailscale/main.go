@@ -21,7 +21,7 @@ type Tailscale struct{}
 func (m *Tailscale) Proxy(
 	ctx context.Context,
 	// Hostname of the proxy on the tailscale network
-	// +default=dagger-proxy
+	// +default="dagger-proxy"
 	hostname string,
 	// Backend for the proxy. All ports will be forwarded.
 	// if not specifed, a default test backend is used.

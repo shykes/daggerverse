@@ -22,7 +22,7 @@ type Docker struct {
 func (e *Docker) Engine(
 	// Docker Engine version
 	// +optional
-	// +default=24.0
+	// +default="24.0"
 	version string,
 ) *Service {
 	return dag.Container().
@@ -50,7 +50,7 @@ func (e *Docker) Engine(
 func (d *Docker) CLI(
 	// Version of the Docker CLI to run.
 	// +optional
-	// +default=24.0
+	// +default="24.0"
 	version string,
 	// Specify the Docker Engine to connect to.
 	// By default, run an ephemeral engine.
@@ -86,7 +86,7 @@ func (c *CLI) Pull(
 	repository,
 	// The docker image tag to pull
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string) (*Image, error) {
 	return c.Import(ctx, dag.Container().From(repository+":"+tag))
 }
@@ -98,7 +98,7 @@ func (c *CLI) Push(
 	repository,
 	// The tag to push to.
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string,
 ) (string, error) {
 	img, err := c.Image(ctx, repository, tag)
@@ -115,7 +115,7 @@ func (c *CLI) WithPull(
 	repository,
 	// The tag to pull from
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string,
 ) (*CLI, error) {
 	_, err := c.Pull(ctx, repository, tag)
@@ -129,7 +129,7 @@ func (c *CLI) WithPush(
 	repository,
 	// The tag to push to.
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string,
 ) (*CLI, error) {
 	img, err := c.Image(ctx, repository, tag)
@@ -176,7 +176,7 @@ func (c *CLI) Image(
 	repository,
 	// The tag of the image
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string,
 ) (*Image, error) {
 	images, err := c.Images(ctx, repository, tag)
@@ -197,7 +197,7 @@ func (c *CLI) Run(
 	name,
 	// Tag of the image to run.
 	// +optional
-	// +default=latest
+	// +default="latest"
 	tag string,
 	// Additional arguments
 	// +optional
