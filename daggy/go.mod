@@ -1,4 +1,4 @@
-module main
+module daggy
 
 go 1.21.3
 

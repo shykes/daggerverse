@@ -1,4 +1,4 @@
-module main
+module wolfi
 
 go 1.21.3
 

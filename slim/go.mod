@@ -1,4 +1,4 @@
-module main
+module slim
 
 go 1.21.3
 

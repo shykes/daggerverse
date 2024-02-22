@@ -1,4 +1,4 @@
-module main
+module tmate
 
 go 1.21.3
 

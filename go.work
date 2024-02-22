@@ -1,0 +1,24 @@
+go 1.21.3
+
+use (
+	./containers
+	./dagger
+	./daggy
+	./datetime
+	./docker
+	./docker-compose
+	./dsh
+	./gptscript
+	./graphiql
+	./hello
+	./imagemagick
+	./make
+	./myip
+	./slim
+	./supergit
+	./tailscale
+	./tmate
+	./ttlsh
+	./utils
+	./wolfi
+)
