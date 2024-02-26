@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"tools/dagger"
+	"tools/internal/dagger"
 )
 
 var dag = dagger.Connect()
@@ -357,6 +357,9 @@ type ModuleSourceOpts = dagger.ModuleSourceOpts
 // PipelineOpts contains options for Client.Pipeline
 type PipelineOpts = dagger.PipelineOpts
 
+// SecretOpts contains options for Client.Secret
+type SecretOpts = dagger.SecretOpts
+
 // A reference to a secret value, which can be handled more safely than the value itself.
 type Secret = dagger.Secret
 
@@ -498,12 +501,61 @@ func convertSlice[I any, O any](in []I, f func(I) O) []O {
 	return out
 }
 
+func (r Core) MarshalJSON() ([]byte, error) {
+	var concrete struct{}
+	return json.Marshal(&concrete)
+}
+
 func (r *Core) UnmarshalJSON(bs []byte) error {
 	var concrete struct{}
 	err := json.Unmarshal(bs, &concrete)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (r CoreGitRepository) MarshalJSON() ([]byte, error) {
+	var concrete struct {
+		Repo *GitRepository
+	}
+	concrete.Repo = r.Repo
+	return json.Marshal(&concrete)
+}
+
+func (r *CoreGitRepository) UnmarshalJSON(bs []byte) error {
+	var concrete struct {
+		Repo *GitRepository
+	}
+	err := json.Unmarshal(bs, &concrete)
+	if err != nil {
+		return err
+	}
+	r.Repo = concrete.Repo
+	return nil
+}
+
+func (r CoreGitRef) MarshalJSON() ([]byte, error) {
+	var concrete struct {
+		Ref  *GitRef
+		Name string
+	}
+	concrete.Ref = r.Ref
+	concrete.Name = r.Name
+	return json.Marshal(&concrete)
+}
+
+func (r *CoreGitRef) UnmarshalJSON(bs []byte) error {
+	var concrete struct {
+		Ref  *GitRef
+		Name string
+	}
+	err := json.Unmarshal(bs, &concrete)
+	if err != nil {
+		return err
+	}
+	r.Ref = concrete.Ref
+	r.Name = concrete.Name
 	return nil
 }
 
@@ -566,9 +618,21 @@ func main() {
 
 func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName string, inputArgs map[string][]byte) (_ any, err error) {
 	switch parentName {
+	case "CoreGitRef":
+		switch fnName {
+		case "Tree":
+			var parent CoreGitRef
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				panic(fmt.Errorf("%s: %w", "failed to unmarshal parent object", err))
+			}
+			return (*CoreGitRef).Tree(&parent), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
 	case "Core":
 		switch fnName {
-		case "LoadContainer":
+		case "LoadGit":
 			var parent Core
 			err = json.Unmarshal(parentJSON, &parent)
 			if err != nil {
@@ -581,14 +645,7 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 					panic(fmt.Errorf("%s: %w", "failed to unmarshal input arg load", err))
 				}
 			}
-			return (*Core).LoadContainer(&parent, load), nil
-		case "Container":
-			var parent Core
-			err = json.Unmarshal(parentJSON, &parent)
-			if err != nil {
-				panic(fmt.Errorf("%s: %w", "failed to unmarshal parent object", err))
-			}
-			return (*Core).Container(&parent), nil
+			return (*Core).LoadGit(&parent, load), nil
 		case "Git":
 			var parent Core
 			err = json.Unmarshal(parentJSON, &parent)
@@ -606,24 +663,63 @@ func invoke(ctx context.Context, parentJSON []byte, parentName string, fnName st
 		default:
 			return nil, fmt.Errorf("unknown function %s", fnName)
 		}
+	case "CoreGitRepository":
+		switch fnName {
+		case "Save":
+			var parent CoreGitRepository
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				panic(fmt.Errorf("%s: %w", "failed to unmarshal parent object", err))
+			}
+			return (*CoreGitRepository).Save(&parent, ctx)
+		case "Ref":
+			var parent CoreGitRepository
+			err = json.Unmarshal(parentJSON, &parent)
+			if err != nil {
+				panic(fmt.Errorf("%s: %w", "failed to unmarshal parent object", err))
+			}
+			var name string
+			if inputArgs["name"] != nil {
+				err = json.Unmarshal([]byte(inputArgs["name"]), &name)
+				if err != nil {
+					panic(fmt.Errorf("%s: %w", "failed to unmarshal input arg name", err))
+				}
+			}
+			return (*CoreGitRepository).Ref(&parent, name), nil
+		default:
+			return nil, fmt.Errorf("unknown function %s", fnName)
+		}
 	case "":
 		return dag.Module().
+			WithDescription("A utility module to query the Dagger core API directly from the CLI\n").
 			WithObject(
 				dag.TypeDef().WithObject("Core").
 					WithFunction(
-						dag.Function("LoadContainer",
-							dag.TypeDef().WithObject("Container")).
-							WithDescription("Load the state of a container by ID").
+						dag.Function("LoadGit",
+							dag.TypeDef().WithObject("CoreGitRepository")).
+							WithDescription("Load the state of a git repository by ID").
 							WithArg("load", dag.TypeDef().WithKind(StringKind), FunctionWithArgOpts{Description: "The ID to load state from"})).
 					WithFunction(
-						dag.Function("Container",
-							dag.TypeDef().WithObject("Container")).
-							WithDescription("Initialize a container")).
-					WithFunction(
 						dag.Function("Git",
-							dag.TypeDef().WithObject("GitRepository")).
-							WithDescription("Query a remote git repository").
-							WithArg("url", dag.TypeDef().WithKind(StringKind), FunctionWithArgOpts{Description: "URL of the git repository.\nCan be formatted as https://{host}/{owner}/{repo}, git@{host}:{owner}/{repo}.\nSuffix \".git\" is optional."}))), nil
+							dag.TypeDef().WithObject("CoreGitRepository")).
+							WithDescription("Fetch a remote git repository").
+							WithArg("url", dag.TypeDef().WithKind(StringKind), FunctionWithArgOpts{Description: "URL of the git repository.\nCan be formatted as https://{host}/{owner}/{repo}, git@{host}:{owner}/{repo}.\nSuffix \".git\" is optional."}))).
+			WithObject(
+				dag.TypeDef().WithObject("CoreGitRepository").
+					WithFunction(
+						dag.Function("Save",
+							dag.TypeDef().WithKind(StringKind))).
+					WithFunction(
+						dag.Function("Ref",
+							dag.TypeDef().WithObject("CoreGitRef")).
+							WithDescription("Select a ref (tag or branch) in the repository").
+							WithArg("name", dag.TypeDef().WithKind(StringKind), FunctionWithArgOpts{Description: "The name of the branch"}))).
+			WithObject(
+				dag.TypeDef().WithObject("CoreGitRef", TypeDefWithObjectOpts{Description: "A remote git ref (branch or tag)"}).
+					WithFunction(
+						dag.Function("Tree",
+							dag.TypeDef().WithObject("Directory"))).
+					WithField("Name", dag.TypeDef().WithKind(StringKind), TypeDefWithFieldOpts{Description: "The name of the ref, for example \"main\" or \"v0.1.0\""})), nil
 	default:
 		return nil, fmt.Errorf("unknown object %s", parentName)
 	}
