@@ -7,7 +7,6 @@ use (
 	./datetime
 	./docker
 	./docker-compose
-	./dsh
 	./gptscript
 	./graphiql
 	./hello
