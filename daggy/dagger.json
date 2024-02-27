@@ -3,12 +3,16 @@
   "sdk": "go",
   "dependencies": [
     {
-      "name": "go",
-      "source": "github.com/vito/daggerverse/go@9f66a3dc5a3687c0828e2499894a51315f998b5c"
+      "name": "core",
+      "source": "github.com/shykes/daggerverse/core@296b20aacb683d2afe9a51a063f96b420d70f31b"
     },
     {
       "name": "dagger",
       "source": "../dagger"
+    },
+    {
+      "name": "go",
+      "source": "github.com/vito/daggerverse/go@9f66a3dc5a3687c0828e2499894a51315f998b5c"
     },
     {
       "name": "wolfi",
@@ -16,5 +20,5 @@
     }
   ],
   "source": ".",
-  "engineVersion": "v0.9.11"
+  "engineVersion": "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 }
