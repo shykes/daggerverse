@@ -55,3 +55,12 @@ args: directory: a directory snapshot
 #!/bin/sh
 source utils.sh
 dagger call -m $DAGGER_MOD fs load directory --snapshot="$(decode $directory)" entries
+
+---
+name: directory-file
+description: select a file from a directory, and return a snapshot of its state
+args: directory: a directory snapshot
+args: path: the path of the file to select
+#!/bin/sh
+source utils.sh
+dagger call -m $DAGGER_MOD fs load directory --snapshot="$(decode $directory)" file --path="${path}" save
