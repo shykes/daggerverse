@@ -7,28 +7,23 @@ import (
 
 type Core struct{}
 
-func (core *Core) Load() *Load {
-	return new(Load)
+// FILESYSTEM
+
+func (core *Core) FS() *FS {
+	return new(FS)
 }
 
-type Load struct{}
+type FS struct{}
 
-// DIRECTORY
-
-type CoreDirectory struct {
-	// +private
-	Dir *Directory
+func (fs *FS) Load() *FSLoad {
+	return new(FSLoad)
 }
 
-// Initialize a new directory
-func (core *Core) Directory() *CoreDirectory {
-	return &CoreDirectory{
-		Dir: dag.Directory(),
-	}
-}
+type FSLoad struct{}
 
 // Load a snapshot from a previously saved directory
-func (dir *CoreDirectory) Load(
+func (load *FSLoad) Directory(
+	// The directory snapshot to load
 	snapshot string,
 ) *CoreDirectory {
 	return &CoreDirectory{
@@ -36,6 +31,19 @@ func (dir *CoreDirectory) Load(
 	}
 }
 
+type CoreDirectory struct {
+	// +private
+	Dir *Directory
+}
+
+// Initialize a new directory
+func (fs *FS) Directory() *CoreDirectory {
+	return &CoreDirectory{
+		Dir: dag.Directory(),
+	}
+}
+
+// Save a snapshot of the directory state
 func (dir *CoreDirectory) Save(ctx context.Context) (string, error) {
 	id, err := dir.Dir.ID(ctx)
 	return string(id), err
