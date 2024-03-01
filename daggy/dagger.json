@@ -4,7 +4,7 @@
   "dependencies": [
     {
       "name": "core",
-      "source": "github.com/shykes/daggerverse/core@296b20aacb683d2afe9a51a063f96b420d70f31b"
+      "source": "github.com/shykes/daggerverse/core@ad39bc977bfd41de248257ba75f863fdb3dcdccd"
     },
     {
       "name": "dagger",
@@ -19,6 +19,5 @@
       "source": "../wolfi"
     }
   ],
-  "source": ".",
-  "engineVersion": "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+  "source": "."
 }
