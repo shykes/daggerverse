@@ -7,6 +7,44 @@ import (
 
 type Core struct{}
 
+func (core *Core) Load() *Load {
+	return new(Load)
+}
+
+type Load struct{}
+
+// DIRECTORY
+
+type CoreDirectory struct {
+	// +private
+	Dir *Directory
+}
+
+// Initialize a new directory
+func (core *Core) Directory() *CoreDirectory {
+	return &CoreDirectory{
+		Dir: dag.Directory(),
+	}
+}
+
+// Load a snapshot from a previously saved directory
+func (dir *CoreDirectory) Load(
+	snapshot string,
+) *CoreDirectory {
+	return &CoreDirectory{
+		Dir: dag.LoadDirectoryFromID(DirectoryID(snapshot)),
+	}
+}
+
+func (dir *CoreDirectory) Save(ctx context.Context) (string, error) {
+	id, err := dir.Dir.ID(ctx)
+	return string(id), err
+}
+
+func (dir *CoreDirectory) Entries(ctx context.Context) ([]string, error) {
+	return dir.Dir.Entries(ctx)
+}
+
 // GIT
 
 func (core *Core) Git() *Git {
@@ -90,6 +128,8 @@ func (r *CoreGitRef) Save(ctx context.Context) (string, error) {
 	return string(id), err
 }
 
-func (r *CoreGitRef) Tree() *Directory {
-	return r.Ref.Tree()
+func (r *CoreGitRef) Tree() *CoreDirectory {
+	return &CoreDirectory{
+		Dir: r.Ref.Tree(),
+	}
 }
