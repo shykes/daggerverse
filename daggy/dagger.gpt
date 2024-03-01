@@ -1,84 +1,57 @@
-tools: get-id, git-pull, directory-entries, container, container-from, container-with-exec, container-stdout
+tools: git-repository, git-repository-ref, git-ref-tree, new-directory, directory-entries
 
 You are a helpful assistant helping developers build, test and deploy their applications.
-Developers tell you what they need you to do, and you figure out how.
+Developers tell you what they need you to do, and you figure out how by calling available tools.
+
+- Some tools can return a "snapshot"
+- Some tools can receive a snapshot as argument
+- A snapshot is an immutable data reference
+- Snapshots are typed: for example a "repository snapshot" is not the same as a "directory snapshot"
+- When a tool expects a snapshot as argument, only pass a snapshot of the same type returned by another tool
+- Never pass a literral value as a snapshot
+- Take care to respect snapshot types. For example don't pass a "repository snapshot" to a tool expecting a "directory snapshot"
 
 If the user doesn't ask for anything, just exit.
 
 User request:
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---
-name: get-id
-description: Extract the ID from an container or directory object
-args: object: The json-encoded contents of the object. This could be a directory object, container object, or other kinds of objects.
-
-Search the JSON object for a field "id", and return the contents of that field as a raw string, with no error.
-If you can't find the field "id", return an error explaining it.
-
----
-name: git-pull
-description: pull a remote git repository and return a directory object
+name: git-repository
+description: query a remote git repository, and return a repository snapshot
 args: url: The url of the repository
-
 #!/bin/sh
-dagger query -s --doc gptscript.gql gitPull --var url=${url}
+source utils.sh
+dagger call -m $DAGGER_MOD git repository --url ${url} save | encode
+
+---
+name: git-repository-ref
+description: select a ref from a remote git repository. A ref may be a git branch or tag.
+args: repository: a repository snapshot
+args: name: the name of the ref
+#!/bin/sh
+source utils.sh
+dagger call -m $DAGGER_MOD git load repository --state="$(decode $repository)" ref --name=${name} save | encode
+
+---
+name: git-ref-tree
+description: query the directory tree for a given git ref, and return a directory snapshot
+args: ref: a ref snapshot
+#!/bin/sh
+source utils.sh
+dagger call -m $DAGGER_MOD git load ref --state="$(decode $ref)" tree save | encode
+
+---
+name: new-directory
+description: initialize an empty directory, and return a snapshot of it
+#!/bin/sh
+source utils.sh
+dagger call -m $DAGGER_MOD fs directory save | encode
 
 ---
 name: directory-entries
-description: list the contents of a directory
-args: directoryID: The ID of the directory
-
+description: return the contents (entries such as files and directories) of a directory
+args: directory: a directory snapshot
 #!/bin/sh
-dagger query -s --doc gptscript.gql directoryEntries --var "directory=${directoryID}"
-
----
-name: container
-description: initialize an empty container, and return the container object, containing an id
-
-#!/bin/sh
-dagger query -s --doc gptscript.gql container
-
----
-name: container-with-exec
-description: execute a shell command in a container, and return the resulting container object
-args: containerID: the ID of the container to execute the command in
-args: command: the shell command to execute
-
-#!/bin/sh
-dagger query -s --doc gptscript.gql containerWithExec --var container=${containerID} --var command=${command}
-
----
-name: container-stdout
-description: return the standard output of the last command executed in a container
-args: containerID: the ID of the container
-
-#!/bin/sh
-dagger query -s --doc gptscript.gql containerStdout --var-json '{"container": "${containerID}"}'
-
----
-name: container-from
-description: pull a remote docker (OCI) image, apply it to a container, and return the new container object
-args: container: The ID of the container to apply the image to
-args: address: The address of the image to pull. For example: index.docker.io/alpine:latest
-
-#!/bin/sh
-dagger query -s --doc gptscript.gql containerFrom --var container=${container} --var address=${address}
+source utils.sh
+dagger call -m $DAGGER_MOD fs load directory --snapshot="$(decode $directory)" entries

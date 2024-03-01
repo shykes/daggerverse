@@ -94,7 +94,8 @@ func (m *Daggy) Container(
 		WithDirectory("/usr/local/bin/", daggerCLI).
 		WithMountedDirectory("/daggy", dag.CurrentModule().Source()).
 		WithWorkdir("/daggy").
-		WithEnvVariable("GPTSCRIPT_LISTEN_ADDRESS", "0.0.0.0:9090")
+		WithEnvVariable("GPTSCRIPT_LISTEN_ADDRESS", "0.0.0.0:9090").
+		WithEnvVariable("DAGGER_MOD", "core")
 	if token != nil {
 		ctr = ctr.WithSecretVariable("OPENAI_API_KEY", token)
 	}
