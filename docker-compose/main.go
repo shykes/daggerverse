@@ -16,19 +16,25 @@ type DockerCompose struct{}
 
 // An example Docker Compose project
 func (c *DockerCompose) Example() *Project {
-	return c.Project(Opt(dag.Host().Directory("./example")))
+	return c.Project(dag.CurrentModule().Source().Directory("./example"))
 }
 
 // Load a Docker Compose project
-func (c *DockerCompose) Project(source Optional[*Directory]) *Project {
-	return &Project{
-		Source: source.GetOr(dag.Directory()),
+func (c *DockerCompose) Project(
+	// The project directory
+	// +optional
+	source *Directory,
+) *Project {
+	if source == nil {
+		source = dag.Directory()
 	}
+	return &Project{Source: source}
 }
 
 // A Docker Compose project
 type Project struct {
 	// The project's source directory
+	// +private
 	Source *Directory
 }
 
@@ -216,11 +222,9 @@ func (s *ComposeService) Container(ctx context.Context) (*Container, error) {
 	if spec.Entrypoint != nil {
 		ctr = ctr.WithEntrypoint([]string(spec.Entrypoint))
 	}
-	// Default Args aka "Command"
+	// Default Args aka "command"
 	if spec.Command != nil {
-		ctr = ctr.WithDefaultArgs(ContainerWithDefaultArgsOpts{
-			Args: []string(spec.Command),
-		})
+		ctr = ctr.WithDefaultArgs([]string(spec.Command))
 	}
 	return ctr, nil
 }
