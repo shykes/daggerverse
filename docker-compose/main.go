@@ -1,3 +1,15 @@
+// A native Dagger reimplementation of Docker Compose
+//
+// For now, compatibility is limited to the following:
+//
+// - Fully compatible parser
+// - services.X.image
+// - services.X.build
+// - services.X.ports
+// - services.X.environment
+// - services.X.entrypoint
+// - services.X.command
+
 package main
 
 import (
@@ -42,6 +54,7 @@ func (p *Project) ConfigFile() *File {
 	return p.Source.File("docker-compose.yml")
 }
 
+// The raw project configuration yaml
 func (p *Project) Config(ctx context.Context) (string, error) {
 	return p.ConfigFile().Contents(ctx)
 }
