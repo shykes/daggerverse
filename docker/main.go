@@ -291,6 +291,7 @@ func (c *CLI) Images(
 
 // An image store in the local Docker Engine cache
 type Image struct {
+	// +private
 	Client     *CLI
 	LocalID    string // The local identifer of the docker image. Can't call it ID...
 	Tag        string
