@@ -26,15 +26,22 @@ func (e *Docker) Engine(
 	// +optional
 	// +default="24.0"
 	version string,
+	// Optional namespace for persisting the engine state
+	// +optional
+	namespace string,
 ) *Service {
+	volumeName := "docker-engine-state-"+version
+	if namespace != "" {
+		volumeName = volumeName + "-" + namespace
+	}
 	return dag.Container().
 		From(fmt.Sprintf("index.docker.io/docker:%s-dind", version)).
-		//WithMountedCache(
-		//	"/var/lib/docker",
-		//	dag.CacheVolume(version+"docker-engine-state-"+version),
-		//	ContainerWithMountedCacheOpts{
-		//		Sharing: Private,
-		//	}).
+		WithMountedCache(
+			"/var/lib/docker",
+			dag.CacheVolume(volumeName),
+			ContainerWithMountedCacheOpts{
+				Sharing: Locked,
+			}).
 		WithExposedPort(2375).
 		WithExec([]string{
 			"dockerd",
@@ -60,7 +67,7 @@ func (d *Docker) CLI(
 	engine *Service,
 ) *CLI {
 	if engine == nil {
-		engine = d.Engine(version)
+		engine = d.Engine(version, "")
 	}
 	return &CLI{
 		Engine: engine,
@@ -167,7 +174,11 @@ func (c *CLI) Import(
 		return nil, fmt.Errorf("docker load failed or went undetected")
 	}
 	localID := match[1]
-	return c.Image(ctx, "", "", localID)
+	// return c.Image(ctx, "", "", localID)
+	return &Image{
+		Client: c,
+		LocalID: localID,
+	}, nil
 }
 
 func randomName(length int) (string, error) {
@@ -204,10 +215,10 @@ func (c *CLI) Image(
 		return nil, err
 	}
 	if len(images) < 1 {
-		return nil, fmt.Errorf("no image matches the search criteria: repository=%v tag=%v id=%v'", repository, tag, localID)
+		return nil, fmt.Errorf("no image matches the search criteria: repository=%v tag=%v id=%v", repository, tag, localID)
 	}
 	if len(images) > 1 {
-		return nil, fmt.Errorf("more than one image matches the search criteria: repository=%v tag=%v id=%v'", repository, tag, localID)
+		return nil, fmt.Errorf("more than one image matches the search criteria: repository=%v tag=%v id=%v", repository, tag, localID)
 	}
 	return images[0], nil
 }
@@ -277,6 +288,7 @@ func (c *CLI) Images(
 			continue
 		}
 		if localID != "" && (!strings.HasPrefix(imageInfo.ID, localID)) {
+			fmt.Printf("======> %q != %q", imageInfo.ID, localID)
 			continue
 		}
 		images = append(images, &Image{
