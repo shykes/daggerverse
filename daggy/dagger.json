@@ -19,5 +19,6 @@
       "source": "../wolfi"
     }
   ],
-  "source": "."
+  "source": ".",
+  "engineVersion": "v0.10.0"
 }

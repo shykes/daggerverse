@@ -56,6 +56,10 @@ func (cmd *GitCommand) container() *Container {
 		WithExec(execArgs)
 }
 
+func (cmd *GitCommand) Debug() *Terminal {
+	return cmd.container().WithWorkdir(gitWorktreePath).Terminal()
+}
+
 func (cmd *GitCommand) Stdout(ctx context.Context) (string, error) {
 	return cmd.container().Stdout(ctx)
 }

@@ -1,4 +1,4 @@
-module main
+module bitgantter
 
 go 1.21.7
 
