@@ -1,0 +1,287 @@
+x-network-config:
+  &network-config
+  networks:
+    api: null
+x-depends-config:
+  &depends-config
+  depends_on:
+    - traefik
+    - mongo
+    - redis-auth
+    - firebase-emulator
+    - pubsub-emulator
+    - elastic
+x-hosts-config:
+  &hosts-config
+  extra_hosts:
+    - api.snoutzone.app:${IP_RANGE}.250
+x-envs-values:
+  &envs-values
+  APP_ENV: dev
+  APP_DEBUG: 1
+  VERSION: unstable
+  BEHAT_USE_VERSION: 1
+  COMPOSER_HOME: ${COMPOSER_HOME}
+  FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+  GCLOUD_PROJECT: ${GCLOUD_PROJECT}
+  PUBSUB_EMULATOR_HOST: ${PUBSUB_EMULATOR_HOST}
+  GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+x-common:
+  &common
+  <<:
+    - *depends-config
+    - *network-config
+    - *hosts-config
+  user: 1000:1000
+services:
+  traefik-setup:
+    image: intel/qat-crypto-base
+    user: "0"
+    command: >
+      bash -c '
+        echo "Creating certs";
+        mkdir -p /certs;
+        openssl genrsa -out /certs/cert.key 2048
+        openssl req -x509 -new -nodes -key /certs/cert.key -sha256 -days 365 -out /certs/cert.crt -subj "/CN=api.snoutzone.app"
+        echo "All done with certificates!";
+        tail -f /dev/null;
+      '
+    healthcheck:
+      test: [ "CMD-SHELL", "[ -f /certs/cert.crt ]" ]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+    <<: *network-config
+    volumes:
+      - traefik-certs:/certs
+  traefik:
+    depends_on:
+      traefik-setup:
+        condition: service_healthy
+    image: traefik:${TRAEFIK_VERSION}
+    command:
+      - "--accesslog=true"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/dynamic_conf.yaml"
+      - "--log.level=DEBUG"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=OPTIONS,GET,POST,PUT,DELETE"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.middlewares.stripprefix-unstable.stripprefix.prefixes=/unstable"
+      - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=100000000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml:ro
+      - traefik-certs:/certs
+    networks:
+      api:
+        ipv4_address: ${IP_RANGE}.250
+        priority: 1
+  mongo:
+    image: mongo:${MONGO_VERSION}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    <<: *network-config
+  redis-auth:
+    image: redis:${REDIS_VERSION}
+    <<: *network-config
+  firebase-emulator:
+    image: andreysenov/firebase-tools
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/sa.json
+    entrypoint:
+      - firebase
+    command:
+      - "emulators:start"
+    <<: *network-config
+    volumes:
+      - ./firebase.json:/home/node/firebase.json:ro
+      - ./.firebaserc:/home/node/.firebaserc:ro
+      - ./framework/sa.json:/home/node/sa.json:ro
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+    environment:
+      PUBSUB_PROJECT_ID: wildbit-pacha
+      GOOGLE_APPLICATION_CREDENTIALS: /firebase/sa.json
+    command: >
+      bash -c '
+        update-ca-certificates;
+        gcloud beta emulators pubsub start --project=wildbit-pacha --host-port=0.0.0.0:8085
+      '
+    <<:
+      - *network-config
+      - *hosts-config
+    volumes:
+      - traefik-certs:/usr/local/share/ca-certificates/traefik-local
+      - ./framework/sa.json:/firebase/sa.json:ro
+  elastic-setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f config/certs/certs.zip ]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: elastic\n"\
+          "    dns:\n"\
+          "      - elastic\n"\
+          "      - localhost\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
+        echo "Setting file permissions"
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://elastic:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "All done!";
+        tail -f /dev/null;
+      '
+    healthcheck:
+      test: [ "CMD-SHELL", "[ -f config/certs/elastic/elastic.crt ]" ]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+    <<: *network-config
+    volumes:
+      - elastic-certs:/usr/share/elasticsearch/config/certs
+  elastic:
+    depends_on:
+      elastic-setup:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    environment:
+      - node.name=elastic
+      - cluster.name=snoutzone
+      - action.destructive_requires_name=false
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/elastic/elastic.key
+      - xpack.security.http.ssl.certificate=certs/elastic/elastic.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/elastic/elastic.key
+      - xpack.security.transport.ssl.certificate=certs/elastic/elastic.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=basic
+      - ES_JAVA_OPTS=-Xmx2g -Xms2g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    restart: always
+    <<: *network-config
+    volumes:
+      - elastic-certs:/usr/share/elasticsearch/config/certs
+  api:
+    image: snoutzone/ci
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.snoutzone.app`)"
+      - "traefik.http.routers.api.entrypoints=web,websecure"
+      - "traefik.http.routers.api.middlewares=cors,stripprefix-unstable"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.services.api.loadbalancer.server.port=80"
+    environment:
+      APP_CHECK: 0
+      COLLECT_TEST_LOGS: 1
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      GCLOUD_PROJECT: ${GCLOUD_PROJECT}
+      PUBSUB_EMULATOR_HOST: ${PUBSUB_EMULATOR_HOST}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+    <<:
+      - *depends-config
+      - *network-config
+    entrypoint: bash
+    command: >
+      -c '
+          sudo update-ca-certificates;
+          composer server:start:ci;
+          tail -f var/log/rr.log; 
+      '
+    volumes:
+      - ./framework/.env:/var/www/framework/.env:ro
+      - ${PWD}/framework/sa.json:/firebase/sa.json:ro
+      - traefik-certs:/usr/local/share/ca-certificates/traefik-local
+      - elastic-certs:/usr/local/share/ca-certificates/elastic-local
+  test:
+    <<: *common
+    image: snoutzone/dev
+    depends_on:
+      - traefik
+      - mongo
+      - redis-auth
+      - firebase-emulator
+      - pubsub-emulator
+      - elastic
+      - api
+    environment:
+      <<: *envs-values
+    user: 1000:1000
+    entrypoint: bash
+    command: >
+      -c '
+          sudo update-ca-certificates;
+          tail -f /var/log/faillog; 
+      '
+    volumes:
+      - .:/var/www:rw
+      - ${PWD}/framework/sa.json:/firebase/sa.json:ro
+      - traefik-certs:/usr/local/share/ca-certificates/traefik-local
+      - elastic-certs:/usr/local/share/ca-certificates/elastic-local
+networks:
+  api:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${IP_RANGE}.0/24
+volumes:
+  traefik-certs:
+    driver: local
+  elastic-certs:
+    driver: local

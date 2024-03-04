@@ -1,0 +1,12 @@
+{
+  "name": "bitgantter",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "docker",
+      "source": "../../docker"
+    }
+  ],
+  "source": ".",
+  "engineVersion": "v0.10.0"
+}
