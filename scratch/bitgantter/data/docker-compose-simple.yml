@@ -1,0 +1,7 @@
+services:
+  api:
+    image: index.docker.io/nginx
+  test:
+    image: local/test
+    entrypoint: sh
+    command: ["-c", "while true; do sleep 10; done"]
