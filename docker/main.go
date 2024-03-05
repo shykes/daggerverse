@@ -26,23 +26,30 @@ func (e *Docker) Engine(
 	// +optional
 	// +default="24.0"
 	version string,
-	// Optional namespace for persisting the engine state
+	// Persist the state of the engine in a cache volume
+	// +optional
+	// +default=true
+	persist bool,
+	// Namespace for persisting the engine state.
+	// Use in combination with `persist`
 	// +optional
 	namespace string,
 ) *Service {
-	volumeName := "docker-engine-state-"+version
-	if namespace != "" {
-		volumeName = volumeName + "-" + namespace
-	}
-	return dag.Container().
+	ctr := dag.
+		Container().
 		From(fmt.Sprintf("index.docker.io/docker:%s-dind", version)).
-		WithMountedCache(
-			"/var/lib/docker",
-			dag.CacheVolume(volumeName),
-			ContainerWithMountedCacheOpts{
-				Sharing: Locked,
-			}).
-		WithExposedPort(2375).
+		WithoutEntrypoint().
+		WithExposedPort(2375)
+	if persist {
+		volumeName := "docker-engine-state-"+version
+		if namespace != "" {
+			volumeName = volumeName + "-" + namespace
+		}
+		volume := dag.CacheVolume(volumeName)
+		opts := ContainerWithMountedCacheOpts{Sharing: Locked}
+		ctr = ctr.WithMountedCache("/var/lib/docker", volume, opts)
+	}
+	return ctr.
 		WithExec([]string{
 			"dockerd",
 			"--host=tcp://0.0.0.0:2375",
@@ -67,7 +74,7 @@ func (d *Docker) CLI(
 	engine *Service,
 ) *CLI {
 	if engine == nil {
-		engine = d.Engine(version, "")
+		engine = d.Engine(version, true, "")
 	}
 	return &CLI{
 		Engine: engine,
@@ -323,6 +330,35 @@ func (img *Image) Export() *Container {
 	return dag.Container().Import(archive)
 }
 
+// Duplicate this image under a new name.
+//  This is equivalent to calling `docker tag`
+func (img *Image) Duplicate(
+	ctx context.Context,
+	// The repository name to apply
+	repository string,
+	// The new tag to apply
+	tag string,
+) (*Image, error) {
+	if img.LocalID == "" {
+		return nil, fmt.Errorf("Can't tag image: local ID not set")
+	}
+	_, err := img.Client.
+		Container().
+		WithExec([]string{"docker", "tag", img.LocalID, repository + ":" + tag}).
+		Sync(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// FIXME: this lookup fails, investigate why
+	// return img.Client.Image(ctx, repository, tag, img.LocalID)
+	return &Image{
+		Client: img.Client,
+		Repository: repository,
+		Tag: tag,
+		LocalID: img.LocalID,
+	}, nil
+}
+
 // Push this image to a registry
 func (img *Image) Push(ctx context.Context) (string, error) {
 	return img.Export().Publish(ctx, img.Ref())
@@ -334,5 +370,9 @@ func (img *Image) Ref() string {
 	if tag == "" {
 		tag = "latest"
 	}
-	return img.Repository + ":" + img.Tag
+	ref := img.Repository + ":" + img.Tag
+	if img.LocalID != "" {
+		ref = ref + "@" + img.LocalID
+	}
+	return ref
 }

@@ -15,43 +15,20 @@ func (m *Bitgantter) Build(
 	return source.DockerBuild()
 }
 
-func (m *Bitgantter) Test(ctx context.Context, app *Container) (string, error) {
+// Execute end-to-end test in the given app container
+func (m *Bitgantter) Test(ctx context.Context, app *Container, args []string) (string, error) {
 	env, err := m.TestEnv(ctx, app, nil, nil, "app", "dev")
+    // docker-compose up
+	env, err = env.WithExec([]string{"docker-compose", "up", "-d", "--wait"}).Sync(ctx)
 	if err != nil {
 		return "", err
 	}
-	return env.WithExec([]string{"docker-compose", "exec", "app"}).Stdout(ctx)
+	testCmd := append(
+		[]string{"docker-compose", "exec", "test"},
+		args...
+	)
+	return env.WithExec(testCmd).Stdout(ctx)
 }
-
-// func (m *BitGantter) Test(
-// 	ctx context.Context,
-// 	// The application container to test
-// 	app *Container,
-// 	// A docker-compose file configuring the test environment
-// 	// +optional
-// 	config *File,
-// 	// Pass env variables to docker-compose with an env-file
-// 	// +optional
-// 	envFile *File,
-// 	// The image name of the compose service that will run the app
-// 	// +default="app"
-// 	// +optional
-// 	name string,
-// 	// The image tag of the compose service that will run the app
-// 	// +default="dev"
-// 	// +optional
-// 	tag string,
-// ) (string, error) {
-// 	env, err := m.TestEnv(ctx, app, config, envFile, name, tag)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return env.
-// 		WithExec([]string{
-// 			"docker-compose", "exec", "test",
-// 		}).
-// 		Stdout(ctx)
-// }
 
 // A containerized test environment
 func (m *Bitgantter) TestEnv(
