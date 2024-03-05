@@ -8,6 +8,19 @@ import (
 
 type Bitgantter struct{}
 
+func (m *Bitgantter) TestSource(ctx context.Context,
+	// The app source code to test
+	source *Directory,
+	// Custom test container
+	// +optional
+	testContainer *Container,
+	// The test command to execute
+	// +optional
+	command []string,
+) (string, error) {
+	return m.Test(ctx, source.DockerBuild(), testContainer, command)
+}
+
 // Execute end-to-end test in the given container
 func (m *Bitgantter) Test(ctx context.Context,
 	// The app container to test
@@ -20,23 +33,39 @@ func (m *Bitgantter) Test(ctx context.Context,
 	// +optional
 	command []string,
 ) (string, error) {
+	if command == nil {
+		command = []string{"curl", "http://app"}
+	}
 	env, err := m.TestEnv(ctx, app, testContainer)
 	if err != nil {
 		return "", err
 	}
-    // docker-compose up
-	env, err = env.WithExec([]string{"docker-compose", "up", "-d", "--wait"}).Sync(ctx)
+	// Wait for compose services to come up
+	env, err = env.Sync(ctx)
 	if err != nil {
 		return "", err
 	}
-	if command == nil {
-		command = []string{"curl", "http://app"}
+	return env.
+		WithExec(append([]string{"docker-compose", "exec", "test"}, command...)).
+		Stdout(ctx)
+}
+
+func (m *Bitgantter) Interactive(ctx context.Context,
+	// The app container to test
+	// +optional
+	app *Container,
+	// Custom test container
+	// +optional
+	testContainer *Container,
+) (*Terminal, error) {
+	env, err := m.TestEnv(ctx, app, testContainer)
+	if err != nil {
+		return nil, err
 	}
-	testCmd := append(
-		[]string{"docker-compose", "exec", "test"},
-		command...
-	)
-	return env.WithExec(testCmd).Stdout(ctx)
+	return env.
+		WithDefaultTerminalCmd([]string{"docker-compose", "exec", "test", "/bin/sh"}).
+		Terminal(),
+	nil
 }
 
 // A containerized test environment
@@ -83,6 +112,7 @@ func (m *Bitgantter) TestEnv(
 			WithEnvVariable("TEST_IMAGE", testImage).
 			WithEnvVariable("APP_IMAGE", appImage).
 			WithFile("/test/docker-compose.yml", composeFile).
-			WithWorkdir("/test")
+			WithWorkdir("/test").
+			WithExec([]string{"docker-compose", "up", "-d", "--wait"})
 		return ctr, nil
 	}
