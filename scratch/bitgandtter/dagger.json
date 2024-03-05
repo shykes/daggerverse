@@ -1,14 +1,14 @@
 {
-  "name": "bitgantter",
+  "name": "bitgandtter",
   "sdk": "go",
   "dependencies": [
     {
-      "name": "wolfi",
-      "source": "../../wolfi"
-    },
-    {
       "name": "docker",
       "source": "../../docker"
+    },
+    {
+      "name": "wolfi",
+      "source": "../../wolfi"
     }
   ],
   "source": ".",

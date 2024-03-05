@@ -6,9 +6,9 @@ import (
 	"context"
 )
 
-type Bitgantter struct{}
+type Bitgandtter struct{}
 
-func (m *Bitgantter) TestSource(ctx context.Context,
+func (m *Bitgandtter) TestSource(ctx context.Context,
 	// The app source code to test
 	source *Directory,
 	// Custom test container
@@ -22,7 +22,7 @@ func (m *Bitgantter) TestSource(ctx context.Context,
 }
 
 // Execute end-to-end test in the given container
-func (m *Bitgantter) Test(ctx context.Context,
+func (m *Bitgandtter) Test(ctx context.Context,
 	// The app container to test
 	// +optional
 	app *Container,
@@ -50,7 +50,7 @@ func (m *Bitgantter) Test(ctx context.Context,
 		Stdout(ctx)
 }
 
-func (m *Bitgantter) Interactive(ctx context.Context,
+func (m *Bitgandtter) Interactive(ctx context.Context,
 	// The app container to test
 	// +optional
 	app *Container,
@@ -69,7 +69,7 @@ func (m *Bitgantter) Interactive(ctx context.Context,
 }
 
 // A containerized test environment
-func (m *Bitgantter) TestEnv(
+func (m *Bitgandtter) TestEnv(
 	ctx context.Context,
 	// The app container to test
 	// +optional
