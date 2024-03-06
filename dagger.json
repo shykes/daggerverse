@@ -1,4 +1,6 @@
 {
   "name": "shykes",
+  "sdk": "python",
+  "source": ".ci",
   "engineVersion": "v0.10.0"
 }
