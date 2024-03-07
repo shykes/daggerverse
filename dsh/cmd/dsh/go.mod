@@ -3,6 +3,7 @@ module dsh
 go 1.21.7
 
 require (
+	dagger.io/dagger v0.10.1
 	github.com/99designs/gqlgen v0.17.31
 	github.com/Khan/genqlient v0.6.0
 	github.com/chzyer/readline v1.5.1
@@ -13,7 +14,9 @@ require (
 )
 
 require (
-	github.com/stretchr/testify v1.8.3 // indirect
+	github.com/adrg/xdg v0.4.0 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/term v0.17.0 // indirect
 )

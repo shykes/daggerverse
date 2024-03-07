@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/chzyer/readline"
@@ -12,12 +13,36 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
-
-
 func main() {
 	if err := shell("> "); err != nil {
 		panic(err)
 	}
+}
+
+func dagger(ctx context.Context, module string, args []string) error {
+	if module != "" {
+		args = append([]string{"-m", module}, args...)
+	}
+	cmd := exec.CommandContext(ctx, "dagger", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func dshExec(ctx context.Context, args []string) error {
+	fmt.Fprintf(os.Stderr, "# %s\n", strings.Join(args, " "))
+	if len(args) == 0 {
+		return nil
+	}
+	switch args[0] {
+		case "install":
+			return dagger(ctx, "", args)
+		default:
+			module := args[0]
+			args = append([]string{"call"}, args[1:]...)
+			return dagger(ctx, module, args)
+	}
+	return nil // Returning nil to indicate successful execution; adjust as needed
 }
 
 func shell(prompt string) error {
@@ -27,14 +52,9 @@ func shell(prompt string) error {
 	}
 	defer rl.Close()
 
-	handler := func(ctx context.Context, args []string) error {
-		// Custom command handler logic here
-		fmt.Printf("Executing command: %s\n", args)
-		return nil // Returning nil to indicate successful execution; adjust as needed
-	}
 	runner, err := interp.New(
 		interp.StdIO(os.Stdin, os.Stdout, os.Stderr),
-		interp.ExecHandler(handler),
+		interp.ExecHandler(dshExec),
 		interp.Env(expand.ListEnviron("FOO=bar")),
 	)
 	if err != nil {

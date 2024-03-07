@@ -31,8 +31,6 @@ func (m *Dsh) Container() *Container {
 		Wolfi().
 		Container().
 		WithEnvVariable("PATH", "/bin:/usr/bin:/usr/local/bin").
-		WithMountedDirectory("/self", dag.CurrentModule().Source()).
-		WithWorkdir("/self").
 		WithFile(
 			"/usr/local/bin/dagger",
 			dag.Dagger().Engine().Dev().Branch("main").Cli(),
@@ -46,6 +44,12 @@ func (m *Dsh) Container() *Container {
 			ContainerWithNewFileOpts{
 				Contents: strings.Join(debugCommands, "\n"),
 			},
+		).
+		WithMountedDirectory("/scratch", dag.Directory()).
+		WithWorkdir("/scratch").
+		WithExec(
+			[]string{"dagger", "init"},
+			ContainerWithExecOpts{ExperimentalPrivilegedNesting: true},
 		)
 }
 
