@@ -2,6 +2,15 @@ package main
 
 import (
 	"context"
+	"strings"
+)
+
+var (
+	debugCommands = []string{`
+dagger init
+dagger install github.com/shykes/daggerverse/dsh
+dagger call -m dsh save-module --source=github.com/shykes/daggerverse/daggy`,
+	}
 )
 
 // A shell for interacting with Dagger
@@ -31,6 +40,12 @@ func (m *Dsh) Container() *Container {
 		WithFile(
 			"/usr/local/bin/dsh",
 			m.Tool(),
+		).
+		WithNewFile(
+			"/root/.ash_history",
+			ContainerWithNewFileOpts{
+				Contents: strings.Join(debugCommands, "\n"),
+			},
 		)
 }
 
