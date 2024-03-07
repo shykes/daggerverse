@@ -1,0 +1,20 @@
+{
+  "name": "dsh",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "golang",
+      "source": "github.com/kpenfound/dagger-modules/golang@8d662e001caf8c16253226d0d456f2f0f374f009"
+    },
+    {
+      "name": "dagger",
+      "source": "../dagger"
+    },
+    {
+      "name": "wolfi",
+      "source": "../wolfi"
+    }
+  ],
+  "source": ".",
+  "engineVersion": "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+}
