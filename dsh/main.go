@@ -35,7 +35,7 @@ func (m *Dsh) Container() *Container {
 		WithWorkdir("/self").
 		WithFile(
 			"/usr/local/bin/dagger",
-			dag.Dagger().Engine().Release("0.10.0").Source().Cli(),
+			dag.Dagger().Engine().Dev().Branch("main").Cli(),
 		).
 		WithFile(
 			"/usr/local/bin/dsh",
