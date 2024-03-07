@@ -1,4 +1,4 @@
-module main
+module dsh
 
 go 1.21.7
 

@@ -52,10 +52,19 @@ func (m *Dsh) Container() *Container {
 func (m *Dsh) Tool() *File {
 	return dag.
 		Golang(GolangOpts{
-				Proj: dag.CurrentModule().Source().Directory("tool"),
+				Proj: dag.CurrentModule().Source().Directory("cmd/dsh"),
 		}).
 		Build([]string{"."}).
-		File("main")
+		File("dsh")
+}
+
+func (m *Dsh) Shell() *Terminal {
+	return m.
+		Container().
+		Terminal(ContainerTerminalOpts{
+			Cmd: []string{"dsh"},
+			ExperimentalPrivilegedNesting: true,
+		})
 }
 
 func (m *Dsh) Debug() *Terminal {
