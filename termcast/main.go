@@ -20,6 +20,7 @@ import (
 	"math/rand"
 	"time"
 	"encoding/json"
+	"fmt"
 )
 
 func New(
@@ -29,10 +30,14 @@ func New(
 	// Terminal height
 	// +default=24
 	height int,
+	// OpenAI auth key, for AI features
+	// +optional
+	key *Secret,
 ) *Termcast {
 	return &Termcast{
 		Height: height,
 		Width: width,
+		Key: key,
 	}
 }
 
@@ -40,9 +45,12 @@ type Termcast struct{
 	Title string
 	Height int
 	Width int
+	// +private
 	Events []*Event
 	// Time elapsed since beginning of the session, in milliseconds
 	Clock int
+	// +private
+	Key *Secret
 }
 
 type Event struct {
@@ -238,31 +246,70 @@ func (m *Termcast) Gif() (*File, error) {
 	return gif, nil
 }
 
-func (m *Termcast) AI(ctx context.Context, token *Secret, steps []string) (string, error) {
-	prompt, err := m.RawPrompt(ctx, steps)
-	if err != nil {
-		return "", err
+func (m *Termcast) Decode(data string) (*Termcast, error) {
+	dec := json.NewDecoder(strings.NewReader(data))
+	for dec.More() {
+		var o [3]interface{}
+		if err := dec.Decode(&o); err != nil {
+			return nil, err
+		}
+		seconds, ok := o[0].(float64)
+		if !ok {
+			return nil, fmt.Errorf("invalid format")
+		}
+		milliseconds := int(seconds * 1000)
+		code, ok := o[1].(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid format")
+		}
+		data, ok := o[2].(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid format")
+		}
+		e := &Event{
+			Time: milliseconds,
+			Code: code,
+			Data: data,
+		}
+		m.Events = append(m.Events, e)
+		if e.Time > m.Clock {
+			m.Clock = e.Time
+		}
 	}
-	return dag.Daggy().Do(ctx, prompt, DaggyDoOpts{
-		Token: token,
-	})
+	return m, nil
 }
 
-func (m *Termcast) RawPrompt(ctx context.Context, steps []string) (string, error) {
-	systemPrompt, err := dag.CurrentModule().Source().File("prompt.txt").Contents(ctx)
-	if err != nil {
-		return "", err
-	}
-	parts := append([]string{systemPrompt}, steps...)
-	return strings.Join(parts, "\n- "), nil
-}
+func (m *Termcast) Imagine(
+	ctx context.Context,
+	// A description of the terminal session
+	// +default="surprise me! an epic interactive session with a shell, language repl or database repl of your choice. the more exotic the better. Not python!"
+	prompt string) (*Termcast, error) {
+	prompt = `You are a terminal simulator.
+- I give you a description of a terminal session
+- You give me a stream of asciicast v2 events describing the sesion
+- On asciicast event per line
+- Don't print the asciicast header
+- Don't print anything other than the stream of events
+- Here is an example of output:
+------
+[1.000000, "o", "$ "]
+[1.500000, "o", "l"]
+[1.600000, "o", "s"]
+[1.700000, "o", " "]
+[1.800000, "o", "-"]
+[1.900000, "o", "l"]
+[2.000000, "o", "\r\n"]
+[2.100000, "o", "total 32\r\n"]
+[2.200000, "o", "-rw-r--r--  1 user  staff  1024 Mar  7 10:00 file1.txt\r\n"]
+------
 
-
-func (m *Termcast) Example(ctx context.Context, token *Secret) (string, error) {
-	return m.AI(ctx, token, []string{
-		`The terminal shows a shell prompt. Pause one second.`,
-		`Type the command "ls -l". Break down each character, with a slight delay to reflect human typing speed`,
-		`The command prints a realistic listing of a directory.`,
-		`Pause 3 seconds.`,
+Prompt:
+` + prompt
+	out, err := dag.Daggy().Do(ctx, prompt, DaggyDoOpts{
+		Token: m.Key,
 	})
+	if err != nil {
+		return nil, err
+	}
+	return m.Decode(out)
 }
