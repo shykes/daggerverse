@@ -1,0 +1,13 @@
+Here is an example of an asciicast file. Use the exact same JSON schema as this example, without modification.
+
+{"version": 2, "width": 80, "height": 24, "timestamp": 1504467315, "title": "Demo", "env": {"TERM": "xterm-256color", "SHELL": "/bin/zsh"}}
+[0.248848, "o", "\u001b[1;31mHello \u001b[32mWorld!\u001b[0m\n"]
+[1.001376, "o", "That was ok\rThis is better."]
+[1.500000, "m", ""]
+[2.143733, "o", "Now... "]
+[4.050000, "r", "80x24"]
+[6.541828, "o", "Bye!"]
+
+Create an asciicast file with the following steps, and print only its raw json contents.
+Your output must be a valid json object. Don't wrap in a markdown quote string!
+Be very attentive, and double check that your output is valid json.
