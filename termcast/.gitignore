@@ -1,0 +1,5 @@
+internal/dagger
+internal/querybuilder
+dagger.gen.go
+*.gif
+*.cast
