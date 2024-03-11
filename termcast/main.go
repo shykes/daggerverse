@@ -11,6 +11,12 @@ import (
 	"fmt"
 )
 
+const (
+	asciinemaDigest = "sha256:dc5fed074250b307758362f0b3045eb26de59ca8f6747b1d36f665c1f5dcc7bd"
+	aggGitCommit = "84ef0590c9deb61d21469f2669ede31725103173"
+
+)
+
 func New(
 	// Terminal width
 	// +default=80
@@ -163,7 +169,7 @@ func (m *Termcast) Play() (*Terminal, error) {
 	}
 	term := dag.
 		Container().
-		From("ghcr.io/asciinema/asciinema").
+		From("ghcr.io/asciinema/asciinema@" + asciinemaDigest).
 		WithoutEntrypoint().
 		WithFile("term.cast", castfile).
 		Terminal(ContainerTerminalOpts{
@@ -219,7 +225,8 @@ drwxr-xr-x@ 12 shykes  staff    384 Feb 21 15:30 wolfi
 func (m *Termcast) Gif() (*File, error) {
 	agg := dag.
 		Git("https://github.com/asciinema/agg").
-		Tag("v1.4.3").
+		Tag(aggGitCommit).
+		// Tag("v1.4.3").
 		Tree().
 		DockerBuild().
 		WithoutEntrypoint()
