@@ -278,6 +278,7 @@ func (m *Termcast) Imagine(
 - On asciicast event per line
 - Don't print the asciicast header
 - Don't print anything other than the stream of events
+- For special characters, use "\u" not "\x"
 - Here is an example of output:
 ------
 [1.000000, "o", "$ "]
