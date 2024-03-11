@@ -96,6 +96,49 @@ func (m *Termcast) Wait(
 	return m
 }
 
+// Record the execution of a command in a container
+func (m *Termcast) Exec(
+	ctx context.Context,
+	// The command to execute
+	cmd string,
+	// The container to execute the command in
+	container *Container,
+	// How long to wait before showing the command output, in milliseconds
+	// +default=100
+	delay int,
+	// +default="/bin/sh"
+	// +optional
+	shell string,
+	// The prompt shown by the interactive shell
+	// +optional
+	// +default="$ "
+	prompt string,
+) (*Termcast, error) {
+	output, err := container.
+		WithExec(
+			[]string{shell},
+			ContainerWithExecOpts{
+				Stdin: cmd,
+				RedirectStdout: "/tmp/output",
+				RedirectStderr: "/tmp/output",
+			},
+		).
+		File("/tmp/output").
+		Contents(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m = m.
+		Print(prompt).
+		Wait(500).
+		Keystrokes(cmd).
+		Enter().
+		Wait(delay).
+		Print(output).
+		Wait(500)
+	return m, nil
+}
+
 func (m *Termcast) Keystrokes(
 	// Data to input as keystrokes
 	data string,
