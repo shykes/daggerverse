@@ -11,32 +11,62 @@ import (
 	"fmt"
 )
 
-const (
+var (
 	asciinemaDigest = "sha256:dc5fed074250b307758362f0b3045eb26de59ca8f6747b1d36f665c1f5dcc7bd"
 	aggGitCommit = "84ef0590c9deb61d21469f2669ede31725103173"
-
+	defaultContainer = dag.Wolfi().Container(WolfiContainerOpts{Packages: []string{"dagger"}})
+	defaultShell = []string{"/bin/sh"}
+	defaultPrompt = "$ "
+	defaultWidth = 80
+	defaultHeight = 24
 )
 
 func New(
 	// Terminal width
-	// +default=80
+	// +optional
 	width int,
 	// Terminal height
-	// +default=24
+	// +optional
 	height int,
 	// OpenAI auth key, for AI features
 	// +optional
 	key *Secret,
+	// Containerized environment for executing commands
+	// +optional
+	container *Container,
+	// Shell to use when executing commands
+	// +optional
+	shell []string,
+	// The prompt shown by the interactive shell
+	// +optional
+	prompt string,
 ) *Termcast {
+	if container == nil {
+		container = defaultContainer
+	}
+	if shell == nil {
+		shell = defaultShell
+	}
+	if prompt == "" {
+		prompt = defaultPrompt
+	}
+	if width == 0 {
+		width = defaultWidth
+	}
+	if height == 0 {
+		height = defaultHeight
+	}
 	return &Termcast{
 		Height: height,
 		Width: width,
 		Key: key,
+		Container: container,
+		Shell: shell,
+		Prompt: prompt,
 	}
 }
 
 type Termcast struct{
-	Title string
 	Height int
 	Width int
 	// +private
@@ -45,6 +75,13 @@ type Termcast struct{
 	Clock int
 	// +private
 	Key *Secret
+	// The containerized environment where commands are executed
+	// See Exec()
+	Container *Container
+	// +private
+	Shell []string
+	// +private
+	Prompt string
 }
 
 type Event struct {
@@ -96,49 +133,42 @@ func (m *Termcast) Wait(
 	return m
 }
 
-// Record the execution of a command in a container
+// Record the execution of a (real) command in an interactive shell
 func (m *Termcast) Exec(
 	ctx context.Context,
 	// The command to execute
 	cmd string,
-	// The container to execute the command in
-	container *Container,
 	// How long to wait before showing the command output, in milliseconds
 	// +default=100
 	delay int,
-	// +default="/bin/sh"
-	// +optional
-	shell string,
-	// The prompt shown by the interactive shell
-	// +optional
-	// +default="$ "
-	prompt string,
 ) (*Termcast, error) {
-	output, err := container.
-		WithExec(
-			[]string{shell},
+	output, err := m.
+		Container. // 1. load the containerized environment
+		WithExec( // 2. Execute the shell + command
+			m.Shell,
 			ContainerWithExecOpts{
 				Stdin: cmd,
 				RedirectStdout: "/tmp/output",
 				RedirectStderr: "/tmp/output",
+				ExperimentalPrivilegedNesting: true, // for dagger-in-dagger
 			},
 		).
-		File("/tmp/output").
+		File("/tmp/output"). // 3. Get the command output
 		Contents(ctx)
 	if err != nil {
 		return nil, err
 	}
+	// Record the entire scenario:
 	m = m.
-		Print(prompt).
-		Wait(500).
+		Print(m.Prompt).
 		Keystrokes(cmd).
 		Enter().
 		Wait(delay).
-		Print(output).
-		Wait(500)
+		Print(output)
 	return m, nil
 }
 
+// Simulate a human typing text
 func (m *Termcast) Keystrokes(
 	// Data to input as keystrokes
 	data string,
@@ -149,6 +179,8 @@ func (m *Termcast) Keystrokes(
 	return m
 }
 
+// +private
+// Simulate a human entering a single keystroke
 func (m *Termcast) Keystroke(
 	// Data to input as keystrokes
 	data string,
