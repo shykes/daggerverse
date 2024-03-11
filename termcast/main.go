@@ -142,30 +142,22 @@ func (m *Termcast) Exec(
 	// +default=100
 	delay int,
 ) (*Termcast, error) {
-	output, err := m.
-		Container. // 1. load the containerized environment
-		WithExec( // 2. Execute the shell + command
-			m.Shell,
-			ContainerWithExecOpts{
-				Stdin: cmd,
-				RedirectStdout: "/tmp/output",
-				RedirectStderr: "/tmp/output",
-				ExperimentalPrivilegedNesting: true, // for dagger-in-dagger
-			},
-		).
-		File("/tmp/output"). // 3. Get the command output
-		Contents(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// Record the entire scenario:
+	m.Container = m.Container.WithExec(m.Shell, ContainerWithExecOpts{
+		Stdin: cmd,
+		RedirectStdout: "/tmp/output",
+		RedirectStderr: "/tmp/output",
+		ExperimentalPrivilegedNesting: true, // for dagger-in-dagger
+	})
 	m = m.
 		Print(m.Prompt).
 		Keystrokes(cmd).
 		Enter().
-		Wait(delay).
-		Print(output)
-	return m, nil
+		Wait(delay)
+	output, err := m.Container.File("/tmp/output").Contents(ctx)
+	if err != nil {
+		return m, err
+	}
+	return m.Print(output), nil
 }
 
 // Simulate a human typing text
