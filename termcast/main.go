@@ -1,11 +1,12 @@
 // Record and replay interactive terminal sessions
 //
-// This module uses Asciinema to:
-// - Compose terminal recordings in code
-// - Replay recordings directly in the terminal, or generate a gif
-// - Simulate human keystrokes and terminal output
-// - Execute any commands in any container, and make it look like a human did it interactively
-// - Ask an AI to imagine a terminal session, and add it to the recording
+// The termcast module provides a complete API for simulating interactive terminal sessions,
+// and sharing them as GIFs.
+// It can also replay recordings live in the caller's terminal.
+//
+// Termcast can simulate human keystrokes; execute commands in containers;
+// ask an AI to imagine a scenario; and more.
+
 package main
 
 import (
@@ -200,7 +201,7 @@ func (m *Termcast) execFull(ctx context.Context, cmd string) (*Termcast, error) 
 	cast, err := m.Container.
 		WithDirectory("/", asciinemaBinary()).
 		WithWorkdir("/").
-		WithExec([]string{"/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, ContainerWithExecOpts{
+		WithExec([]string{"setsid", "/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, ContainerWithExecOpts{
 			ExperimentalPrivilegedNesting: true,
 		}).
 		File("./term.cast").
