@@ -1,5 +1,11 @@
 // Record and replay interactive terminal sessions
-
+//
+// This module uses Asciinema to:
+// - Compose terminal recordings in code
+// - Replay recordings directly in the terminal, or generate a gif
+// - Simulate human keystrokes and terminal output
+// - Execute any commands in any container, and make it look like a human did it interactively
+// - Ask an AI to imagine a terminal session, and add it to the recording
 package main
 
 import (
@@ -13,6 +19,11 @@ import (
 
 var (
 	asciinemaDigest = "sha256:dc5fed074250b307758362f0b3045eb26de59ca8f6747b1d36f665c1f5dcc7bd"
+	asciinemaContainer = dag.
+		Container().
+		From("ghcr.io/asciinema/asciinema@" + asciinemaDigest).
+		WithoutEntrypoint()
+
 	aggGitCommit = "84ef0590c9deb61d21469f2669ede31725103173"
 	defaultContainer = dag.Wolfi().Container(WolfiContainerOpts{Packages: []string{"dagger"}})
 	defaultShell = []string{"/bin/sh"}
@@ -67,7 +78,9 @@ func New(
 }
 
 type Termcast struct{
+	// The height of the terminal
 	Height int
+	// The width of the terminal
 	Width int
 	// +private
 	Events []*Event
@@ -95,6 +108,7 @@ func (e *Event) Encode() (string, error) {
 	return string(out), err
 }
 
+// Simulate data being printed to the terminal, all at once
 func (m *Termcast) Print(data string) *Termcast {
 	m.Events = append(m.Events, &Event{
 		Time: m.Clock,
@@ -104,6 +118,7 @@ func (m *Termcast) Print(data string) *Termcast {
 	return m
 }
 
+// Append a recording to the end of this recording
 func (m *Termcast) Append(other *Termcast) *Termcast {
 	for _, e := range other.Events {
 		 newEvent := &Event{
@@ -119,12 +134,18 @@ func (m *Termcast) Append(other *Termcast) *Termcast {
 	return m
 }
 
-
-func (m *Termcast) WaitRandom(min, max int) *Termcast {
+// Simulate the user waiting for a random amount of time, with no input or output
+func (m *Termcast) WaitRandom(
+	// The minimum wait time, in milliseconds
+	min int,
+	// The maximum wait time, in milliseconds
+	max int,
+) *Termcast {
 	rand.Seed(time.Now().UnixNano())
 	return m.Wait(min + rand.Intn(max - min))
 }
 
+// Simulate waiting for a certain amount of time, with no input or output on the temrinal
 func (m *Termcast) Wait(
 	// wait time, in milliseconds
 	ms int,
@@ -133,8 +154,64 @@ func (m *Termcast) Wait(
 	return m
 }
 
-// Record the execution of a (real) command in an interactive shell
+func asciinemaBinary() *Directory {
+	ctr := dag.
+		Wolfi().
+		Container(WolfiContainerOpts{
+			Packages: []string{"rust", "build-base", "libgcc"},
+		}).
+		WithMountedDirectory(
+			"/src",
+			dag.Git("https://github.com/asciinema/asciinema").Branch("develop").Tree(),
+		).
+		WithWorkdir("/src").
+		WithExec([]string{"cargo", "build", "--release"})
+	return dag.
+		Directory().
+		WithFile("/usr/local/bin/asciinema", ctr.File("target/release/asciinema")).
+		WithFile("/usr/lib/libgcc_s.so.1", ctr.File("/usr/lib/libgcc_s.so.1"))
+}
+
+// Simulate a human running an interactive command in a container
 func (m *Termcast) Exec(
+	ctx context.Context,
+	// The command to execute
+	cmd string,
+	// Toggle simple mode.
+	// Enabling simple mode is faster and more reliable, but also less realistic: the recording will print
+	//  the final output all at once, without preserving timing information.
+	// Disabling mode is more realistic: the timing of each byte is preserved in the recording;
+	//  this requires building a binary (which is slow) and injecting it into the target container (which could break).
+	// +optional
+	// +default=false
+	simple bool,
+) (*Termcast, error) {
+	m = m.
+		Print(m.Prompt).
+		Keystrokes(cmd).
+		Enter()
+	if simple {
+		return m.execSimple(ctx, cmd, 100)
+	}
+	return m.execFull(ctx, cmd)
+}
+
+func (m *Termcast) execFull(ctx context.Context, cmd string) (*Termcast, error) {
+	cast, err := m.Container.
+		WithDirectory("/", asciinemaBinary()).
+		WithWorkdir("/").
+		WithExec([]string{"/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, ContainerWithExecOpts{
+			ExperimentalPrivilegedNesting: true,
+		}).
+		File("./term.cast").
+		Contents(ctx)
+	if err != nil {
+		return m, err
+	}
+	return m.Decode(cast, true)
+}
+
+func (m *Termcast) execSimple(
 	ctx context.Context,
 	// The command to execute
 	cmd string,
@@ -148,11 +225,7 @@ func (m *Termcast) Exec(
 		RedirectStderr: "/tmp/output",
 		ExperimentalPrivilegedNesting: true, // for dagger-in-dagger
 	})
-	m = m.
-		Print(m.Prompt).
-		Keystrokes(cmd).
-		Enter().
-		Wait(delay)
+	m = m.Wait(delay)
 	output, err := m.Container.File("/tmp/output").Contents(ctx)
 	if err != nil {
 		return m, err
@@ -166,14 +239,13 @@ func (m *Termcast) Keystrokes(
 	data string,
 ) *Termcast {
 	for _, c := range data {
-		m = m.Keystroke(string(c))
+		m = m.keystroke(string(c))
 	}
 	return m
 }
 
-// +private
 // Simulate a human entering a single keystroke
-func (m *Termcast) Keystroke(
+func (m *Termcast) keystroke(
 	// Data to input as keystrokes
 	data string,
 ) *Termcast {
@@ -182,7 +254,7 @@ func (m *Termcast) Keystroke(
 
 // Simulate pressing the enter key
 func (m *Termcast) Enter() *Termcast {
-	return m.Keystroke("\r\n")
+	return m.keystroke("\r\n")
 }
 
 // Simulate pressing the backspace key
@@ -192,11 +264,25 @@ func (m *Termcast) Backspace(
 	repeat int,
 ) *Termcast {
 	for i := 0; i < repeat; i += 1 {
-		m = m.Keystroke("\b \b")
+		m = m.keystroke("\b \b")
 	}
 	return m
 }
 
+// Encode the recording to a file in the asciicast v2 format
+func (m *Termcast) File() (*File, error) {
+	contents, err := m.Encode()
+	if err != nil {
+		return nil, err
+	}
+	file := dag.
+		Directory().
+		WithNewFile("castfile", contents).
+		File("castfile")
+	return file, nil
+}
+
+// Encode the recording to a string in the asciicast v2 format
 func (m *Termcast) Encode() (string, error) {
 	var out strings.Builder
 	if err := json.NewEncoder(&out).Encode(map[string]interface{}{
@@ -216,79 +302,21 @@ func (m *Termcast) Encode() (string, error) {
 	return out.String(), nil
 }
 
-func (m *Termcast) Castfile() (*File, error) {
-	contents, err := m.Encode()
-	if err != nil {
-		return nil, err
-	}
-	castfile := dag.
-		Directory().
-		WithNewFile("castfile", contents).
-		File("castfile")
-	return castfile, nil
-}
-
-
+// Return an interactive terminal that will play the recording, read-only.
 func (m *Termcast) Play() (*Terminal, error) {
-	castfile, err := m.Castfile()
+	file, err := m.File()
 	if err != nil {
 		return nil, err
 	}
-	term := dag.
-		Container().
-		From("ghcr.io/asciinema/asciinema@" + asciinemaDigest).
-		WithoutEntrypoint().
-		WithFile("term.cast", castfile).
+	term := asciinemaContainer.
+		WithFile("term.cast", file).
 		Terminal(ContainerTerminalOpts{
 			Cmd: []string{"asciinema", "play", "term.cast"},
 		})
 	return term, nil
 }
 
-func (m *Termcast) Demo() *Termcast {
-	var message = `hello daggernauts! this recording is entirely generated by a dagger function :)`
-	return m.
-		Print("$ ").
-		Keystrokes("echo " + message).
-		Enter().
-		Print(message).Enter().
-		Print("$ ").
-		Keystrokes("ls -l").Enter().
-		WaitRandom(1000, 2000).
-		Print(`
-total 32
--rw-------@  1 shykes  staff  10280 Feb 15 15:49 LICENSE
-drwxr-xr-x@ 11 shykes  staff    352 Feb 21 15:30 containers
-drwxr-xr-x   4 shykes  staff    128 Mar  1 17:48 core
-drwxr-xr-x@ 16 shykes  staff    512 Mar  6 12:46 dagger
--rw-r--r--   1 shykes  staff    124 Mar  8 13:46 dagger.json
-drwxr-xr-x@ 17 shykes  staff    544 Mar  3 21:54 daggy
-drwxr-xr-x   9 shykes  staff    288 Feb 21 15:30 datetime
-drwxr-xr-x  13 shykes  staff    416 Mar  4 11:28 docker
-drwxr-xr-x  13 shykes  staff    416 Mar  2 01:02 docker-compose
-drwxr-xr-x@ 11 shykes  staff    352 Mar  7 13:16 dsh
-drwxr-xr-x@  3 shykes  staff     96 Feb 21 14:36 go
-drwxr-xr-x@  9 shykes  staff    288 Feb 21 15:30 gptscript
-drwxr-xr-x  12 shykes  staff    384 Feb 21 15:30 graphiql
-drwxr-xr-x@ 11 shykes  staff    352 Feb 21 15:30 hello
-drwxr-xr-x   9 shykes  staff    288 Feb 21 15:30 imagemagick
-drwxr-xr-x   7 shykes  staff    224 Feb 21 15:30 make
-drwxr-xr-x   8 shykes  staff    256 Feb 21 15:30 myip
-drwxr-xr-x   9 shykes  staff    288 Jan 25 00:10 ollama
-drwxr-xr-x   3 shykes  staff     96 Mar  6 12:38 scratch
-drwxr-xr-x@ 12 shykes  staff    384 Feb 21 15:30 slim
-drwxr-xr-x@ 11 shykes  staff    352 Mar  6 12:22 supercore
-drwxr-xr-x  14 shykes  staff    448 Feb 21 15:30 supergit
-drwxr-xr-x@ 11 shykes  staff    352 Feb 21 15:30 tailscale
-drwxr-xr-x  14 shykes  staff    448 Mar  9 02:26 termcast
-drwxr-xr-x  12 shykes  staff    384 Feb 21 15:30 tmate
-drwxr-xr-x   8 shykes  staff    256 Feb 21 15:30 ttlsh
-drwxr-xr-x  10 shykes  staff    320 Feb 26 13:09 utils
-drwxr-xr-x@ 12 shykes  staff    384 Feb 21 15:30 wolfi
-`).
-		Wait(1000)
-}
-
+// Encode the recording into an animated GIF files
 func (m *Termcast) Gif() (*File, error) {
 	agg := dag.
 		Git("https://github.com/asciinema/agg").
@@ -297,23 +325,40 @@ func (m *Termcast) Gif() (*File, error) {
 		Tree().
 		DockerBuild().
 		WithoutEntrypoint()
-	castfile, err := m.Castfile()
+	file, err := m.File()
 	if err != nil {
 		return nil, err
 	}
 	gif := agg.
-		WithMountedFile("term.cast", castfile).
+		WithMountedFile("term.cast", file).
 		WithExec([]string{"agg", "term.cast", "cast.gif"}).
 		File("cast.gif")
 	return gif, nil
 }
 
-func (m *Termcast) Decode(data string) (*Termcast, error) {
+// Decode an asciicast v2 file, and add its contents to the end of the recording.
+//  See https://docs.asciinema.org/manual/asciicast/v2/
+func (m *Termcast) Decode(
+	// The data to decode, in asciicast format
+	data string,
+	// Indicate whether the decoder should expect an asciicast header.
+	// If true, the decoder will parse (and discrd) the header, the load the events
+	// If false, the decoder will look for events directly
+	// +default=true
+	expectHeader bool,
+) (*Termcast, error) {
 	dec := json.NewDecoder(strings.NewReader(data))
+	if expectHeader {
+		// Parse and discard header (we already have our own)
+		var header map[string]interface{}
+		if err := dec.Decode(&header); err != nil {
+			return nil, fmt.Errorf("decode asciicast v2 header: %s", err)
+		}
+	}
 	for dec.More() {
 		var o [3]interface{}
 		if err := dec.Decode(&o); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("decode asciicast v2 event: %s", err)
 		}
 		seconds, ok := o[0].(float64)
 		if !ok {
@@ -341,6 +386,7 @@ func (m *Termcast) Decode(data string) (*Termcast, error) {
 	return m, nil
 }
 
+// Ask an AI to imagine a terminal session, and add it to the recording
 func (m *Termcast) Imagine(
 	ctx context.Context,
 	// A description of the terminal session
@@ -374,5 +420,7 @@ Prompt:
 	if err != nil {
 		return nil, err
 	}
-	return m.Decode(out)
+	// Tell the decoder to not expect a header,
+	// since we told the LLM to not generate one.
+	return m.Decode(out, false)
 }
