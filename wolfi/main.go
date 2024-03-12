@@ -1,7 +1,10 @@
+// A Dagger Module to integrate with Wolfi Linux
+//
+// Wolfi is a container-native Linux distribution with an emphasis on security.
+// https://wolfi.dev
 package main
 
-// A Dagger Module to integrate with Wolfi Linux
-// https://wolfi.dev
+// A Wolfi Linux configuration
 type Wolfi struct{}
 
 // Build a Wolfi Linux container
