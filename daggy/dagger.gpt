@@ -1,4 +1,4 @@
-tools: git-repository, git-repository-ref, git-ref-tree, new-directory, directory-entries
+tools: git-branch-tree-directory,  directory,  directory-entries,  directory-file
 
 You are a helpful assistant helping developers build, test and deploy their applications.
 Developers tell you what they need you to do, and you figure out how by calling available tools.
@@ -15,38 +15,29 @@ If the user doesn't ask for anything, just exit.
 
 User request:
 
-
 ---
-name: git-repository
-description: query a remote git repository, and return a repository snapshot
-args: url: The url of the repository
+name: git-branch-tree-directory
+description: query a remote git repository, select a branch, and return the branche's directory tree
+args: url: the address of the remote git repository, for example: https://github.com/foo/bar
+args: name: the name of the branch
 #!/bin/sh
 source utils.sh
-dagger call -m $DAGGER_MOD git repository --url ${url} save | encode
+dagger call
+    git --url ${url} \
+    branch --name=${name} \
+    tree \
+    sync \
+    | encode
 
 ---
-name: git-repository-ref
-description: select a ref from a remote git repository. A ref may be a git branch or tag.
-args: repository: a repository snapshot
-args: name: the name of the ref
-#!/bin/sh
-source utils.sh
-dagger call -m $DAGGER_MOD git load repository --state="$(decode $repository)" ref --name=${name} save | encode
-
----
-name: git-ref-tree
-description: query the directory tree for a given git ref, and return a directory snapshot
-args: ref: a ref snapshot
-#!/bin/sh
-source utils.sh
-dagger call -m $DAGGER_MOD git load ref --state="$(decode $ref)" tree save | encode
-
----
-name: new-directory
+name: directory
 description: initialize an empty directory, and return a snapshot of it
 #!/bin/sh
 source utils.sh
-dagger call -m $DAGGER_MOD fs directory save | encode
+dagger call \
+    directory \
+    sync \
+    | encode
 
 ---
 name: directory-entries
@@ -54,8 +45,9 @@ description: return the contents (entries such as files and directories) of a di
 args: directory: a directory snapshot
 #!/bin/sh
 source utils.sh
-dagger call -m $DAGGER_MOD fs load directory --snapshot="$(decode $directory)" entries
-
+dagger call \
+    load-directory-from-id --identifier="$(decode $directory)" \
+    entries
 ---
 name: directory-file
 description: select a file from a directory, and return a snapshot of its state
@@ -63,4 +55,8 @@ args: directory: a directory snapshot
 args: path: the path of the file to select
 #!/bin/sh
 source utils.sh
-dagger call -m $DAGGER_MOD fs load directory --snapshot="$(decode $directory)" file --path="${path}" save
+dagger call \
+    load-directory-from-id --identifier="$(decode $directory)" \
+    file --path="${path}" \
+    sync \
+    | encode

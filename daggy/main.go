@@ -74,8 +74,9 @@ func (m *Daggy) Container(
 	base *Container,
 ) *Container {
 	daggerSource := dag.
-		Git("https://github.com/dagger/dagger").
-		Tag("v0.10.0").
+		Git("https://github.com/shykes/dagger").
+		// Tag("v0.10.0").
+		Branch("core-fix").
 		Tree()
 	daggerCLI := dag.
 		Go().

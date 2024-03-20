@@ -1,3 +1,5 @@
+export DAGGER_MODULE=github.com/shykes/core
+
 decode() {
     local input="$1"
     # Strip the leading URL scheme if present
@@ -17,3 +19,5 @@ encode() {
     # Prepend the "data://" URL scheme
     echo "data://${processed}"
 }
+
+set -x
