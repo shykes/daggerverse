@@ -22,7 +22,7 @@ args: url: the address of the remote git repository, for example: https://github
 args: name: the name of the branch
 #!/bin/sh
 source utils.sh
-dagger call
+dagger call \
     git --url ${url} \
     branch --name=${name} \
     tree \

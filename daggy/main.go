@@ -1,9 +1,13 @@
+// Daggy is an AI agent that knows how to call Dagger functions.
+// It is powered by OpenAI and GPTScript
 package main
 
 import (
 	"context"
 )
 
+// Daggy is an AI agent that knows how to call Dagger functions.
+// It is powered by OpenAI and GPTScript
 type Daggy struct{}
 
 // Tell Daggy to do something
@@ -28,6 +32,9 @@ func (m *Daggy) Do(
 		).Stdout(ctx)
 }
 
+// Run the gptscript server
+// NOTE: this does not work currently.
+// Help wanted :)
 func (m *Daggy) Server(
 	// OpenAI API key
 	token *Secret,

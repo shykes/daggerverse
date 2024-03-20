@@ -19,5 +19,3 @@ encode() {
     # Prepend the "data://" URL scheme
     echo "data://${processed}"
 }
-
-set -x
