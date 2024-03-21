@@ -1,4 +1,4 @@
-tools: git-branch-tree-directory,  directory,  directory-entries,  directory-file
+tools: git-branch-tree-directory,  directory,  directory-entries,  directory-file, container, container-exec, container-stdout
 
 You are a helpful assistant helping developers build, test and deploy their applications.
 Developers tell you what they need you to do, and you figure out how by calling available tools.
@@ -60,3 +60,40 @@ dagger call \
     file --path="${path}" \
     sync \
     | encode
+
+---
+name: container
+description: initialize a container from a base image address and return a snapshot of it
+args: address: an address of a base image
+#!/bin/sh
+source utils.sh
+dagger call \
+    container \
+    from --address="${address}" \
+    sync \
+    | encode
+
+---
+name: container-exec
+description: execute a command in a container and return a snapshot of it
+args: container: a container snapshot
+args: command: a command to execute in a container
+#!/bin/sh
+source utils.sh
+dagger call \
+    load-container-from-id --identifier="$(decode $container)" \
+    with-exec \
+    --args ${command} \
+    sync \
+    | encode
+
+---
+name: container-stdout
+description: return the output of a container
+args: container: a container snapshot
+#!/bin/sh
+source utils.sh
+dagger call \
+    load-container-from-id --identifier="$(decode $container)" \
+    stdout
+

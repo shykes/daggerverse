@@ -8,7 +8,7 @@ import (
 
 var (
 	// Pin to a specific version of gptscript, for speed and stability
-	gptscriptCommit = "770692357aeac6bf898f28177614763ae5cc620c"
+	gptscriptCommit = "c6b5c64947e8fbb5712cdd7d262c99c7884fd499"
 )
 
 // Daggy is an AI agent that knows how to call Dagger functions.
