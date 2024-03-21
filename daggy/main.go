@@ -6,6 +6,11 @@ import (
 	"context"
 )
 
+var (
+	// Pin to a specific version of gptscript, for speed and stability
+	gptscriptCommit = "770692357aeac6bf898f28177614763ae5cc620c"
+)
+
 // Daggy is an AI agent that knows how to call Dagger functions.
 // It is powered by OpenAI and GPTScript
 type Daggy struct{}
@@ -65,7 +70,7 @@ func (m *Daggy) Debug(
 }
 
 func (m *Daggy) source() *Directory {
-	return dag.Git("https://github.com/gptscript-ai/gptscript").Branch("main").Tree()
+	return dag.Git("https://github.com/gptscript-ai/gptscript").Branch(gptscriptCommit).Tree()
 }
 
 func (m *Daggy) build() *Directory {
