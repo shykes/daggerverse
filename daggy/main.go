@@ -108,7 +108,8 @@ func (m *Daggy) Container(
 		WithMountedDirectory("/daggy", dag.CurrentModule().Source()).
 		WithWorkdir("/daggy").
 		WithEnvVariable("GPTSCRIPT_LISTEN_ADDRESS", "0.0.0.0:9090").
-		WithEnvVariable("DAGGER_MOD", "core")
+		WithEnvVariable("GPTSCRIPT_CACHE_DIR", "/var/cache/gptscript").
+		WithMountedCache("/var/cache/gptscript", dag.CacheVolume("github.com/shykes/daggerverse/daggy_gptscript-cache"))
 	if token != nil {
 		ctr = ctr.WithSecretVariable("OPENAI_API_KEY", token)
 	}
