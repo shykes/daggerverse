@@ -2,6 +2,10 @@
 
 Prompt based workflows
 
+## Usage
+
+`dagger call do --token env:OPENAI_API_TOKEN --prompt ''`
+
 ## Example prompts
 
 Work with Git Repositories
