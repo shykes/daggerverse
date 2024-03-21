@@ -4,7 +4,7 @@ Prompt based workflows
 
 ## Usage
 
-`dagger call do --token env:OPENAI_API_TOKEN --prompt ''`
+`dagger call do --token env:OPENAI_API_KEY --prompt ''`
 
 ## Example prompts
 
