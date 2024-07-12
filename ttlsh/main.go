@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"ttlsh/internal/dagger"
 
 	"github.com/docker/docker/pkg/namesgenerator"
 )
@@ -14,7 +15,7 @@ type Ttlsh struct{}
 func (m *Ttlsh) Publish(
 	ctx context.Context,
 	// the container to publish
-	ctr *Container,
+	ctr *dagger.Container,
 	// the repo to publish to, defaults to a random name
 	// +optional
 	repo string,
