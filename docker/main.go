@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"docker/internal/dagger"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -34,19 +35,19 @@ func (e *Docker) Engine(
 	// Use in combination with `persist`
 	// +optional
 	namespace string,
-) *Service {
+) *dagger.Service {
 	ctr := dag.
 		Container().
 		From(fmt.Sprintf("index.docker.io/docker:%s-dind", version)).
 		WithoutEntrypoint().
 		WithExposedPort(2375)
 	if persist {
-		volumeName := "docker-engine-state-"+version
+		volumeName := "docker-engine-state-" + version
 		if namespace != "" {
 			volumeName = volumeName + "-" + namespace
 		}
 		volume := dag.CacheVolume(volumeName)
-		opts := ContainerWithMountedCacheOpts{Sharing: Locked}
+		opts := dagger.ContainerWithMountedCacheOpts{Sharing: dagger.Locked}
 		ctr = ctr.WithMountedCache("/var/lib/docker", volume, opts)
 	}
 	return ctr.
@@ -55,7 +56,7 @@ func (e *Docker) Engine(
 			"--host=tcp://0.0.0.0:2375",
 			"--host=unix:///var/run/docker.sock",
 			"--tls=false",
-		}, ContainerWithExecOpts{
+		}, dagger.ContainerWithExecOpts{
 			InsecureRootCapabilities: true,
 		}).
 		AsService()
@@ -71,7 +72,7 @@ func (d *Docker) CLI(
 	// Specify the Docker Engine to connect to.
 	// By default, run an ephemeral engine.
 	// +optional
-	engine *Service,
+	engine *dagger.Service,
 ) *CLI {
 	if engine == nil {
 		engine = d.Engine(version, true, "")
@@ -83,11 +84,11 @@ func (d *Docker) CLI(
 
 // A Docker client
 type CLI struct {
-	Engine *Service
+	Engine *dagger.Service
 }
 
 // Package the Docker CLI into a container, wired to an engine
-func (c *CLI) Container() *Container {
+func (c *CLI) Container() *dagger.Container {
 	return dag.
 		Container().
 		From(fmt.Sprintf("index.docker.io/docker:cli")).
@@ -161,7 +162,7 @@ func (c *CLI) WithPush(
 func (c *CLI) Import(
 	ctx context.Context,
 	// The container to load
-	container *Container,
+	container *dagger.Container,
 ) (*Image, error) {
 	stdout, err := c.Container().
 		WithMountedFile("import.tar", container.AsTarball()).
@@ -183,7 +184,7 @@ func (c *CLI) Import(
 	localID := match[1]
 	// return c.Image(ctx, "", "", localID)
 	return &Image{
-		Client: c,
+		Client:  c,
 		LocalID: localID,
 	}, nil
 }
@@ -318,7 +319,7 @@ type Image struct {
 }
 
 // Export this image from the docker engine into Dagger
-func (img *Image) Export() *Container {
+func (img *Image) Export() *dagger.Container {
 	archive := img.Client.
 		Container().
 		WithExec([]string{
@@ -331,7 +332,8 @@ func (img *Image) Export() *Container {
 }
 
 // Duplicate this image under a new name.
-//  This is equivalent to calling `docker tag`
+//
+//	This is equivalent to calling `docker tag`
 func (img *Image) Duplicate(
 	ctx context.Context,
 	// The repository name to apply
@@ -352,10 +354,10 @@ func (img *Image) Duplicate(
 	// FIXME: this lookup fails, investigate why
 	// return img.Client.Image(ctx, repository, tag, img.LocalID)
 	return &Image{
-		Client: img.Client,
+		Client:     img.Client,
 		Repository: repository,
-		Tag: tag,
-		LocalID: img.LocalID,
+		Tag:        tag,
+		LocalID:    img.LocalID,
 	}, nil
 }
 
