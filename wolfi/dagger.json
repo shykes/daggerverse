@@ -4,9 +4,9 @@
   "dependencies": [
     {
       "name": "apko",
-      "source": "github.com/vito/daggerverse/apko@36e8ce2f9eb52cd73c4d5397ed4ed65912d7b6ac"
+      "source": "github.com/vito/daggerverse/apko@1eed54a12ffcd897efe2907d4dd0c015dc9f89d9"
     }
   ],
   "source": ".",
-  "engineVersion": "v0.12.0"
+  "engineVersion": "v0.12.5"
 }
