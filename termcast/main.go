@@ -100,6 +100,12 @@ type Termcast struct {
 	Prompt string
 }
 
+// Customize the container used by 'exec'
+func (m *Termcast) WithContainer(ctr *dagger.Container) *Termcast {
+	m.Container = ctr
+	return m
+}
+
 type Event struct {
 	Time int // milliseconds
 	Code string
@@ -199,11 +205,16 @@ func (m *Termcast) Exec(
 	return m.execFull(ctx, cmd)
 }
 
-func (m *Termcast) execFull(ctx context.Context, cmd string) (*Termcast, error) {
-	cast, err := m.Container.
+// Build the execution environment for debugging purposes
+func (m *Termcast) ExecEnv() *dagger.Container {
+	return m.Container.
 		WithDirectory("/", asciinemaBinary()).
-		WithWorkdir("/").
-		WithExec([]string{"setsid", "/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, dagger.ContainerWithExecOpts{
+		WithWorkdir("/")
+}
+
+func (m *Termcast) execFull(ctx context.Context, cmd string) (*Termcast, error) {
+	cast, err := m.ExecEnv().
+		WithExec([]string{ /*"setsid", */ "/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, dagger.ContainerWithExecOpts{
 			ExperimentalPrivilegedNesting: true,
 		}).
 		File("./term.cast").
@@ -306,16 +317,18 @@ func (m *Termcast) Encode() (string, error) {
 }
 
 // Return an interactive terminal that will play the recording, read-only.
-func (m *Termcast) Play(ctx context.Context) (*dagger.Container, error) {
+func (m *Termcast) Play(ctx context.Context) error {
 	file, err := m.File()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return asciinemaContainer.
+	_, err = asciinemaContainer.
 		WithFile("term.cast", file).
 		Terminal(dagger.ContainerTerminalOpts{
 			Cmd: []string{"asciinema", "play", "term.cast"},
-		}), nil
+		}).
+		Sync(ctx)
+	return err
 }
 
 // Encode the recording into an animated GIF files
