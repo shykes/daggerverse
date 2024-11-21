@@ -3,3 +3,4 @@ internal/querybuilder
 dagger.gen.go
 *.gif
 *.cast
+/internal/telemetry

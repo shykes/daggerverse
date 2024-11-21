@@ -11,26 +11,28 @@ package main
 
 import (
 	"context"
-	"strings"
-	"math/rand"
-	"time"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"strings"
+	"time"
+
+	"termcast/internal/dagger"
 )
 
 var (
-	asciinemaDigest = "sha256:dc5fed074250b307758362f0b3045eb26de59ca8f6747b1d36f665c1f5dcc7bd"
+	asciinemaDigest    = "sha256:dc5fed074250b307758362f0b3045eb26de59ca8f6747b1d36f665c1f5dcc7bd"
 	asciinemaContainer = dag.
-		Container().
-		From("ghcr.io/asciinema/asciinema@" + asciinemaDigest).
-		WithoutEntrypoint()
+				Container().
+				From("ghcr.io/asciinema/asciinema@" + asciinemaDigest).
+				WithoutEntrypoint()
 
-	aggGitCommit = "84ef0590c9deb61d21469f2669ede31725103173"
-	defaultContainer = dag.Wolfi().Container(WolfiContainerOpts{Packages: []string{"dagger"}})
-	defaultShell = []string{"/bin/sh"}
-	defaultPrompt = "$ "
-	defaultWidth = 80
-	defaultHeight = 24
+	aggGitCommit     = "84ef0590c9deb61d21469f2669ede31725103173"
+	defaultContainer = dag.Wolfi().Container(dagger.WolfiContainerOpts{Packages: []string{"dagger"}})
+	defaultShell     = []string{"/bin/sh"}
+	defaultPrompt    = "$ "
+	defaultWidth     = 80
+	defaultHeight    = 24
 )
 
 func New(
@@ -42,10 +44,10 @@ func New(
 	height int,
 	// OpenAI auth key, for AI features
 	// +optional
-	key *Secret,
+	key *dagger.Secret,
 	// Containerized environment for executing commands
 	// +optional
-	container *Container,
+	container *dagger.Container,
 	// Shell to use when executing commands
 	// +optional
 	shell []string,
@@ -69,16 +71,16 @@ func New(
 		height = defaultHeight
 	}
 	return &Termcast{
-		Height: height,
-		Width: width,
-		Key: key,
+		Height:    height,
+		Width:     width,
+		Key:       key,
 		Container: container,
-		Shell: shell,
-		Prompt: prompt,
+		Shell:     shell,
+		Prompt:    prompt,
 	}
 }
 
-type Termcast struct{
+type Termcast struct {
 	// The height of the terminal
 	Height int
 	// The width of the terminal
@@ -88,10 +90,10 @@ type Termcast struct{
 	// Time elapsed since beginning of the session, in milliseconds
 	Clock int
 	// +private
-	Key *Secret
+	Key *dagger.Secret
 	// The containerized environment where commands are executed
 	// See Exec()
-	Container *Container
+	Container *dagger.Container
 	// +private
 	Shell []string
 	// +private
@@ -122,7 +124,7 @@ func (m *Termcast) Print(data string) *Termcast {
 // Append a recording to the end of this recording
 func (m *Termcast) Append(other *Termcast) *Termcast {
 	for _, e := range other.Events {
-		 newEvent := &Event{
+		newEvent := &Event{
 			Time: m.Clock + e.Time,
 			Code: e.Code,
 			Data: e.Data,
@@ -143,7 +145,7 @@ func (m *Termcast) WaitRandom(
 	max int,
 ) *Termcast {
 	rand.Seed(time.Now().UnixNano())
-	return m.Wait(min + rand.Intn(max - min))
+	return m.Wait(min + rand.Intn(max-min))
 }
 
 // Simulate waiting for a certain amount of time, with no input or output on the temrinal
@@ -155,10 +157,10 @@ func (m *Termcast) Wait(
 	return m
 }
 
-func asciinemaBinary() *Directory {
+func asciinemaBinary() *dagger.Directory {
 	ctr := dag.
 		Wolfi().
-		Container(WolfiContainerOpts{
+		Container(dagger.WolfiContainerOpts{
 			Packages: []string{"rust", "build-base", "libgcc"},
 		}).
 		WithMountedDirectory(
@@ -201,7 +203,7 @@ func (m *Termcast) execFull(ctx context.Context, cmd string) (*Termcast, error) 
 	cast, err := m.Container.
 		WithDirectory("/", asciinemaBinary()).
 		WithWorkdir("/").
-		WithExec([]string{"setsid", "/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, ContainerWithExecOpts{
+		WithExec([]string{"setsid", "/usr/local/bin/asciinema", "rec", "-c", cmd, "./term.cast"}, dagger.ContainerWithExecOpts{
 			ExperimentalPrivilegedNesting: true,
 		}).
 		File("./term.cast").
@@ -220,10 +222,10 @@ func (m *Termcast) execSimple(
 	// +default=100
 	delay int,
 ) (*Termcast, error) {
-	m.Container = m.Container.WithExec(m.Shell, ContainerWithExecOpts{
-		Stdin: cmd,
-		RedirectStdout: "/tmp/output",
-		RedirectStderr: "/tmp/output",
+	m.Container = m.Container.WithExec(m.Shell, dagger.ContainerWithExecOpts{
+		Stdin:                         cmd,
+		RedirectStdout:                "/tmp/output",
+		RedirectStderr:                "/tmp/output",
 		ExperimentalPrivilegedNesting: true, // for dagger-in-dagger
 	})
 	m = m.Wait(delay)
@@ -271,7 +273,7 @@ func (m *Termcast) Backspace(
 }
 
 // Encode the recording to a file in the asciicast v2 format
-func (m *Termcast) File() (*File, error) {
+func (m *Termcast) File() (*dagger.File, error) {
 	contents, err := m.Encode()
 	if err != nil {
 		return nil, err
@@ -288,8 +290,8 @@ func (m *Termcast) Encode() (string, error) {
 	var out strings.Builder
 	if err := json.NewEncoder(&out).Encode(map[string]interface{}{
 		"version": 2,
-		"width": m.Width,
-		"height": m.Height,
+		"width":   m.Width,
+		"height":  m.Height,
 	}); err != nil {
 		return out.String(), err
 	}
@@ -304,21 +306,20 @@ func (m *Termcast) Encode() (string, error) {
 }
 
 // Return an interactive terminal that will play the recording, read-only.
-func (m *Termcast) Play() (*Terminal, error) {
+func (m *Termcast) Play(ctx context.Context) (*dagger.Container, error) {
 	file, err := m.File()
 	if err != nil {
 		return nil, err
 	}
-	term := asciinemaContainer.
+	return asciinemaContainer.
 		WithFile("term.cast", file).
-		Terminal(ContainerTerminalOpts{
+		Terminal(dagger.ContainerTerminalOpts{
 			Cmd: []string{"asciinema", "play", "term.cast"},
-		})
-	return term, nil
+		}), nil
 }
 
 // Encode the recording into an animated GIF files
-func (m *Termcast) Gif() (*File, error) {
+func (m *Termcast) Gif() (*dagger.File, error) {
 	agg := dag.
 		Git("https://github.com/asciinema/agg").
 		Tag(aggGitCommit).
@@ -338,7 +339,8 @@ func (m *Termcast) Gif() (*File, error) {
 }
 
 // Decode an asciicast v2 file, and add its contents to the end of the recording.
-//  See https://docs.asciinema.org/manual/asciicast/v2/
+//
+//	See https://docs.asciinema.org/manual/asciicast/v2/
 func (m *Termcast) Decode(
 	// The data to decode, in asciicast format
 	data string,
@@ -415,7 +417,7 @@ func (m *Termcast) Imagine(
 
 Prompt:
 ` + prompt
-	out, err := dag.Daggy().Do(ctx, prompt, DaggyDoOpts{
+	out, err := dag.Daggy().Do(ctx, prompt, dagger.DaggyDoOpts{
 		Token: m.Key,
 	})
 	if err != nil {

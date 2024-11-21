@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"daggy/internal/dagger"
 )
 
 var (
@@ -22,16 +23,16 @@ func (m *Daggy) Do(
 	prompt string,
 	// OpenAI API key
 	// +optional
-	token *Secret,
+	token *dagger.Secret,
 	// Custom base container
 	// +optional
-	base *Container,
+	base *dagger.Container,
 ) (string, error) {
 	return m.
 		Container(token, base).
 		WithExec(
 			[]string{"gptscript", "dagger.gpt", prompt},
-			ContainerWithExecOpts{
+			dagger.ContainerWithExecOpts{
 				ExperimentalPrivilegedNesting: true,
 			},
 		).Stdout(ctx)
@@ -42,16 +43,16 @@ func (m *Daggy) Do(
 // Help wanted :)
 func (m *Daggy) Server(
 	// OpenAI API key
-	token *Secret,
+	token *dagger.Secret,
 	// Custom base container
 	// +optional
-	base *Container,
-) *Service {
+	base *dagger.Container,
+) *dagger.Service {
 	return m.
 		Container(token, base).
 		WithExec(
 			[]string{"gptscript", "--debug", "--server"},
-			ContainerWithExecOpts{
+			dagger.ContainerWithExecOpts{
 				ExperimentalPrivilegedNesting: true,
 			},
 		).
@@ -61,30 +62,30 @@ func (m *Daggy) Server(
 func (m *Daggy) Debug(
 	// OpenAI API key
 	// +optional
-	token *Secret,
+	token *dagger.Secret,
 	// Custom base container
 	// +optional
-	base *Container,
-) *Terminal {
-	return m.Container(token, base).Terminal()
+	base *dagger.Container,
+) *dagger.Container {
+	return m.Container(token, base)
 }
 
-func (m *Daggy) source() *Directory {
+func (m *Daggy) source() *dagger.Directory {
 	return dag.Git("https://github.com/gptscript-ai/gptscript").Branch(gptscriptCommit).Tree()
 }
 
-func (m *Daggy) build() *Directory {
+func (m *Daggy) build() *dagger.Directory {
 	return dag.Go().Build(m.source())
 }
 
 func (m *Daggy) Container(
 	// OpenAI API token
 	// +optional
-	token *Secret,
+	token *dagger.Secret,
 	// Custom base container
 	// +optional
-	base *Container,
-) *Container {
+	base *dagger.Container,
+) *dagger.Container {
 	daggerSource := dag.
 		Git("https://github.com/shykes/dagger").
 		// Tag("v0.10.0").
@@ -94,7 +95,7 @@ func (m *Daggy) Container(
 		Go().
 		Build(
 			daggerSource,
-			GoBuildOpts{
+			dagger.GoBuildOpts{
 				Packages: []string{"./cmd/dagger"},
 			},
 		)

@@ -1,24 +1,23 @@
 {
   "name": "daggy",
+  "engineVersion": "v0.14.0",
   "sdk": "go",
   "dependencies": [
     {
       "name": "core",
-      "source": "github.com/shykes/daggerverse/core@ad39bc977bfd41de248257ba75f863fdb3dcdccd"
-    },
-    {
-      "name": "dagger",
-      "source": "../dagger"
+      "source": "github.com/shykes/daggerverse/core@ad39bc977bfd41de248257ba75f863fdb3dcdccd",
+      "pin": "ad39bc977bfd41de248257ba75f863fdb3dcdccd"
     },
     {
       "name": "go",
-      "source": "github.com/vito/daggerverse/go@9f66a3dc5a3687c0828e2499894a51315f998b5c"
+      "source": "github.com/vito/daggerverse/go@9f66a3dc5a3687c0828e2499894a51315f998b5c",
+      "pin": "9f66a3dc5a3687c0828e2499894a51315f998b5c"
     },
     {
       "name": "wolfi",
-      "source": "../wolfi"
+      "source": "../wolfi",
+      "pin": ""
     }
   ],
-  "source": ".",
-  "engineVersion": "v0.10.2"
+  "source": "."
 }

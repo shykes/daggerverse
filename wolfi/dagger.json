@@ -1,12 +1,13 @@
 {
   "name": "wolfi",
+  "engineVersion": "v0.14.0",
   "sdk": "go",
   "dependencies": [
     {
       "name": "apko",
-      "source": "github.com/vito/daggerverse/apko@1eed54a12ffcd897efe2907d4dd0c015dc9f89d9"
+      "source": "github.com/vito/daggerverse/apko@1eed54a12ffcd897efe2907d4dd0c015dc9f89d9",
+      "pin": "1eed54a12ffcd897efe2907d4dd0c015dc9f89d9"
     }
   ],
-  "source": ".",
-  "engineVersion": "v0.12.5"
+  "source": "."
 }
