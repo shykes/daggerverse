@@ -1,0 +1,5 @@
+#!/usr/bin/env dagger shell -m github.com/shykes/daggerverse/termcast
+
+CTR=$(.container | from alpine | with-exec apk,add,git,openssh | with-workdir /root)
+with-container $CTR | exec-env | terminal
+with-container $CTR | exec 'dagger -m github.com/dagger/dagger dev-export -o .' | gif | ..export ./demo.gif
