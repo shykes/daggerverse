@@ -5,8 +5,8 @@
   "dependencies": [
     {
       "name": "apko",
-      "source": "github.com/vito/daggerverse/apko@1eed54a12ffcd897efe2907d4dd0c015dc9f89d9",
-      "pin": "1eed54a12ffcd897efe2907d4dd0c015dc9f89d9"
+      "source": "github.com/vito/daggerverse/apko@apko/v0.1.10",
+      "pin": "3509a662fb698b5f0aaf38eaef9a9e0c9dc25d3a"
     }
   ],
   "source": "."
